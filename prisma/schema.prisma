@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+enum UserRole {
+  admin
+  engineer
+  viewer
+}
+
+enum Platform {
+  github
+  bitbucket
+}
+
+model OrganizationOwner {
+  id           Int            @id @unique @default(autoincrement())
+  email        String         @unique
+  user         User?          @relation(fields: [userId], references: [id])
+  userId       Int?
+  organization Organization[]
+}
+
+model Organization {
+  id                  Int               @id @unique @default(autoincrement())
+  name                String
+  teams               Team[]
+  User                User[]
+  platform            Platform
+  owner               OrganizationOwner @relation(fields: [organizationOwnerId], references: [id])
+  organizationOwnerId Int
+}
+
+model Role {
+  id             Int      @id @unique @default(autoincrement())
+  type           UserRole
+  userId         Int
+  organizationId Int
+  user           User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id             Int                 @id @unique @default(autoincrement())
+  name           String
+  email          String              @unique
+  password       String
+  verified       Boolean             @default(false)
+  role           Role[]
+  ownerships     OrganizationOwner[]
+  organization   Organization        @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  memberships    TeamMember[]
+}
+
+model Team {
+  id             Int          @id @unique @default(autoincrement())
+  name           String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  members        TeamMember[]
+}
+
+model TeamMember {
+  id              Int           @id @unique @default(autoincrement())
+  user            User          @relation(fields: [userId], references: [id])
+  userId          Int
+  team            Team          @relation(fields: [teamId], references: [id])
+  teamId          Int
+  contribution    Contributions @relation(fields: [contributionsId], references: [id])
+  contributionsId Int           @unique
+}
+
+model Contributions {
+  id           Int            @id @unique @default(autoincrement())
+  lines        Int
+  commits      Int
+  entries      Contribution[]
+  teamMemberId Int            @unique
+  TeamMember   TeamMember?
+}
+
+model Contribution {
+  id              Int           @id @unique @default(autoincrement())
+  date            DateTime      @default(now())
+  contributions   Contributions @relation(fields: [contributionsId], references: [id])
+  contributionsId Int
+  lines           Int
+  commits         Int
+}
+
+enum PRStatus {
+  merged
+  declined
+  rejected
+  inReview
+}
