@@ -17,6 +17,7 @@
   "scripts": {
     "build": "npx ts-packager -e src/Start.ts",
     "certs": "ts-node devtools/certs-generator/CLI.ts",
+    "clear-sessions": "redis-cli flushall",
     "dev": "ts-node devtools/dev-server/CLI.ts",
     "lint": "ts-node ci/commands/Lint.ts",
     "migrate": "npx prisma migrate dev --name",

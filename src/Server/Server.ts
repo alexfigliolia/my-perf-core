@@ -2,19 +2,18 @@ import type { Request, Response } from "express";
 import express from "express";
 import { graphqlHTTP } from "express-graphql";
 import { readFileSync } from "fs";
-import { type Server as HTTP1Server } from "http";
 import path from "path";
-import { createServer, type Server as HTTP2Server } from "spdy";
-import { DB } from "DB";
+import { createServer } from "spdy";
 import { Environment } from "Environment";
+import { Errors } from "Errors";
 import { Logger } from "Logger";
 import { RedisCache } from "RedisCache";
 import { Schema } from "Schema";
 import { Middleware } from "./Middleware";
+import { ProcessManager } from "./ProcessManager";
 
-export class Server {
+export class Server extends ProcessManager {
   static APP = express();
-  static Server?: HTTP2Server | HTTP1Server;
   static CERTS = path.resolve(__dirname, "../../cert");
 
   public static async start() {
@@ -40,6 +39,7 @@ export class Server {
         schema: Schema,
         graphiql: true,
         context: { req, res },
+        customFormatErrorFn: Errors.handler(res),
       })(req, res);
     });
     Logger.GQL("Mounting GraphQL");
@@ -60,17 +60,4 @@ export class Server {
       cert: readFileSync(`${this.CERTS}/server.cert`),
     };
   }
-
-  private static listenForKills() {
-    process.on("exit", () => this.killServices());
-    process.on("SIGINT", () => this.killServices);
-    process.on("SIGTERM", () => this.killServices);
-  }
-
-  private static killServices = () => {
-    Logger.silence();
-    void RedisCache.close();
-    void DB.$disconnect();
-    this.Server?.close();
-  };
 }
