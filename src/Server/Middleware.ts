@@ -46,9 +46,11 @@ export class Middleware {
         resave: false,
         saveUninitialized: false,
         cookie: {
+          sameSite: true,
           httpOnly: true,
           maxAge: Sessions.AGE,
           secure: Environment.SSL,
+          expires: new Date(Date.now() + Sessions.AGE),
         },
       }),
     );
