@@ -3,7 +3,6 @@ import { GraphQLError } from "graphql";
 import { type Organization, type User, UserRole } from "@prisma/client";
 import { DB } from "DB";
 import { Errors } from "Errors";
-import { UserController } from "Schema/Resolvers/User/Controller";
 import type { IOnBoard } from "./types";
 
 export class OnboardController {
@@ -21,7 +20,7 @@ export class OnboardController {
     }
     const org = await this.createOrganization(params, user);
     await this.createOwnership(user, org);
-    return UserController.userAndAffiliations(user.id);
+    return user;
   }
 
   private static async findOrCreateUser({
