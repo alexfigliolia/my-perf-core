@@ -10,9 +10,9 @@ export class OnboardController {
 
   public static async onboard(params: IOnBoard) {
     const user = await this.findOrCreateUser(params);
-    if (await this.findOrgConflict(params.organizationName)) {
+    if (await this.findOrgConflict(params.organizationName, user.id)) {
       throw new GraphQLError(
-        `You are already affiliated with an organization with the name "${params.organizationName}"`,
+        `You are already affiliated with an organization named "${params.organizationName}"`,
         {
           extensions: Errors.BAD_REQUEST,
         },
@@ -83,7 +83,9 @@ export class OnboardController {
     ]);
   }
 
-  private static findOrgConflict(name: string) {
-    return DB.organization.findFirst({ where: { name } });
+  private static findOrgConflict(name: string, userID: number) {
+    return DB.organization.findFirst({
+      where: { name, users: { some: { id: userID } } },
+    });
   }
 }
