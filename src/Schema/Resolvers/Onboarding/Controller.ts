@@ -2,6 +2,7 @@ import { compare, hash } from "bcrypt";
 import { GraphQLError } from "graphql";
 import { type Organization, type User, UserRole } from "@prisma/client";
 import { DB } from "DB";
+import { Errors } from "Errors";
 import { UserController } from "Schema/Resolvers/User/Controller";
 import type { IOnBoard } from "./types";
 
@@ -13,6 +14,9 @@ export class OnboardController {
     if (await this.findOrgConflict(params.organizationName)) {
       throw new GraphQLError(
         `You are already affiliated with an organization with the name "${params.organizationName}"`,
+        {
+          extensions: Errors.BAD_REQUEST,
+        },
       );
     }
     const org = await this.createOrganization(params, user);
@@ -30,7 +34,9 @@ export class OnboardController {
     });
     if (user) {
       if (!(await compare(password, user.password))) {
-        throw new GraphQLError("Your password is incorrect");
+        throw new GraphQLError("Your password is incorrect", {
+          extensions: Errors.BAD_REQUEST,
+        });
       }
       return user;
     }
