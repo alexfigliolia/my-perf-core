@@ -3,14 +3,14 @@ import {
   type GraphQLFieldConfig,
   GraphQLString,
 } from "graphql";
-import { UserAndAffiliations } from "Schema/Resolvers/User";
+import { UserAndAffiliations, UserType } from "Schema/Resolvers/User";
 import type { Context, None } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { LoginController } from "./Controller";
 import type { ILogin } from "./types";
 
 export const login: GraphQLFieldConfig<any, Context, ILogin> = {
-  type: SchemaBuilder.nonNull(UserAndAffiliations),
+  type: SchemaBuilder.nonNull(UserType),
   args: {
     email: {
       type: SchemaBuilder.nonNull(GraphQLString),
@@ -20,10 +20,10 @@ export const login: GraphQLFieldConfig<any, Context, ILogin> = {
     },
   },
   resolve: async (_, args, context) => {
-    const result = await LoginController.login(args);
-    context.req.session.userID = result.user.id;
-    context.req.session.email = result.user.email;
-    return result;
+    const user = await LoginController.login(args);
+    context.req.session.userID = user.id;
+    context.req.session.email = user.email;
+    return user;
   },
 };
 

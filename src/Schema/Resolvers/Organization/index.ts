@@ -26,11 +26,11 @@ export const BaseOrganizationType = new GraphQLObjectType<
   },
 });
 
-export const BaseOrganizationAndUserRoles = new GraphQLObjectType<
+export const BaseOrganizationAndUserRole = new GraphQLObjectType<
   IBaseOrganizationWithUserRole,
   Context
 >({
-  name: "BaseOrganizationAndUserRoles",
+  name: "BaseOrganizationAndUserRole",
   fields: {
     ...BaseOrganizationType.toConfig().fields,
     role: {

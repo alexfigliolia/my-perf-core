@@ -4,7 +4,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
-import { BaseOrganizationAndUserRoles } from "Schema/Resolvers/Organization";
+import { BaseOrganizationAndUserRole } from "Schema/Resolvers/Organization";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import type { IBaseUser, IUserAndAffiliations } from "./types";
@@ -42,7 +42,7 @@ export const UserAndAffiliations = new GraphQLObjectType<
       resolve: aff => aff.user,
     },
     organizations: {
-      type: SchemaBuilder.nonNullArray(BaseOrganizationAndUserRoles),
+      type: SchemaBuilder.nonNullArray(BaseOrganizationAndUserRole),
       resolve: aff => aff.organizations,
     },
   },

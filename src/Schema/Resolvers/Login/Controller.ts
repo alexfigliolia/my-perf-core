@@ -20,7 +20,7 @@ export class LoginController {
       });
     }
     if (await compare(password, user.password)) {
-      return UserController.userAndAffiliations(user.id);
+      return user;
     }
     throw new GraphQLError("Incorrect password", {
       extensions: Errors.BAD_REQUEST,
