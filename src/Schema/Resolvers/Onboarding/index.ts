@@ -1,28 +1,13 @@
-import {
-  GraphQLEnumType,
-  type GraphQLFieldConfig,
-  GraphQLString,
-} from "graphql";
-import { UserType } from "Schema/Resolvers/User";
+import { type GraphQLFieldConfig, GraphQLString } from "graphql";
+import { Platform } from "Schema/Resolvers/Platform";
+import { UserAndAffiliations } from "Schema/Resolvers/User";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import { Controller } from "./Controller";
+import { OnboardController } from "./Controller";
 import type { IOnBoard } from "./types";
 
-export const Platform = new GraphQLEnumType({
-  name: "Platform",
-  values: {
-    github: {
-      value: "github",
-    },
-    bitbucket: {
-      value: "bitbucket",
-    },
-  },
-});
-
 export const onboard: GraphQLFieldConfig<any, Context, IOnBoard> = {
-  type: SchemaBuilder.nonNull(UserType),
+  type: SchemaBuilder.nonNull(UserAndAffiliations),
   args: {
     username: {
       type: SchemaBuilder.nonNull(GraphQLString),
@@ -41,9 +26,9 @@ export const onboard: GraphQLFieldConfig<any, Context, IOnBoard> = {
     },
   },
   resolve: async (_, args, context) => {
-    const user = await Controller.onboard(args);
-    context.req.session.userID = user.id;
-    context.req.session.email = user.email;
-    return user;
+    const result = await OnboardController.onboard(args);
+    context.req.session.userID = result.user.id;
+    context.req.session.email = result.user.email;
+    return result;
   },
 };

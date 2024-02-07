@@ -10,6 +10,43 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
+model Organization {
+  id       Int      @id @unique @default(autoincrement())
+  name     String
+  owners   Owner[]
+  roles    Role[]
+  platform Platform
+  users    User[]
+}
+
+model Owner {
+  id             Int          @id @unique @default(autoincrement())
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  password      String
+  verified      Boolean        @default(false)
+  roles         Role[]
+  ownerships    Owner[]
+  organizations Organization[]
+}
+
+model Role {
+  id             Int          @id @unique @default(autoincrement())
+  type           UserRole     @default(viewer)
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+}
+
 enum UserRole {
   admin
   engineer
@@ -19,86 +56,4 @@ enum UserRole {
 enum Platform {
   github
   bitbucket
-}
-
-model OrganizationOwner {
-  id           Int            @id @unique @default(autoincrement())
-  email        String         @unique
-  user         User?          @relation(fields: [userId], references: [id])
-  userId       Int?
-  organization Organization[]
-}
-
-model Organization {
-  id                  Int               @id @unique @default(autoincrement())
-  name                String
-  teams               Team[]
-  User                User[]
-  platform            Platform
-  owner               OrganizationOwner @relation(fields: [organizationOwnerId], references: [id])
-  organizationOwnerId Int
-}
-
-model Role {
-  id             Int      @id @unique @default(autoincrement())
-  type           UserRole
-  userId         Int
-  organizationId Int
-  user           User     @relation(fields: [userId], references: [id])
-}
-
-model User {
-  id             Int                 @id @unique @default(autoincrement())
-  name           String
-  email          String              @unique
-  password       String
-  verified       Boolean             @default(false)
-  role           Role[]
-  ownerships     OrganizationOwner[]
-  organization   Organization        @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  memberships    TeamMember[]
-}
-
-model Team {
-  id             Int          @id @unique @default(autoincrement())
-  name           String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId Int
-  members        TeamMember[]
-}
-
-model TeamMember {
-  id              Int           @id @unique @default(autoincrement())
-  user            User          @relation(fields: [userId], references: [id])
-  userId          Int
-  team            Team          @relation(fields: [teamId], references: [id])
-  teamId          Int
-  contribution    Contributions @relation(fields: [contributionsId], references: [id])
-  contributionsId Int           @unique
-}
-
-model Contributions {
-  id           Int            @id @unique @default(autoincrement())
-  lines        Int
-  commits      Int
-  entries      Contribution[]
-  teamMemberId Int            @unique
-  TeamMember   TeamMember?
-}
-
-model Contribution {
-  id              Int           @id @unique @default(autoincrement())
-  date            DateTime      @default(now())
-  contributions   Contributions @relation(fields: [contributionsId], references: [id])
-  contributionsId Int
-  lines           Int
-  commits         Int
-}
-
-enum PRStatus {
-  merged
-  declined
-  rejected
-  inReview
 }

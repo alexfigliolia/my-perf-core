@@ -4,3 +4,5 @@ export interface Context {
   req: Request;
   res: Response;
 }
+
+export type None = Record<string, never>;

@@ -45,6 +45,9 @@
       ],
       "Server/*": [
         "./Server/*"
+      ],
+      "Sessions/*": [
+        "./Sessions/*"
       ]
     }
   },

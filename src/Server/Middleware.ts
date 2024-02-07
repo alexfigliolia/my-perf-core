@@ -5,6 +5,7 @@ import type { Express } from "express";
 import session from "express-session";
 import { Environment } from "Environment";
 import { RedisCache } from "RedisCache";
+import { Sessions } from "Sessions";
 
 export class Middleware {
   static App: Express;
@@ -46,7 +47,7 @@ export class Middleware {
         saveUninitialized: false,
         cookie: {
           httpOnly: true,
-          maxAge: 1000 * 60 * 10,
+          maxAge: Sessions.AGE,
           secure: Environment.SSL,
         },
       }),

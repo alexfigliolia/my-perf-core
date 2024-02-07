@@ -4,10 +4,13 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import { BaseOrganizationAndUserRoles } from "Schema/Resolvers/Organization";
+import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
+import type { IBaseUser, IUserAndAffiliations } from "./types";
 
-export const UserType = new GraphQLObjectType({
-  name: "user",
+export const UserType = new GraphQLObjectType<IBaseUser, Context>({
+  name: "User",
   fields: {
     id: {
       type: SchemaBuilder.nonNull(GraphQLInt),
@@ -21,13 +24,26 @@ export const UserType = new GraphQLObjectType({
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: user => user.email,
     },
-    image: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-      resolve: user => user.image,
-    },
     verified: {
       type: SchemaBuilder.nonNull(GraphQLBoolean),
       resolve: user => user.verified,
+    },
+  },
+});
+
+export const UserAndAffiliations = new GraphQLObjectType<
+  IUserAndAffiliations,
+  Context
+>({
+  name: "UserAndAffiliations",
+  fields: {
+    user: {
+      type: SchemaBuilder.nonNull(UserType),
+      resolve: aff => aff.user,
+    },
+    organizations: {
+      type: SchemaBuilder.nonNullArray(BaseOrganizationAndUserRoles),
+      resolve: aff => aff.organizations,
     },
   },
 });

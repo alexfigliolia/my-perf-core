@@ -1,11 +1,16 @@
-import { type GraphQLFieldConfig, GraphQLString } from "graphql";
-import { UserType } from "Schema/Resolvers/User";
+import {
+  GraphQLBoolean,
+  type GraphQLFieldConfig,
+  GraphQLString,
+} from "graphql";
+import { UserAndAffiliations } from "Schema/Resolvers/User";
+import type { Context, None } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import { Controller } from "./Controller";
+import { LoginController } from "./Controller";
 import type { ILogin } from "./types";
 
-export const login: GraphQLFieldConfig<any, any, ILogin> = {
-  type: SchemaBuilder.nonNull(UserType),
+export const login: GraphQLFieldConfig<any, Context, ILogin> = {
+  type: SchemaBuilder.nonNull(UserAndAffiliations),
   args: {
     email: {
       type: SchemaBuilder.nonNull(GraphQLString),
@@ -15,10 +20,27 @@ export const login: GraphQLFieldConfig<any, any, ILogin> = {
     },
   },
   resolve: async (_, args, context) => {
-    const user = await Controller.login(args);
-    context.req.session.userID = user.id;
-    context.req.session.username = user.name;
-    context.req.session.password = user.password;
-    return user;
+    const result = await LoginController.login(args);
+    context.req.session.userID = result.user.id;
+    context.req.session.email = result.user.email;
+    return result;
+  },
+};
+
+export const verifySession: GraphQLFieldConfig<any, Context, None> = {
+  type: SchemaBuilder.nonNull(UserAndAffiliations),
+  resolve: async (_1, _2, context) => {
+    const result = await LoginController.verify(context.req);
+    context.req.session.userID = result.user.id;
+    context.req.session.email = result.user.email;
+    return result;
+  },
+};
+
+export const logout: GraphQLFieldConfig<any, Context, None> = {
+  type: SchemaBuilder.nonNull(GraphQLBoolean),
+  resolve: (_1, _2, context) => {
+    LoginController.logout(context.req);
+    return true;
   },
 };
