@@ -3,22 +3,32 @@ import { GraphQLError } from "graphql";
 import { type Organization, type User, UserRole } from "@prisma/client";
 import { DB } from "DB";
 import { Errors } from "Errors";
+import { SmartPunctuation } from "Sanitizers";
+import { UserController } from "Schema/Resolvers/User/Controller";
 import type { IOnBoard } from "./types";
 
 export class OnboardController {
   public static readonly SALTS = 10;
+  public static readonly sanitizeKeys = new Set<keyof IOnBoard>([
+    "email",
+    "username",
+    "password",
+    "organizationName",
+  ]);
 
   public static async onboard(params: IOnBoard) {
-    const user = await this.findOrCreateUser(params);
-    if (await this.findOrgConflict(params.organizationName, user.id)) {
+    const data = SmartPunctuation.sanitizeKeys(params, this.sanitizeKeys);
+    const { organizationName } = data;
+    const user = await this.findOrCreateUser(data);
+    if (await this.findConflictingOrgs(organizationName, user.id)) {
       throw new GraphQLError(
-        `You are already affiliated with an organization named "${params.organizationName}"`,
+        `You are already affiliated with an organization named "${organizationName}"`,
         {
           extensions: Errors.BAD_REQUEST,
         },
       );
     }
-    const org = await this.createOrganization(params, user);
+    const org = await this.createOrganization(data, user);
     await this.createOwnership(user, org);
     return user;
   }
@@ -28,9 +38,7 @@ export class OnboardController {
     email,
     password,
   }: IOnBoard) {
-    const user = await DB.user.findFirst({
-      where: { email },
-    });
+    const user = await UserController.findByEmail(email);
     if (user) {
       if (!(await compare(password, user.password))) {
         throw new GraphQLError("Your password is incorrect", {
@@ -83,9 +91,16 @@ export class OnboardController {
     ]);
   }
 
-  private static findOrgConflict(name: string, userID: number) {
+  private static async findConflictingOrgs(name: string, userID: number) {
     return DB.organization.findFirst({
-      where: { name, users: { some: { id: userID } } },
+      where: {
+        name,
+        users: {
+          some: {
+            id: userID,
+          },
+        },
+      },
     });
   }
 }

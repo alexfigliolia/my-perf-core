@@ -1,6 +1,14 @@
 import { DB } from "DB";
 
 export class UserController {
+  public static findByEmail(email: string) {
+    return DB.user.findFirst({
+      where: {
+        email,
+      },
+    });
+  }
+
   public static async userAndAffiliations(userID: number) {
     const { organizations, ...user } = await this.userScopeQuery(userID);
     return {

@@ -40,6 +40,9 @@
       "RedisCache/*": [
         "./RedisCache/*"
       ],
+      "Sanitizers/*": [
+        "./Sanitizers/*"
+      ],
       "Schema/*": [
         "./Schema/*"
       ],
