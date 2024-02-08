@@ -1,6 +1,6 @@
 export interface IOnBoard {
   organizationName: string;
-  username: string;
+  name: string;
   email: string;
   password: string;
 }

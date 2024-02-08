@@ -8,7 +8,7 @@ import type { IOnBoard } from "./types";
 export const onboard: GraphQLFieldConfig<any, Context, IOnBoard> = {
   type: SchemaBuilder.nonNull(UserType),
   args: {
-    username: {
+    name: {
       type: SchemaBuilder.nonNull(GraphQLString),
     },
     email: {

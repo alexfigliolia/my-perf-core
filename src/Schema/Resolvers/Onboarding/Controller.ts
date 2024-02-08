@@ -10,8 +10,8 @@ import type { IOnBoard } from "./types";
 export class OnboardController {
   public static readonly SALTS = 10;
   public static readonly sanitizeKeys = new Set<keyof IOnBoard>([
+    "name",
     "email",
-    "username",
     "password",
     "organizationName",
   ]);
@@ -33,11 +33,7 @@ export class OnboardController {
     return user;
   }
 
-  private static async findOrCreateUser({
-    username,
-    email,
-    password,
-  }: IOnBoard) {
+  private static async findOrCreateUser({ name, email, password }: IOnBoard) {
     const user = await UserController.findByEmail(email);
     if (user) {
       if (!(await compare(password, user.password))) {
@@ -49,8 +45,8 @@ export class OnboardController {
     }
     return DB.user.create({
       data: {
+        name,
         email,
-        name: username,
         password: await hash(password, this.SALTS),
       },
     });
