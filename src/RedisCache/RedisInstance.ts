@@ -4,7 +4,7 @@ import { Logger } from "Logger";
 
 export class RedisCache {
   public static Client = createClient({
-    url: `redis://default:my-perf@localhost:${Environment.REDIS_PORT}`,
+    url: Environment.REDIS_URL,
   });
 
   public static async start() {

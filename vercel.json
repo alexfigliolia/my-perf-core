@@ -1,0 +1,22 @@
+{
+  "buildCommand": "yarn run build",
+  "cleanUrls": true,
+  "installCommand": "yarn install",
+  "builds": [
+    {
+      "src": "dist/mjs/Start.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "dist/mjs/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/mjs/Start.js"
+    }
+  ]
+}

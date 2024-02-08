@@ -2,7 +2,7 @@ node_modules
 build
 coverage
 reports
-.env
+.env*
 *.key
 *.cert
 *.pem

@@ -37,7 +37,7 @@ export class Server extends ProcessManager {
     this.APP.all("/graphql", (req: Request, res: Response) => {
       void graphqlHTTP({
         schema: Schema,
-        graphiql: true,
+        graphiql: !Environment.LOCAL,
         context: { req, res },
         customFormatErrorFn: Errors.handler(res),
       })(req, res);
