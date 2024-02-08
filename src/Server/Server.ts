@@ -55,9 +55,12 @@ export class Server extends ProcessManager {
   }
 
   private static get keys() {
-    return {
-      key: readFileSync(`${this.CERTS}/server.key`),
-      cert: readFileSync(`${this.CERTS}/server.cert`),
-    };
+    if (Environment.LOCAL) {
+      return {
+        key: readFileSync(`${this.CERTS}/server.key`),
+        cert: readFileSync(`${this.CERTS}/server.cert`),
+      };
+    }
+    return {};
   }
 }
