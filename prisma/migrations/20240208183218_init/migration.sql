@@ -8,7 +8,6 @@ CREATE TYPE "Platform" AS ENUM ('github', 'bitbucket');
 CREATE TABLE "Organization" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "platform" "Platform" NOT NULL,
 
     CONSTRAINT "Organization_pkey" PRIMARY KEY ("id")
 );

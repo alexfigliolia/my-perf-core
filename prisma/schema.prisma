@@ -12,12 +12,11 @@ datasource db {
 }
 
 model Organization {
-  id       Int      @id @unique @default(autoincrement())
-  name     String
-  owners   Owner[]
-  roles    Role[]
-  platform Platform
-  users    User[]
+  id     Int     @id @unique @default(autoincrement())
+  name   String
+  owners Owner[]
+  roles  Role[]
+  users  User[]
 }
 
 model Owner {

@@ -1,5 +1,4 @@
 import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
-import { Platform } from "Schema/Resolvers/Platform";
 import { UserRole } from "Schema/Resolvers/Role";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
@@ -18,10 +17,6 @@ export const BaseOrganizationType = new GraphQLObjectType<
     name: {
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: org => org.name,
-    },
-    platform: {
-      type: SchemaBuilder.nonNull(Platform),
-      resolve: org => org.platform,
     },
   },
 });

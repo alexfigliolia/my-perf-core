@@ -35,7 +35,6 @@ export class UserController {
           select: {
             id: true,
             name: true,
-            platform: true,
             roles: {
               where: {
                 userId: userID,

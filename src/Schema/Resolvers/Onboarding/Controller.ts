@@ -57,12 +57,11 @@ export class OnboardController {
   }
 
   private static createOrganization(
-    { platform, organizationName }: IOnBoard,
+    { organizationName }: IOnBoard,
     user: User,
   ) {
     return DB.organization.create({
       data: {
-        platform,
         name: organizationName,
         users: {
           connect: {

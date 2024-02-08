@@ -1,5 +1,4 @@
 import { type GraphQLFieldConfig, GraphQLString } from "graphql";
-import { Platform } from "Schema/Resolvers/Platform";
 import { UserType } from "Schema/Resolvers/User";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
@@ -17,9 +16,6 @@ export const onboard: GraphQLFieldConfig<any, Context, IOnBoard> = {
     },
     password: {
       type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    platform: {
-      type: SchemaBuilder.nonNull(Platform),
     },
     organizationName: {
       type: SchemaBuilder.nonNull(GraphQLString),
