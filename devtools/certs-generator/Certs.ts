@@ -5,7 +5,7 @@ export class Certs {
   private static readonly keyFile = `${this.outDirectory}/server.key`;
   private static readonly certFile = `${this.outDirectory}/server.cert`;
   private static readonly subject =
-    "/C=US/ST=State/L=City/O=company/OU=Com/CN=www.testserver.local";
+    "/C=US/ST=State/L=City/O=company/OU=Com/CN=localhost";
 
   public static async run() {
     await this.detectOpenSSL();
