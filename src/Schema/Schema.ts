@@ -1,5 +1,11 @@
 import { GraphQLObjectType, GraphQLSchema, GraphQLString } from "graphql";
-import { login, logout, onboard, verifySession } from "./Resolvers";
+import {
+  login,
+  logout,
+  onboard,
+  verifyAnonymous,
+  verifySession,
+} from "./Resolvers";
 
 const QueryRoot = new GraphQLObjectType({
   name: "Query",
@@ -18,6 +24,7 @@ const MutationRoot = new GraphQLObjectType({
     logout,
     onboard,
     verifySession,
+    verifyAnonymous,
   }),
 });
 

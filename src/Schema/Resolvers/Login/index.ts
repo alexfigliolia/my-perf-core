@@ -37,6 +37,16 @@ export const verifySession: GraphQLFieldConfig<any, Context, None> = {
   },
 };
 
+export const verifyAnonymous: GraphQLFieldConfig<any, Context, None> = {
+  type: SchemaBuilder.nonNull(GraphQLBoolean),
+  resolve: (_1, _2, context) => {
+    if (context.req.session.userID) {
+      return false;
+    }
+    return true;
+  },
+};
+
 export const logout: GraphQLFieldConfig<any, Context, None> = {
   type: SchemaBuilder.nonNull(GraphQLBoolean),
   resolve: (_1, _2, context) => {

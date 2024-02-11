@@ -1,6 +1,7 @@
 import { type Server as HTTP1Server } from "http";
 import { type Server as HTTP2Server } from "spdy";
 import { DB } from "DB";
+import { WebHookProxy } from "Github";
 import { Logger } from "Logger";
 import { RedisCache } from "RedisCache";
 
@@ -20,6 +21,7 @@ export class ProcessManager {
     }
     this.shuttingDown = true;
     Logger.silence();
+    void WebHookProxy.stop();
     void RedisCache.close();
     void DB.$disconnect();
     this.Server?.close();

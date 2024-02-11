@@ -1,5 +1,7 @@
+import type { Express } from "express";
 import { readFileSync } from "fs";
-import { App, createNodeMiddleware } from "octokit";
+import { App } from "octokit";
+import { createNodeMiddleware } from "@octokit/webhooks";
 import { Environment } from "Environment";
 import { Logger } from "Logger";
 
@@ -13,14 +15,17 @@ export class Github {
     oauth: { clientId: "", clientSecret: "" },
   });
 
-  public static middleware = createNodeMiddleware(this.App, {
-    pathPrefix: "/api/github/webhooks",
-  });
+  public static registerMiddleware(App: Express) {
+    App.use((req, res) => {
+      void createNodeMiddleware(this.App.webhooks, {
+        path: "/github/events",
+      })(req, res);
+    });
+  }
 
-  // https://github.com/apps/imgbot/installations/new
   static {
-    this.App.webhooks.on("pull_request.opened", v => {
-      Logger.github(v.payload);
+    this.App.webhooks.on("installation", v => {
+      Logger.github(v);
     });
   }
 }

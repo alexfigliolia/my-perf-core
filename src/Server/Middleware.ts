@@ -1,10 +1,15 @@
 import bodyParser from "body-parser";
 import RedisStore from "connect-redis";
 import cors from "cors";
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
+import { graphqlHTTP } from "express-graphql";
 import session from "express-session";
 import { Environment } from "Environment";
+import { Errors } from "Errors";
+import { Github } from "Github";
+import { Logger } from "Logger";
 import { RedisCache } from "RedisCache";
+import { Schema } from "Schema";
 import { Sessions } from "Sessions";
 
 export class Middleware {
@@ -20,6 +25,8 @@ export class Middleware {
     this.configureParser();
     this.configureCors();
     this.configureSessions();
+    this.registerGQL();
+    Github.registerMiddleware(this.App);
   }
 
   private static configureParser() {
@@ -54,6 +61,18 @@ export class Middleware {
         },
       }),
     );
+  }
+
+  private static registerGQL() {
+    Logger.GQL("Mounting GraphQL");
+    this.App.all("/graphql", (req: Request, res: Response) => {
+      void graphqlHTTP({
+        schema: Schema,
+        graphiql: Environment.LOCAL,
+        context: { req, res },
+        customFormatErrorFn: Errors.handler(res),
+      })(req, res);
+    });
   }
 
   private static guard() {

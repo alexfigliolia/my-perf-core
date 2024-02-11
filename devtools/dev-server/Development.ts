@@ -7,11 +7,11 @@ export class Development {
   private static TSX?: CP;
   private static readonly serviceCommands = {
     Redis: "brew services start redis",
-    Postgres: "brew services start postgresql@15",
+    Postgres: "brew services start postgresql@14",
   } as const;
   private static readonly killCommands = {
     Redis: "brew services stop redis",
-    Postgres: "brew services stop postgresql@15",
+    Postgres: "brew services stop postgresql@14",
   } as const;
 
   public static async run() {
