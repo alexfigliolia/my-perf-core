@@ -18,7 +18,7 @@
     "build": "npx ts-packager -e src/Start.ts",
     "certs": "ts-node devtools/certs-generator/CLI.ts",
     "clear-sessions": "redis-cli flushall",
-    "dev": "ts-node devtools/dev-server/CLI.ts",
+    "dev": "NODE_EXTRA_CA_CERTS=cert/server.cert ts-node devtools/dev-server/CLI.ts",
     "lint": "ts-node ci/commands/Lint.ts",
     "migrate": "npx prisma migrate dev --name",
     "prod": "pm2 start 'npm run start' -i max",
@@ -27,6 +27,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@figliolia/event-emitter": "^1.1.3",
     "@prisma/client": "^5.9.1",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
@@ -40,6 +41,7 @@
     "express-session": "^1.18.0",
     "graphql": "^16.8.1",
     "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
     "octokit": "^3.1.2",
     "prisma": "^5.9.1",
     "redis": "^4.6.12",

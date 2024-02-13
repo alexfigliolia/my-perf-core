@@ -1,8 +1,8 @@
 import { GraphQLObjectType, GraphQLSchema, GraphQLString } from "graphql";
 import {
-  login,
+  createOrganization,
   logout,
-  onboard,
+  onboardWithGithub,
   verifyAnonymous,
   verifySession,
 } from "./Resolvers";
@@ -20,11 +20,11 @@ const QueryRoot = new GraphQLObjectType({
 const MutationRoot = new GraphQLObjectType({
   name: "Mutation",
   fields: () => ({
-    login,
     logout,
-    onboard,
     verifySession,
     verifyAnonymous,
+    createOrganization,
+    onboardWithGithub,
   }),
 });
 

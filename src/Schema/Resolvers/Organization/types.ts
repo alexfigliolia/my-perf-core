@@ -8,3 +8,8 @@ export interface IBaseOrganization {
 export interface IBaseOrganizationWithUserRole extends IBaseOrganization {
   role: UserRole;
 }
+
+export interface ICreateOrganization {
+  name: string;
+  ownerID: number;
+}

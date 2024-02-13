@@ -26,7 +26,7 @@ export class Middleware {
     this.configureCors();
     this.configureSessions();
     this.registerGQL();
-    Github.registerMiddleware(this.App);
+    Github.Webooks.registerMiddleware(this.App);
   }
 
   private static configureParser() {

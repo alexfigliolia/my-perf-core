@@ -4,6 +4,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import { GithubUser } from "Schema/Resolvers/GithubConnection";
 import { BaseOrganizationAndUserRole } from "Schema/Resolvers/Organization";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
@@ -27,6 +28,10 @@ export const UserType = new GraphQLObjectType<IBaseUser, Context>({
     verified: {
       type: SchemaBuilder.nonNull(GraphQLBoolean),
       resolve: user => user.verified,
+    },
+    github: {
+      type: GithubUser,
+      resolve: user => user.github,
     },
   },
 });

@@ -1,3 +1,4 @@
+import type { IGithubUser } from "Schema/Resolvers/GithubConnection/types";
 import type { IBaseOrganizationWithUserRole } from "Schema/Resolvers/Organization/types";
 
 export interface IBaseUser {
@@ -5,6 +6,7 @@ export interface IBaseUser {
   name: string;
   email: string;
   verified: boolean;
+  github: IGithubUser | null;
 }
 
 export interface IUserAndAffiliations {

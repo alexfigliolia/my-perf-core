@@ -10,6 +10,9 @@ export class Environment {
   public static GITHUB_APP_ID = this.accessOrThrow("GITHUB_APP_ID");
   public static GITHUB_CERT_PATH = this.accessOrThrow("GITHUB_CERT_PATH");
   public static GITHUB_CLIENT_ID = this.accessOrThrow("GITHUB_CLIENT_ID");
+  public static GITHUB_CLIENT_SECRET = this.accessOrThrow(
+    "GITHUB_CLIENT_SECRET",
+  );
   public static GITHUB_WEBHOOK_SECRET = this.accessOrThrow(
     "GITHUB_WEBHOOK_SECRET",
   );

@@ -31,11 +31,19 @@ model User {
   id            Int            @id @default(autoincrement())
   name          String
   email         String         @unique
-  password      String
   verified      Boolean        @default(false)
   roles         Role[]
   ownerships    Owner[]
   organizations Organization[]
+  github        GithubUser?
+}
+
+model GithubUser {
+  id            Int    @id @default(autoincrement())
+  token         String
+  refresh_token String
+  user          User   @relation(fields: [userId], references: [id])
+  userId        Int    @unique
 }
 
 model Role {

@@ -9,6 +9,16 @@ export class UserController {
     });
   }
 
+  public static async findOrCreate(name: string, email: string) {
+    const user = await this.findByEmail(email);
+    if (user) {
+      return user;
+    }
+    return DB.user.create({
+      data: { name, email },
+    });
+  }
+
   public static async userAndAffiliations(userID: number) {
     const { organizations, ...user } = await this.userScopeQuery(userID);
     return {

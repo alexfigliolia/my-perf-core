@@ -1,6 +1,4 @@
-export interface IOnBoard {
-  organizationName: string;
+export interface IOnboardWithGithub {
+  code: string;
   name: string;
-  email: string;
-  password: string;
 }
