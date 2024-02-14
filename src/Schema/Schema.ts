@@ -1,6 +1,7 @@
-import { GraphQLObjectType, GraphQLSchema, GraphQLString } from "graphql";
+import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import {
   createOrganization,
+  listAvailableRepositories,
   logout,
   onboardWithGithub,
   verifyAnonymous,
@@ -10,10 +11,7 @@ import {
 const QueryRoot = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
-    hello: {
-      type: GraphQLString,
-      resolve: () => "Hello",
-    },
+    listAvailableRepositories,
   }),
 });
 

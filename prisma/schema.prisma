@@ -39,11 +39,10 @@ model User {
 }
 
 model GithubUser {
-  id            Int    @id @default(autoincrement())
-  token         String
-  refresh_token String
-  user          User   @relation(fields: [userId], references: [id])
-  userId        Int    @unique
+  id     Int    @id @default(autoincrement())
+  token  String
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
 }
 
 model Role {
@@ -53,6 +52,14 @@ model Role {
   organizationId Int
   userId         Int
   user           User         @relation(fields: [userId], references: [id])
+}
+
+model GithubRepository {
+  id        Int    @id @unique @default(autoincrement())
+  name      String
+  url       String
+  clone_url String
+  language  String
 }
 
 enum UserRole {

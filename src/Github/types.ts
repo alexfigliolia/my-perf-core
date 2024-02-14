@@ -6,9 +6,6 @@ export type GithubEventStream = {
 
 export interface AccessToken {
   access_token: string;
-  expires_in: number;
-  refresh_token: string;
-  refresh_token_expires_in: number;
   token_type: "bearer";
   scope: string;
 }
@@ -28,4 +25,19 @@ export interface GithubEmail {
   primary: boolean;
   verified: boolean;
   visibility: string;
+}
+
+export interface IGithubRepository {
+  id: number;
+  name: string;
+  description: string | null;
+  html_url: string;
+  clone_url: string;
+  language: string;
+  source: "github";
+}
+
+export interface RepositoryQuery {
+  sort?: string | null;
+  page?: string | null;
 }

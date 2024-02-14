@@ -41,6 +41,12 @@ export class UserController {
         name: true,
         email: true,
         verified: true,
+        github: {
+          select: {
+            id: true,
+            token: true,
+          },
+        },
         organizations: {
           select: {
             id: true,

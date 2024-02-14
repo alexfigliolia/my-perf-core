@@ -1,8 +1,9 @@
 import nodeFetch from "node-fetch";
 import { Environment } from "Environment";
+import { API } from "./API";
 import type { AccessToken, GithubEmail, GithubUser } from "./types";
 
-export class OAuth {
+export class OAuth extends API {
   public async generateToken(code: string) {
     const url = new URL("https://github.com/login/oauth/access_token");
     url.searchParams.set("code", code);
@@ -28,23 +29,6 @@ export class OAuth {
     return {
       ...user,
       email: this.extractFirstEmail(emails),
-    };
-  }
-
-  private async wrapRequest<T>(url: string, token: string) {
-    const response = await nodeFetch(url, {
-      method: "GET",
-      headers: this.createHeaders(token),
-    });
-    return response.json() as unknown as T;
-  }
-
-  private createHeaders(token: string) {
-    return {
-      Accept: "application/json",
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "X-GitHub-Api-Version": "2022-11-28",
     };
   }
 

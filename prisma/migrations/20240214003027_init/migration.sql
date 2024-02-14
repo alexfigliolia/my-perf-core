@@ -35,7 +35,6 @@ CREATE TABLE "User" (
 CREATE TABLE "GithubUser" (
     "id" SERIAL NOT NULL,
     "token" TEXT NOT NULL,
-    "refresh_token" TEXT NOT NULL,
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "GithubUser_pkey" PRIMARY KEY ("id")
@@ -49,6 +48,17 @@ CREATE TABLE "Role" (
     "userId" INTEGER NOT NULL,
 
     CONSTRAINT "Role_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GithubRepository" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "clone_url" TEXT NOT NULL,
+    "language" TEXT NOT NULL,
+
+    CONSTRAINT "GithubRepository_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -71,6 +81,9 @@ CREATE UNIQUE INDEX "GithubUser_userId_key" ON "GithubUser"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Role_id_key" ON "Role"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GithubRepository_id_key" ON "GithubRepository"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_OrganizationToUser_AB_unique" ON "_OrganizationToUser"("A", "B");
