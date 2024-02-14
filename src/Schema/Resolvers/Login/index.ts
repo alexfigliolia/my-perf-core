@@ -9,7 +9,6 @@ export const verifySession: GraphQLFieldConfig<any, Context, None> = {
   resolve: async (_1, _2, context) => {
     const result = await LoginController.verify(context.req);
     context.req.session.userID = result.user.id;
-    context.req.session.email = result.user.email;
     return result;
   },
 };

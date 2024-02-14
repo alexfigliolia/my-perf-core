@@ -18,7 +18,7 @@ export class OAuth extends API {
     return response.json() as unknown as AccessToken;
   }
 
-  public async getUser(token: string): Promise<GithubUser> {
+  public async getUser(token: string) {
     const [user, emails] = await Promise.all([
       this.wrapRequest<GithubUser>("https://api.github.com/user", token),
       this.wrapRequest<GithubEmail[]>(
@@ -26,18 +26,6 @@ export class OAuth extends API {
         token,
       ),
     ]);
-    return {
-      ...user,
-      email: this.extractFirstEmail(emails),
-    };
-  }
-
-  private extractFirstEmail(list: GithubEmail[]) {
-    for (const email of list) {
-      if (email.primary) {
-        return email.email;
-      }
-    }
-    return list?.[0]?.email ?? "";
+    return { user, emails };
   }
 }

@@ -7,11 +7,8 @@ import type { GithubCode, ISearchRepositories } from "./types";
 export class GithubController {
   public static async createUser({ code }: GithubCode) {
     const { access_token } = await Github.OAuth.generateToken(code);
-    const user = await Github.OAuth.getUser(access_token);
-    const indexedUser = await UserController.findOrCreate(
-      user.name,
-      user.email,
-    );
+    const { user, emails } = await Github.OAuth.getUser(access_token);
+    const indexedUser = await UserController.findOrCreate(user.name, emails);
     const GH = await this.createGithubUser(indexedUser.id, access_token);
     return {
       ...indexedUser,

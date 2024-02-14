@@ -1,21 +1,35 @@
 import { DB } from "DB";
+import type { Email } from "./types";
 
 export class UserController {
-  public static findByEmail(email: string) {
+  public static findByEmail<E extends Email[]>(emails: E) {
     return DB.user.findFirst({
       where: {
-        email,
+        emails: {
+          some: {
+            OR: emails.map(v => ({ email: v.email })),
+          },
+        },
       },
     });
   }
 
-  public static async findOrCreate(name: string, email: string) {
-    const user = await this.findByEmail(email);
+  public static async findOrCreate<E extends Email[]>(name: string, emails: E) {
+    const user = await this.findByEmail(emails);
     if (user) {
       return user;
     }
     return DB.user.create({
-      data: { name, email },
+      data: {
+        name,
+        emails: {
+          create: emails.map(v => ({
+            email: v.email,
+            primary: v.primary || false,
+            verified: v.verified || false,
+          })),
+        },
+      },
     });
   }
 
@@ -39,8 +53,6 @@ export class UserController {
       select: {
         id: true,
         name: true,
-        email: true,
-        verified: true,
         github: {
           select: {
             id: true,

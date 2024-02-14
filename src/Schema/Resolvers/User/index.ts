@@ -21,14 +21,6 @@ export const UserType = new GraphQLObjectType<IBaseUser, Context>({
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: user => user.name,
     },
-    email: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-      resolve: user => user.email,
-    },
-    verified: {
-      type: SchemaBuilder.nonNull(GraphQLBoolean),
-      resolve: user => user.verified,
-    },
     github: {
       type: GithubUser,
       resolve: user => user.github,

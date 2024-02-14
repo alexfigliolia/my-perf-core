@@ -27,11 +27,19 @@ model Owner {
   organizationId Int
 }
 
+model Email {
+  id       Int     @id @unique @default(autoincrement())
+  email    String
+  user     User    @relation(fields: [userId], references: [id])
+  userId   Int
+  verified Boolean @default(false)
+  primary  Boolean @default(false)
+}
+
 model User {
-  id            Int            @id @default(autoincrement())
+  id            Int            @id @unique @default(autoincrement())
   name          String
-  email         String         @unique
-  verified      Boolean        @default(false)
+  emails        Email[]
   roles         Role[]
   ownerships    Owner[]
   organizations Organization[]
@@ -39,7 +47,7 @@ model User {
 }
 
 model GithubUser {
-  id     Int    @id @default(autoincrement())
+  id     Int    @id @unique @default(autoincrement())
   token  String
   user   User   @relation(fields: [userId], references: [id])
   userId Int    @unique

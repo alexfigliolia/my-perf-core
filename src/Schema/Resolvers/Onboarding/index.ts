@@ -22,7 +22,6 @@ export const onboardWithGithub: GraphQLFieldConfig<
   resolve: async (_, args, context) => {
     const user = await Controller.onboardWithGithub(args);
     context.req.session.userID = user.id;
-    context.req.session.email = user.email;
     return user;
   },
 };

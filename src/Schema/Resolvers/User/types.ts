@@ -4,12 +4,16 @@ import type { IBaseOrganizationWithUserRole } from "Schema/Resolvers/Organizatio
 export interface IBaseUser {
   id: number;
   name: string;
-  email: string;
-  verified: boolean;
   github: IGithubUser | null;
 }
 
 export interface IUserAndAffiliations {
   user: IBaseUser;
   organizations: IBaseOrganizationWithUserRole[];
+}
+
+export interface Email {
+  email: string;
+  primary?: boolean;
+  verified?: boolean;
 }

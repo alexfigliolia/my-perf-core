@@ -6,7 +6,7 @@ import { Sessions } from "Sessions";
 
 export class LoginController {
   public static async verify({ session }: Request) {
-    if (!session || !session.userID || !session.email) {
+    if (!session || !session.userID) {
       throw new GraphQLError("/login", {
         extensions: Errors.NOT_FOUND,
       });

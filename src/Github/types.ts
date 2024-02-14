@@ -17,7 +17,6 @@ export interface GithubUser {
   url: string;
   type: string;
   name: string;
-  email: string;
 }
 
 export interface GithubEmail {

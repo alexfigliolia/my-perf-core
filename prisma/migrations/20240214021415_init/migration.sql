@@ -22,11 +22,20 @@ CREATE TABLE "Owner" (
 );
 
 -- CreateTable
+CREATE TABLE "Email" (
+    "id" SERIAL NOT NULL,
+    "email" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "verified" BOOLEAN NOT NULL DEFAULT false,
+    "primary" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "Email_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "verified" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -74,7 +83,13 @@ CREATE UNIQUE INDEX "Organization_id_key" ON "Organization"("id");
 CREATE UNIQUE INDEX "Owner_id_key" ON "Owner"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "Email_id_key" ON "Email"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GithubUser_id_key" ON "GithubUser"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "GithubUser_userId_key" ON "GithubUser"("userId");
@@ -96,6 +111,9 @@ ALTER TABLE "Owner" ADD CONSTRAINT "Owner_userId_fkey" FOREIGN KEY ("userId") RE
 
 -- AddForeignKey
 ALTER TABLE "Owner" ADD CONSTRAINT "Owner_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Email" ADD CONSTRAINT "Email_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GithubUser" ADD CONSTRAINT "GithubUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
