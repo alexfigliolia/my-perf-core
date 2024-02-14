@@ -40,3 +40,8 @@ export interface RepositoryQuery {
   sort?: string | null;
   page?: string | null;
 }
+
+export interface GithubAPIError {
+  message: string;
+  documentation_url: string;
+}

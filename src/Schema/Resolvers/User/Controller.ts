@@ -1,4 +1,6 @@
+import { GraphQLError } from "graphql";
 import { DB } from "DB";
+import { Errors } from "Errors";
 import type { Email } from "./types";
 
 export class UserController {

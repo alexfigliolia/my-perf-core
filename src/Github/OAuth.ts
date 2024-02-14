@@ -1,7 +1,12 @@
 import nodeFetch from "node-fetch";
 import { Environment } from "Environment";
 import { API } from "./API";
-import type { AccessToken, GithubEmail, GithubUser } from "./types";
+import type {
+  AccessToken,
+  GithubAPIError,
+  GithubEmail,
+  GithubUser,
+} from "./types";
 
 export class OAuth extends API {
   public async generateToken(code: string) {
@@ -15,17 +20,21 @@ export class OAuth extends API {
         Accept: "application/json",
       },
     });
-    return response.json() as unknown as AccessToken;
+    return response.json() as unknown as AccessToken | GithubAPIError;
   }
 
   public async getUser(token: string) {
     const [user, emails] = await Promise.all([
       this.wrapRequest<GithubUser>("https://api.github.com/user", token),
-      this.wrapRequest<GithubEmail[]>(
-        "https://api.github.com/user/emails",
-        token,
-      ),
+      this.getUserEmails(token),
     ]);
     return { user, emails };
+  }
+
+  public getUserEmails(token: string) {
+    return this.wrapRequest<GithubEmail[]>(
+      "https://api.github.com/user/emails",
+      token,
+    );
   }
 }

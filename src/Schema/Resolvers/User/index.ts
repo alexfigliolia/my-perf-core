@@ -1,10 +1,5 @@
-import {
-  GraphQLBoolean,
-  GraphQLInt,
-  GraphQLObjectType,
-  GraphQLString,
-} from "graphql";
-import { GithubUser } from "Schema/Resolvers/GithubConnection";
+import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
+import { GithubUser } from "Schema/Resolvers/Github";
 import { BaseOrganizationAndUserRole } from "Schema/Resolvers/Organization";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";

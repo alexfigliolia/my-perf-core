@@ -2,6 +2,7 @@ import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import {
   createOrganization,
   listAvailableRepositories,
+  loginWithGithub,
   logout,
   onboardWithGithub,
   verifyAnonymous,
@@ -23,6 +24,7 @@ const MutationRoot = new GraphQLObjectType({
     verifyAnonymous,
     createOrganization,
     onboardWithGithub,
+    loginWithGithub,
   }),
 });
 

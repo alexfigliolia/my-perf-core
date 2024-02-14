@@ -1,4 +1,4 @@
-import type { IGithubUser } from "Schema/Resolvers/GithubConnection/types";
+import type { IGithubUser } from "Schema/Resolvers/Github/types";
 import type { IBaseOrganizationWithUserRole } from "Schema/Resolvers/Organization/types";
 
 export interface IBaseUser {

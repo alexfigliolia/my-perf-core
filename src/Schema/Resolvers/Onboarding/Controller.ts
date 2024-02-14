@@ -1,4 +1,4 @@
-import { GithubController } from "Schema/Resolvers/GithubConnection/Controller";
+import { GithubController } from "Schema/Resolvers/Github/Controller";
 import { OrganizationController } from "Schema/Resolvers/Organization/OrganizationController";
 import type { IOnboardWithGithub } from "./types";
 

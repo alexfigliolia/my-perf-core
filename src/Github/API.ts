@@ -1,4 +1,5 @@
 import nodeFetch from "node-fetch";
+import type { GithubAPIError } from "./types";
 
 export class API {
   protected async wrapRequest<T>(url: string, token: string) {
@@ -6,7 +7,7 @@ export class API {
       method: "GET",
       headers: this.createHeaders(token),
     });
-    return response.json() as unknown as T;
+    return response.json() as unknown as T | GithubAPIError;
   }
 
   protected createHeaders(token: string) {

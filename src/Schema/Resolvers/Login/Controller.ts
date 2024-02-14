@@ -1,10 +1,15 @@
 import type { Request } from "express";
 import { GraphQLError } from "graphql";
 import { Errors } from "Errors";
+import { GithubController } from "Schema/Resolvers/Github/Controller";
 import { UserController } from "Schema/Resolvers/User/Controller";
 import { Sessions } from "Sessions";
 
 export class LoginController {
+  public static async loginWithGithub(code: string) {
+    return GithubController.getCurrentUser(code);
+  }
+
   public static async verify({ session }: Request) {
     if (!session || !session.userID) {
       throw new GraphQLError("/login", {

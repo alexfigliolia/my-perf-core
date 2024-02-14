@@ -10,6 +10,14 @@ export class Errors {
     status: 400,
     code: "BAD_REQUEST",
   };
+  public static readonly UNAUTHORIZED = {
+    status: 401,
+    code: "UNAUTHORIZED",
+  };
+  public static readonly UNEXPECTED_ERROR = {
+    status: 500,
+    code: "UNEXPECTED_ERROR",
+  };
 
   public static handler(response: Response) {
     return (error: GraphQLError) => {

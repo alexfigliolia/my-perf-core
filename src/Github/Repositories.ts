@@ -11,14 +11,17 @@ export class Repositories extends API {
       `https://api.github.com/user/repos?${params.toString()}`,
       token,
     );
-    return repos.map(v => ({
-      id: v.id,
-      name: v.name,
-      description: v.description,
-      html_url: v.html_url,
-      clone_url: v.clone_url,
-      language: v.language,
-      source: "github",
-    }));
+    if (Array.isArray(repos)) {
+      return repos.map(v => ({
+        id: v.id,
+        name: v.name,
+        description: v.description,
+        html_url: v.html_url,
+        clone_url: v.clone_url,
+        language: v.language,
+        source: "github",
+      }));
+    }
+    return repos;
   }
 }
