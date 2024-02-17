@@ -1,24 +1,24 @@
 import {
   GraphQLBoolean,
+  GraphQLError,
   type GraphQLFieldConfig,
   GraphQLInt,
   GraphQLString,
 } from "graphql";
+import { Errors } from "Errors";
+import { Github, type RepositoryQuery } from "Github";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { GithubController } from "./Controller";
 import { GithubRepository } from "./GQLTypes";
-import type { ICreateGithubUser, ISearchRepositories } from "./types";
+import type { ICreateGithubUser } from "./types";
 
 export const listAvailableRepositories: GraphQLFieldConfig<
   any,
   Context,
-  ISearchRepositories
+  RepositoryQuery
 > = {
   type: SchemaBuilder.nonNullArray(GithubRepository),
   args: {
-    userId: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
-    },
     sort: {
       type: GraphQLString,
     },
@@ -26,8 +26,14 @@ export const listAvailableRepositories: GraphQLFieldConfig<
       type: GraphQLString,
     },
   },
-  resolve: (_, args) => {
-    return GithubController.listUserRepositores(args);
+  resolve: (_, args, context) => {
+    const token = context.req.session.githubToken;
+    if (!token) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: Errors.UNAUTHORIZED,
+      });
+    }
+    return Github.Repositories.list(token, args);
   },
 };
 

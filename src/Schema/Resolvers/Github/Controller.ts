@@ -1,13 +1,12 @@
 import { GraphQLError } from "graphql";
 import type { Role } from "@prisma/client";
-import { DB } from "DB";
 import { Errors } from "Errors";
 import { Github } from "Github";
-import type { GenericEmail } from "Schema/Resolvers/Emails/types";
+import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { RoleController } from "Schema/Resolvers/Role/Controller";
 import { UserController } from "Schema/Resolvers/User/Controller";
-import type { ICreateGithubUser, ISearchRepositories } from "./types";
+import type { ICreateGithubUser } from "./types";
 
 export class GithubController {
   public static async createAccount(
@@ -44,49 +43,27 @@ export class GithubController {
     return user;
   }
 
-  public static selectGithubUser<E extends GenericEmail[]>(emails: E) {
-    return DB.user.findFirst({
-      where: {
-        emails: {
-          some: {
-            OR: emails.map(v => ({ name: v.email })),
-          },
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        github: true,
-      },
-    });
-  }
-
-  public static async listUserRepositores({
-    userId,
-    page,
-    sort,
-  }: ISearchRepositories) {
-    const tokens = await DB.githubAuthorization.findFirst({
-      where: { userId },
-    });
-    if (!tokens) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: Errors.UNAUTHORIZED,
-      });
-    }
-    return Github.Repositories.list(tokens.token, { sort, page });
-  }
-
   private static createGithubAuthorization(userId: number, token: string) {
-    return DB.githubAuthorization.upsert({
-      where: { userId },
-      create: {
-        userId,
-        token,
+    return ORM.query({
+      transaction: DB => {
+        return DB.githubAuthorization.upsert({
+          where: { userId },
+          create: {
+            userId,
+            token,
+          },
+          update: {
+            userId,
+            token,
+          },
+        });
       },
-      update: {
-        userId,
-        token,
+      onResult: data => data,
+      onError: error => {
+        throw new GraphQLError("Failed to authorized through github", {
+          extensions: Errors.UNEXPECTED_ERROR,
+          originalError: error,
+        });
       },
     });
   }

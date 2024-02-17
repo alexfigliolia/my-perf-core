@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
-import { DB } from "DB";
 import { Errors } from "Errors";
+import { ORM } from "ORM";
 import type { IOrganizationParams } from "./types";
 
 export class OrganizationController {
@@ -9,66 +9,97 @@ export class OrganizationController {
     installation_id,
     platform,
   }: IOrganizationParams) {
-    const Org = await DB.organization.create({
-      data: {
-        name,
-        installations: {
-          connectOrCreate: {
-            where: {
-              platform,
-              installation_id,
-            },
-            create: {
-              platform,
-              installation_id,
+    return ORM.query({
+      transaction: DB => {
+        return DB.organization.create({
+          data: {
+            name,
+            installations: {
+              connectOrCreate: {
+                where: {
+                  platform,
+                  installation_id,
+                },
+                create: {
+                  platform,
+                  installation_id,
+                },
+              },
             },
           },
-        },
+        });
+      },
+      onResult: data => data,
+      onError: error => {
+        throw new GraphQLError("Failed to create Organization", {
+          extensions: Errors.UNEXPECTED_ERROR,
+          originalError: error,
+        });
       },
     });
-    return Org;
   }
 
   public static async delete(id: number) {
-    const org = await DB.organization.delete({
-      where: {
-        id,
-      },
-    });
-    if (!org) {
-      return;
-    }
-    await DB.user.deleteMany({
-      where: {
-        organization: {
-          every: {
-            id: org.id,
+    return ORM.query({
+      transaction: DB => {
+        return DB.organization.delete({
+          where: {
+            id,
           },
-        },
+        });
       },
+      onResult: org => {
+        return ORM.query({
+          transaction: DB => {
+            return DB.user.deleteMany({
+              where: {
+                organizations: {
+                  every: {
+                    id: org.id,
+                  },
+                },
+              },
+            });
+          },
+          onResult: _ => org,
+          onError: _ => {},
+        });
+      },
+      onError: _ => {},
     });
   }
 
   public static async findByID(id: number) {
-    const org = await DB.organization.findFirstOrThrow({ where: { id } });
-    if (!org) {
-      throw new GraphQLError("An organization with this ID does not exist", {
-        extensions: Errors.NOT_FOUND,
-      });
-    }
-    return org;
+    return ORM.query({
+      transaction: DB => {
+        return DB.organization.findFirst({ where: { id } });
+      },
+      onResult: data => data,
+      onError: error => {
+        throw new GraphQLError("An organization with this ID does not exist", {
+          extensions: Errors.NOT_FOUND,
+          originalError: error,
+        });
+      },
+    });
   }
 
   public static addUserToOrganization(orgID: number, userId: number) {
-    return DB.organization.update({
-      where: { id: orgID },
-      data: {
-        users: {
-          connect: {
-            id: userId,
+    return ORM.query({
+      transaction: DB => {
+        return DB.organization.update({
+          where: { id: orgID },
+          data: {
+            users: {
+              connect: {
+                id: userId,
+              },
+            },
           },
-        },
+        });
       },
+      onResult: data => data,
+      onError: _ => {},
     });
   }
 }

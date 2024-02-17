@@ -1,17 +1,25 @@
-import { DB } from "DB";
+import { GraphQLError } from "graphql";
+import { Errors } from "Errors";
+import { ORM } from "ORM";
 import { EmailController } from "Schema/Resolvers/Emails/Controller";
 import type { GenericEmail } from "Schema/Resolvers/Emails/types";
 
 export class UserController {
-  public static findByEmail<E extends GenericEmail[]>(emails: E) {
-    return DB.user.findFirst({
-      where: {
-        emails: {
-          some: {
-            OR: emails.map(v => ({ name: v.email })),
+  public static async findByEmail<E extends GenericEmail[]>(emails: E) {
+    return ORM.query({
+      transaction: DB => {
+        return DB.user.findFirst({
+          where: {
+            emails: {
+              some: {
+                OR: emails.map(v => ({ name: v.email })),
+              },
+            },
           },
-        },
+        });
       },
+      onResult: data => data,
+      onError: _ => {},
     });
   }
 
@@ -31,9 +39,15 @@ export class UserController {
     userId: number,
     emails: E,
   ) {
-    const current = await DB.email.findMany({
-      where: { userId },
-      select: { name: true },
+    const current = await ORM.query({
+      transaction: DB => {
+        return DB.email.findMany({
+          where: { userId },
+          select: { name: true },
+        });
+      },
+      onResult: data => data,
+      onError: _ => [],
     });
     const set = new Set(current.map(v => v.name));
     const transactions: Promise<any>[] = [];
@@ -49,50 +63,71 @@ export class UserController {
     name: string,
     emails: E,
   ) {
-    return DB.user.create({
-      data: {
-        name,
-        emails: {
-          create: emails.map(v => ({
-            name: v.email,
-            primary: v.primary || false,
-            verified: v.verified || false,
-          })),
-        },
+    return ORM.query({
+      transaction: DB => {
+        return DB.user.create({
+          data: {
+            name,
+            emails: {
+              create: emails.map(v => ({
+                name: v.email,
+                primary: v.primary || false,
+                verified: v.verified || false,
+              })),
+            },
+          },
+        });
+      },
+      onResult: data => data,
+      onError: _ => {
+        throw new GraphQLError("Failed to created user", {
+          extensions: Errors.UNEXPECTED_ERROR,
+        });
       },
     });
   }
 
   public static userScopeQuery(userId: number) {
-    return DB.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        github: {
-          select: {
-            token: true,
-          },
-        },
-        organizations: {
+    return ORM.query({
+      transaction: DB => {
+        return DB.user.findUnique({
+          where: { id: userId },
           select: {
             id: true,
             name: true,
-            installations: {
+            github: {
               select: {
-                platform: true,
+                token: true,
               },
             },
-            roles: {
-              where: {
-                userId,
-              },
+            organizations: {
               select: {
-                role: true,
+                id: true,
+                name: true,
+                installations: {
+                  select: {
+                    platform: true,
+                  },
+                },
+                roles: {
+                  where: {
+                    userId,
+                  },
+                  select: {
+                    role: true,
+                  },
+                },
               },
             },
           },
-        },
+        });
+      },
+      onResult: data => data,
+      onError: error => {
+        throw new GraphQLError("User Affiliation not found", {
+          extensions: Errors.NOT_FOUND,
+          originalError: error,
+        });
       },
     });
   }

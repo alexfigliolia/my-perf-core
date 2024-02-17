@@ -1,5 +1,7 @@
+import { GraphQLError } from "graphql";
 import type { Platform } from "@prisma/client";
-import { DB } from "DB";
+import { Errors } from "Errors";
+import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { Subscriptions } from "Subscriptions";
 import type { ICreateInstallation } from "./types";
@@ -9,59 +11,88 @@ export class InstallationController {
     platform,
     installation_id,
   }: ICreateInstallation) {
-    const installation = await DB.installation.create({
-      data: {
-        platform,
-        installation_id,
+    return ORM.query({
+      transaction: DB => {
+        return DB.installation.create({
+          data: {
+            platform,
+            installation_id,
+          },
+        });
+      },
+      onResult: installation => {
+        Subscriptions.publish(
+          "newInstallation",
+          this.broadcastKey(installation_id, platform),
+          installation,
+        );
+        return installation;
+      },
+      onError: error => {
+        throw new GraphQLError("Failed to create installation", {
+          extensions: Errors.UNEXPECTED_ERROR,
+          originalError: error,
+        });
       },
     });
-    Subscriptions.publish(
-      "newInstallation",
-      this.broadcastKey(installation_id, platform),
-      installation,
-    );
-    return installation;
   }
 
   public static async delete(installation_id: number) {
-    const installation = await DB.installation.delete({
-      where: {
-        installation_id,
-      },
-      select: {
-        id: true,
-        organization: {
+    return ORM.query({
+      transaction: DB => {
+        return DB.installation.delete({
+          where: {
+            installation_id,
+          },
           select: {
             id: true,
-            installations: {
-              where: {
-                NOT: {
-                  installation_id: {
-                    equals: installation_id,
+            organization: {
+              select: {
+                id: true,
+                installations: {
+                  where: {
+                    NOT: {
+                      installation_id: {
+                        equals: installation_id,
+                      },
+                    },
+                  },
+                  select: {
+                    id: true,
                   },
                 },
               },
-              select: {
-                id: true,
-              },
             },
           },
-        },
+        });
       },
+      onResult: async installation => {
+        if (installation.organization) {
+          const installs = installation.organization?.installations || [];
+          if (!installs.length) {
+            await OrganizationController.delete(installation.organization.id);
+          }
+          return installation;
+        }
+      },
+      onError: _ => {},
     });
-    if (!installation || !installation.organization) {
-      return installation;
-    }
-    const installs = installation.organization?.installations || [];
-    if (!installs.length) {
-      await OrganizationController.delete(installation.organization.id);
-    }
-    return installation;
   }
 
   public static find(installation_id: number, platform: Platform) {
-    return DB.installation.findFirst({
-      where: { AND: [{ installation_id }, { platform }] },
+    return ORM.query({
+      transaction: DB => {
+        return DB.installation.findFirst({
+          where: { AND: [{ installation_id }, { platform }] },
+        });
+      },
+      onResult: installation => installation,
+      onError: error => {
+        throw new GraphQLError("Installation not found", {
+          extensions: Errors.NOT_FOUND,
+          originalError: error,
+        });
+      },
     });
   }
 
@@ -71,13 +102,11 @@ export class InstallationController {
         installation_id,
         platform,
       );
-      if (install) {
-        Subscriptions.publish(
-          "newInstallation",
-          this.broadcastKey(installation_id, platform),
-          install,
-        );
-      }
+      Subscriptions.publish(
+        "newInstallation",
+        this.broadcastKey(installation_id, platform),
+        install,
+      );
     } catch (error) {
       // silence
     }
