@@ -6,7 +6,7 @@ import { Logger } from "Logger";
 import type { GithubEventStream } from "./types";
 
 export class WebHooks {
-  private Emitter = new EventEmitter<GithubEventStream>();
+  public Emitter = new EventEmitter<GithubEventStream>();
 
   public registerMiddleware(App: Express) {
     App.use("/github/events", (req, res) => {
@@ -17,17 +17,6 @@ export class WebHooks {
       Logger.github(`Incoming ${event} event`, req.body);
       this.Emitter.emit(event, req.body);
     });
-  }
-
-  public subscribe<E extends keyof GithubEventStream>(
-    event: E,
-    callback: (payload: GithubEventStream[E]) => void,
-  ) {
-    return this.Emitter.on(event, callback);
-  }
-
-  public unsubscribe<E extends keyof GithubEventStream>(event: E, ID: string) {
-    return this.Emitter.off(event, ID);
   }
 
   public verifyEvent(request: Request) {

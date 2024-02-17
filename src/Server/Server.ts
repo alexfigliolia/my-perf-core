@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { createServer } from "spdy";
 import { Environment } from "Environment";
-import { WebHookProxy } from "Github/WebHookProxy";
+import { WebHookProxy } from "Github";
 import { Logger } from "Logger";
 import { RedisCache } from "RedisCache";
 import { Middleware } from "./Middleware";
@@ -16,8 +16,8 @@ export class Server extends ProcessManager {
   public static async start() {
     this.listenForKills();
     await RedisCache.start();
+    this.registerProxies();
     Middleware.register(this.APP).build();
-    WebHookProxy.start();
     const server = this.registerHTTP2();
     this.Server = server.listen({ port: Environment.SERVER_PORT });
     return this.Server;
@@ -37,6 +37,12 @@ export class Server extends ProcessManager {
     }
     Logger.core("Running HTTP/2");
     return createServer(this.keys, this.APP);
+  }
+
+  private static registerProxies() {
+    if (Environment.LOCAL) {
+      WebHookProxy.start();
+    }
   }
 
   private static get keys() {

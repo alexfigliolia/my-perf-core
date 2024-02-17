@@ -1,20 +1,31 @@
 import { GraphQLError } from "graphql";
+import type { Role } from "@prisma/client";
 import { DB } from "DB";
 import { Errors } from "Errors";
 import { Github } from "Github";
-import { UserController } from "Schema/Resolvers/User/Controller";
-import type { GithubCode, ISearchRepositories } from "./types";
+import type { GenericEmail } from "Schema/Resolvers/Emails";
+import { OrganizationController } from "Schema/Resolvers/Organization";
+import { RoleController } from "Schema/Resolvers/Role";
+import { UserController } from "Schema/Resolvers/User";
+import type { ICreateGithubUser, ISearchRepositories } from "./types";
 
 export class GithubController {
-  public static async createUser({ code }: GithubCode) {
+  public static async createUser(
+    { code, orgID }: ICreateGithubUser,
+    role: Role,
+  ) {
+    const org = await OrganizationController.findByID(orgID);
     const token = await this.generateAccessToken(code);
-    const { user, emails } = await this.getUserAndEmails(token);
-    const indexedUser = await UserController.findOrCreate(user.name, emails);
-    const GH = await this.createGithubUser(indexedUser.id, token);
-    return {
-      ...indexedUser,
-      github: GH,
-    };
+    const { user: githubUser, emails } = await this.getUserAndEmails(token);
+    const user = await UserController.findOrCreate(githubUser.name, emails);
+    const auth = await this.createGithubAuthorization(user.id, token);
+    await RoleController.create({
+      role,
+      userId: user.id,
+      organizationId: org.id,
+    });
+    await OrganizationController.addUserToOrganization(org.id, user.id);
+    return auth;
   }
 
   public static async getCurrentUser(token: string) {
@@ -29,12 +40,31 @@ export class GithubController {
     return user;
   }
 
+  public static selectGithubUser<E extends GenericEmail[]>(emails: E) {
+    return DB.user.findFirst({
+      where: {
+        emails: {
+          some: {
+            OR: emails.map(v => ({ name: v.email })),
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        github: true,
+      },
+    });
+  }
+
   public static async listUserRepositores({
     userId,
     page,
     sort,
   }: ISearchRepositories) {
-    const tokens = await DB.githubUser.findFirst({ where: { userId } });
+    const tokens = await DB.githubAuthorization.findFirst({
+      where: { userId },
+    });
     if (!tokens) {
       throw new GraphQLError("Unauthorized", {
         extensions: Errors.UNAUTHORIZED,
@@ -43,8 +73,8 @@ export class GithubController {
     return Github.Repositories.list(tokens.token, { sort, page });
   }
 
-  private static createGithubUser(userId: number, token: string) {
-    return DB.githubUser.upsert({
+  private static createGithubAuthorization(userId: number, token: string) {
+    return DB.githubAuthorization.upsert({
       where: { userId },
       create: {
         userId,

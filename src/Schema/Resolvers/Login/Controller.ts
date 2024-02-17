@@ -1,8 +1,7 @@
 import type { Request } from "express";
 import { GraphQLError } from "graphql";
 import { Errors } from "Errors";
-import { GithubController } from "Schema/Resolvers/Github/Controller";
-import { UserController } from "Schema/Resolvers/User/Controller";
+import { GithubController } from "Schema/Resolvers/Github";
 import { Sessions } from "Sessions";
 
 export class LoginController {
@@ -10,23 +9,25 @@ export class LoginController {
     return GithubController.getCurrentUser(code);
   }
 
-  public static async verify({ session }: Request) {
-    if (!session || !session.userID) {
+  public static verify({ session }: Request) {
+    if (!session || !session.userID || !session.loggedIn) {
       throw new GraphQLError("/login", {
         extensions: Errors.NOT_FOUND,
       });
     }
-    try {
-      const result = await UserController.userAndAffiliations(session.userID);
-      if (session.cookie.maxAge || 0 <= 0) {
-        session.cookie.maxAge = Sessions.AGE;
-      }
-      return result;
-    } catch (error) {
-      throw new GraphQLError("/login/sign-up", {
-        extensions: Errors.NOT_FOUND,
-      });
+    if (session.cookie.maxAge || 0 <= 0) {
+      session.cookie.maxAge = Sessions.AGE;
     }
+    return true;
+  }
+
+  public static verifyAnonymous({ session }: Request) {
+    if (!session || !session.loggedIn) {
+      return true;
+    }
+    throw new GraphQLError("/", {
+      extensions: Errors.UNEXPECTED_ERROR,
+    });
   }
 
   public static logout({ session }: Request) {

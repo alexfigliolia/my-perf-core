@@ -1,10 +1,10 @@
 import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import {
-  createOrganization,
+  createUserFromGithubInstallation,
+  githubOrganizationSetup,
   listAvailableRepositories,
   loginWithGithub,
   logout,
-  onboardWithGithub,
   verifyAnonymous,
   verifySession,
 } from "./Resolvers";
@@ -12,6 +12,7 @@ import {
 const QueryRoot = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
+    githubOrganizationSetup,
     listAvailableRepositories,
   }),
 });
@@ -22,13 +23,20 @@ const MutationRoot = new GraphQLObjectType({
     logout,
     verifySession,
     verifyAnonymous,
-    createOrganization,
-    onboardWithGithub,
     loginWithGithub,
+    createUserFromGithubInstallation,
+  }),
+});
+
+const SubscriptionRoot = new GraphQLObjectType({
+  name: "Subscription",
+  fields: () => ({
+    githubOrganizationSetup,
   }),
 });
 
 export const Schema = new GraphQLSchema({
   query: QueryRoot,
   mutation: MutationRoot,
+  subscription: SubscriptionRoot,
 });

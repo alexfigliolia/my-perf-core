@@ -1,19 +1,22 @@
-import type { IGithubUser } from "Schema/Resolvers/Github/types";
-import type { IBaseOrganizationWithUserRole } from "Schema/Resolvers/Organization/types";
+import type { Platform, Role } from "@prisma/client";
 
 export interface IBaseUser {
   id: number;
   name: string;
-  github: IGithubUser | null;
 }
 
 export interface IUserAndAffiliations {
-  user: IBaseUser;
-  organizations: IBaseOrganizationWithUserRole[];
-}
-
-export interface Email {
-  email: string;
-  primary?: boolean;
-  verified?: boolean;
+  name: string;
+  id: number;
+  organization: {
+    name: string;
+    id: number;
+    roles: {
+      role: Role;
+    }[];
+    platform: Platform;
+  }[];
+  github: {
+    token: string;
+  } | null;
 }

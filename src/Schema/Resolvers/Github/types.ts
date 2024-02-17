@@ -1,10 +1,18 @@
-import type { RepositoryQuery } from "Github/types";
+import type { RepositoryQuery } from "Github";
 
-export interface GithubCode {
+export interface IGithubCode {
   code: string;
 }
 
-export interface IGithubUser {
+export interface IInstallationID {
+  installation_id: number;
+}
+
+export interface ICreateGithubUser extends IGithubCode {
+  orgID: number;
+}
+
+export interface IGithubAuthorization {
   id: string;
   token: string;
 }

@@ -1,15 +1,23 @@
-import type { UserRole } from "@prisma/client";
+import type { Platform, Role } from "@prisma/client";
 
-export interface IBaseOrganization {
+export interface IInstallationParams {
+  installation_id: number;
+  platform: Platform;
+}
+
+export interface IOrganizationParams extends IInstallationParams {
+  name: string;
+}
+
+export interface IOrganization extends IOrganizationParams {
+  id: number;
+}
+
+export interface IOrgAffiliation {
   id: number;
   name: string;
-}
-
-export interface IBaseOrganizationWithUserRole extends IBaseOrganization {
-  role: UserRole;
-}
-
-export interface ICreateOrganization {
-  name: string;
-  ownerID: number;
+  roles: {
+    role: Role;
+  }[];
+  platform: Platform;
 }

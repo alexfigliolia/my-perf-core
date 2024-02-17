@@ -2,10 +2,9 @@ import bodyParser from "body-parser";
 import RedisStore from "connect-redis";
 import cors from "cors";
 import type { Express, Request, Response } from "express";
-import { graphqlHTTP } from "express-graphql";
 import session from "express-session";
+import { createYoga } from "graphql-yoga";
 import { Environment } from "Environment";
-import { Errors } from "Errors";
 import { Github } from "Github";
 import { Logger } from "Logger";
 import { RedisCache } from "RedisCache";
@@ -26,7 +25,7 @@ export class Middleware {
     this.configureCors();
     this.configureSessions();
     this.registerGQL();
-    Github.Webooks.registerMiddleware(this.App);
+    this.registerGithub();
   }
 
   private static configureParser() {
@@ -65,14 +64,19 @@ export class Middleware {
 
   private static registerGQL() {
     Logger.GQL("Mounting GraphQL");
-    this.App.all("/graphql", (req: Request, res: Response) => {
-      void graphqlHTTP({
-        schema: Schema,
-        graphiql: Environment.LOCAL,
-        context: { req, res },
-        customFormatErrorFn: Errors.handler(res),
-      })(req, res);
+    const yoga = createYoga({
+      schema: Schema,
+      graphqlEndpoint: "/graphql",
+      graphiql: Environment.LOCAL,
     });
+    this.App.use(
+      yoga.graphqlEndpoint,
+      (req: Request, res: Response) => void yoga(req, res),
+    );
+  }
+
+  private static registerGithub() {
+    Github.Webooks.registerMiddleware(this.App);
   }
 
   private static guard() {

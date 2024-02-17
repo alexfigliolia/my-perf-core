@@ -4,4 +4,3 @@ export * from "./Login";
 export * from "./Role";
 export * from "./Platform";
 export * from "./Github";
-export * from "./Onboarding";

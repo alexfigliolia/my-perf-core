@@ -4,6 +4,8 @@ export type GithubEventStream = {
   installation: InstallationEvent;
 };
 
+export type WebHookEvent = Extract<keyof GithubEventStream, string>;
+
 export interface AccessToken {
   access_token: string;
   token_type: "bearer";

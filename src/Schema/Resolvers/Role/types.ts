@@ -1,5 +1,11 @@
-import type { UserRole } from "@prisma/client";
+import type { Role } from "@prisma/client";
 
 export interface IBaseRole {
-  type: UserRole;
+  role: Role;
+}
+
+export interface ICreateRole {
+  role: Role;
+  userId: number;
+  organizationId: number;
 }

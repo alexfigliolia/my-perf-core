@@ -1,30 +1,60 @@
 import { DB } from "DB";
-import type { Email } from "./types";
+import type { GenericEmail } from "Schema/Resolvers/Emails";
+import { EmailController } from "Schema/Resolvers/Emails";
 
 export class UserController {
-  public static findByEmail<E extends Email[]>(emails: E) {
+  public static findByEmail<E extends GenericEmail[]>(emails: E) {
     return DB.user.findFirst({
       where: {
         emails: {
           some: {
-            OR: emails.map(v => ({ email: v.email })),
+            OR: emails.map(v => ({ name: v.email })),
           },
         },
       },
     });
   }
 
-  public static async findOrCreate<E extends Email[]>(name: string, emails: E) {
+  public static async findOrCreate<E extends GenericEmail[]>(
+    name: string,
+    emails: E,
+  ) {
     const user = await this.findByEmail(emails);
     if (user) {
+      await this.assignEmailsToUser(user.id, emails);
       return user;
     }
+    return this.createUserWithEmails(name, emails);
+  }
+
+  private static async assignEmailsToUser<E extends GenericEmail[]>(
+    userId: number,
+    emails: E,
+  ) {
+    const current = await DB.email.findMany({
+      where: { userId },
+      select: { name: true },
+    });
+    const set = new Set(current.map(v => v.name));
+    const transactions: Promise<any>[] = [];
+    for (const email of emails) {
+      if (!set.has(email.email)) {
+        transactions.push(EmailController.create(userId, email));
+      }
+    }
+    return Promise.all(transactions);
+  }
+
+  private static createUserWithEmails<E extends GenericEmail[]>(
+    name: string,
+    emails: E,
+  ) {
     return DB.user.create({
       data: {
         name,
         emails: {
           create: emails.map(v => ({
-            email: v.email,
+            name: v.email,
             primary: v.primary || false,
             verified: v.verified || false,
           })),
@@ -33,44 +63,29 @@ export class UserController {
     });
   }
 
-  public static async userAndAffiliations(userID: number) {
-    const { organizations, ...user } = await this.userScopeQuery(userID);
-    return {
-      user,
-      organizations: organizations.map(org => {
-        const { roles, ...rest } = org;
-        return {
-          ...rest,
-          role: roles[0].type,
-        };
-      }),
-    };
-  }
-
-  public static userScopeQuery(userID: number) {
-    return DB.user.findUniqueOrThrow({
-      where: { id: userID },
+  public static userScopeQuery(userId: number) {
+    return DB.user.findUnique({
+      where: { id: userId },
       select: {
         id: true,
         name: true,
         github: {
           select: {
-            id: true,
             token: true,
           },
         },
-        organizations: {
+        organization: {
           select: {
             id: true,
             name: true,
+            platform: true,
             roles: {
               where: {
-                userId: userID,
+                userId,
               },
               select: {
-                type: true,
+                role: true,
               },
-              take: 1,
             },
           },
         },

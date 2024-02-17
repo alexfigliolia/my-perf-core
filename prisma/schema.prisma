@@ -12,67 +12,51 @@ datasource db {
 }
 
 model Organization {
-  id     Int     @id @unique @default(autoincrement())
-  name   String
-  owners Owner[]
-  roles  Role[]
-  users  User[]
-}
-
-model Owner {
-  id             Int          @id @unique @default(autoincrement())
-  userId         Int
-  user           User         @relation(fields: [userId], references: [id])
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId Int
+  id              Int        @id @unique @default(autoincrement())
+  name            String
+  installation_id Int        @unique @default(autoincrement())
+  platform        Platform
+  users           User[]
+  roles           UserRole[]
 }
 
 model Email {
   id       Int     @id @unique @default(autoincrement())
-  email    String
-  user     User    @relation(fields: [userId], references: [id])
-  userId   Int
+  name     String  @unique
   verified Boolean @default(false)
   primary  Boolean @default(false)
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
 }
 
-model User {
-  id            Int            @id @unique @default(autoincrement())
-  name          String
-  emails        Email[]
-  roles         Role[]
-  ownerships    Owner[]
-  organizations Organization[]
-  github        GithubUser?
-}
-
-model GithubUser {
+model GithubAuthorization {
   id     Int    @id @unique @default(autoincrement())
   token  String
   user   User   @relation(fields: [userId], references: [id])
   userId Int    @unique
 }
 
-model Role {
+model User {
+  id           Int                  @id @unique @default(autoincrement())
+  name         String
+  emails       Email[]
+  roles        UserRole[]
+  organization Organization[]
+  github       GithubAuthorization?
+}
+
+model UserRole {
   id             Int          @id @unique @default(autoincrement())
-  type           UserRole     @default(viewer)
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId Int
   userId         Int
+  organizationId Int
+  role           Role
   user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
-model GithubRepository {
-  id        Int    @id @unique @default(autoincrement())
-  name      String
-  url       String
-  clone_url String
-  language  String
-}
-
-enum UserRole {
+enum Role {
   admin
-  engineer
+  manager
   viewer
 }
 
