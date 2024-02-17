@@ -44,12 +44,12 @@ model GithubAuthorization {
 }
 
 model User {
-  id           Int                  @id @unique @default(autoincrement())
-  name         String
-  emails       Email[]
-  roles        UserRole[]
-  organization Organization[]
-  github       GithubAuthorization?
+  id            Int                  @id @unique @default(autoincrement())
+  name          String
+  emails        Email[]
+  roles         UserRole[]
+  organizations Organization[]
+  github        GithubAuthorization?
 }
 
 model UserRole {

@@ -23,10 +23,10 @@ export const installationSetup: GraphQLFieldConfig<
     },
   },
   subscribe: (_, { installation_id, platform }) => {
-    return Subscriptions.subscribe(
-      "newInstallation",
-      InstallationController.broadcastKey(installation_id, platform),
-    );
+    const key = InstallationController.broadcastKey(installation_id, platform);
+    const subscription = Subscriptions.subscribe("newInstallation", key);
+    void InstallationController.emitLast(installation_id, platform);
+    return subscription;
   },
   resolve: (_, { installation_id, platform }) => {
     return InstallationController.find(installation_id, platform);

@@ -65,6 +65,24 @@ export class InstallationController {
     });
   }
 
+  public static async emitLast(installation_id: number, platform: Platform) {
+    try {
+      const install = await InstallationController.find(
+        installation_id,
+        platform,
+      );
+      if (install) {
+        Subscriptions.publish(
+          "newInstallation",
+          this.broadcastKey(installation_id, platform),
+          install,
+        );
+      }
+    } catch (error) {
+      // silence
+    }
+  }
+
   public static broadcastKey(installation_id: number, platform: string) {
     return `${installation_id}-${platform}`;
   }

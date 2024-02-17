@@ -74,7 +74,7 @@ export class UserController {
             token: true,
           },
         },
-        organization: {
+        organizations: {
           select: {
             id: true,
             name: true,
