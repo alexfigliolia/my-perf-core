@@ -4,12 +4,9 @@ export interface IGithubCode {
   code: string;
 }
 
-export interface IInstallationID {
-  installation_id: number;
-}
-
 export interface ICreateGithubUser extends IGithubCode {
-  orgID: number;
+  name: string;
+  installation_id: number;
 }
 
 export interface IGithubAuthorization {

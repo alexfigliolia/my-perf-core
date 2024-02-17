@@ -1,6 +1,6 @@
 import type { InstallationEvent } from "@octokit/webhooks-types";
 import type { WebHookEvent } from "Github/API";
-import { OrganizationController } from "Schema/Resolvers/Organization";
+import { InstallationController } from "Schema/Resolvers/Installation/Controller";
 import { BaseHandler } from "./BaseHandler";
 import type { HandlerArgs } from "./types";
 
@@ -24,11 +24,12 @@ export class Installations extends BaseHandler<"installation"> {
     if (event.action !== "created") {
       return;
     }
-    const { account, id } = event.installation;
-    const { login, type } = account;
+    const {
+      id,
+      account: { type },
+    } = event.installation;
     if (type === "Organization" || type === "User") {
-      void OrganizationController.create({
-        name: login,
+      void InstallationController.create({
         platform: "github",
         installation_id: id,
       });
@@ -40,6 +41,6 @@ export class Installations extends BaseHandler<"installation"> {
       return;
     }
     const { id } = event.installation;
-    void OrganizationController.delete(id);
+    void InstallationController.delete(id);
   }
 }

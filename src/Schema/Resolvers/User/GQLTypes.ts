@@ -1,16 +1,8 @@
-import type { GraphQLFieldConfig } from "graphql";
-import {
-  GraphQLError,
-  GraphQLInt,
-  GraphQLObjectType,
-  GraphQLString,
-} from "graphql";
-import { Errors } from "Errors";
+import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
 import { GithubAuthorizationType } from "Schema/Resolvers/Github/GQLTypes";
 import { OrgAffiliationType } from "Schema/Resolvers/Organization/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import { UserController } from "./Controller";
 import type { IBaseUser, IUserAndAffiliations } from "./types";
 
 export const UserType = new GraphQLObjectType<IBaseUser, Context>({
@@ -44,20 +36,3 @@ export const UserAndAffiliationsType = new GraphQLObjectType<
     },
   },
 });
-
-export const userAndAffiliations: GraphQLFieldConfig<
-  any,
-  Context,
-  Record<string, never>
-> = {
-  type: SchemaBuilder.nonNull(UserAndAffiliationsType),
-  resolve: (_1, _2, context) => {
-    const { userID } = context.req.session;
-    if (!userID) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: Errors.UNAUTHORIZED,
-      });
-    }
-    return UserController.userScopeQuery(userID);
-  },
-};

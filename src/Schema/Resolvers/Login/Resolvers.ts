@@ -3,8 +3,8 @@ import {
   type GraphQLFieldConfig,
   GraphQLString,
 } from "graphql";
-import type { IGithubCode } from "Schema/Resolvers/Github";
-import { UserType } from "Schema/Resolvers/User";
+import type { IGithubCode } from "Schema/Resolvers/Github/types";
+import { UserType } from "Schema/Resolvers/User/GQLTypes";
 import type { Context, None } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { LoginController } from "./Controller";

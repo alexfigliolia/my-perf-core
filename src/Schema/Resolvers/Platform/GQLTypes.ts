@@ -1,6 +1,6 @@
 import { GraphQLEnumType } from "graphql";
 
-export const Platform = new GraphQLEnumType({
+export const PlatformType = new GraphQLEnumType({
   name: "Platform",
   values: {
     github: {

@@ -5,11 +5,19 @@ CREATE TYPE "Role" AS ENUM ('admin', 'manager', 'viewer');
 CREATE TYPE "Platform" AS ENUM ('github', 'bitbucket');
 
 -- CreateTable
+CREATE TABLE "Installation" (
+    "id" SERIAL NOT NULL,
+    "installation_id" SERIAL NOT NULL,
+    "platform" "Platform" NOT NULL,
+    "organizationId" INTEGER,
+
+    CONSTRAINT "Installation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Organization" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "installation_id" SERIAL NOT NULL,
-    "platform" "Platform" NOT NULL,
 
     CONSTRAINT "Organization_pkey" PRIMARY KEY ("id")
 );
@@ -59,10 +67,13 @@ CREATE TABLE "_OrganizationToUser" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Organization_id_key" ON "Organization"("id");
+CREATE UNIQUE INDEX "Installation_id_key" ON "Installation"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Organization_installation_id_key" ON "Organization"("installation_id");
+CREATE UNIQUE INDEX "Installation_installation_id_key" ON "Installation"("installation_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Organization_id_key" ON "Organization"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Email_id_key" ON "Email"("id");
@@ -87,6 +98,9 @@ CREATE UNIQUE INDEX "_OrganizationToUser_AB_unique" ON "_OrganizationToUser"("A"
 
 -- CreateIndex
 CREATE INDEX "_OrganizationToUser_B_index" ON "_OrganizationToUser"("B");
+
+-- AddForeignKey
+ALTER TABLE "Installation" ADD CONSTRAINT "Installation_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Email" ADD CONSTRAINT "Email_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

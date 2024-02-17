@@ -9,15 +9,13 @@ export interface IOrganizationParams extends IInstallationParams {
   name: string;
 }
 
-export interface IOrganization extends IOrganizationParams {
-  id: number;
-}
-
 export interface IOrgAffiliation {
   id: number;
   name: string;
   roles: {
     role: Role;
   }[];
-  platform: Platform;
+  installations: {
+    platform: Platform;
+  }[];
 }

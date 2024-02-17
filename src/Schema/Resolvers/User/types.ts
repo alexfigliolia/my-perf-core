@@ -8,7 +8,7 @@ export interface IBaseUser {
 export interface IUserAndAffiliations {
   name: string;
   id: number;
-  organization: {
+  organizations: {
     name: string;
     id: number;
     roles: {

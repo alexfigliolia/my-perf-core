@@ -50,6 +50,7 @@ module.exports = {
     "no-prototype-builtins": 0,
     "prefer-rest-params": 0,
     "no-mixed-spaces-and-tabs": 0,
+    "import/no-cycle": "error",
     "@typescript-eslint/unbound-method": 0,
     "@typescript-eslint/no-unsafe-argument": 0,
     "@typescript-eslint/no-unsafe-return": 0,

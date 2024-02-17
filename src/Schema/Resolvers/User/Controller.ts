@@ -1,6 +1,6 @@
 import { DB } from "DB";
-import type { GenericEmail } from "Schema/Resolvers/Emails";
-import { EmailController } from "Schema/Resolvers/Emails";
+import { EmailController } from "Schema/Resolvers/Emails/Controller";
+import type { GenericEmail } from "Schema/Resolvers/Emails/types";
 
 export class UserController {
   public static findByEmail<E extends GenericEmail[]>(emails: E) {
@@ -78,7 +78,11 @@ export class UserController {
           select: {
             id: true,
             name: true,
-            platform: true,
+            installations: {
+              select: {
+                platform: true,
+              },
+            },
             roles: {
               where: {
                 userId,

@@ -3,18 +3,22 @@ import type { Role } from "@prisma/client";
 import { DB } from "DB";
 import { Errors } from "Errors";
 import { Github } from "Github";
-import type { GenericEmail } from "Schema/Resolvers/Emails";
-import { OrganizationController } from "Schema/Resolvers/Organization";
-import { RoleController } from "Schema/Resolvers/Role";
-import { UserController } from "Schema/Resolvers/User";
+import type { GenericEmail } from "Schema/Resolvers/Emails/types";
+import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
+import { RoleController } from "Schema/Resolvers/Role/Controller";
+import { UserController } from "Schema/Resolvers/User/Controller";
 import type { ICreateGithubUser, ISearchRepositories } from "./types";
 
 export class GithubController {
-  public static async createUser(
-    { code, orgID }: ICreateGithubUser,
+  public static async createAccount(
+    { code, installation_id, name }: ICreateGithubUser,
     role: Role,
   ) {
-    const org = await OrganizationController.findByID(orgID);
+    const org = await OrganizationController.create({
+      name,
+      installation_id,
+      platform: "github",
+    });
     const token = await this.generateAccessToken(code);
     const { user: githubUser, emails } = await this.getUserAndEmails(token);
     const user = await UserController.findOrCreate(githubUser.name, emails);

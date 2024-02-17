@@ -4,7 +4,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
-import type { Context } from "vm";
+import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import type { IEmail } from "./types";
 

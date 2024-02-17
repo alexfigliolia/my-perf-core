@@ -1,8 +1,7 @@
 import { GraphQLError } from "graphql";
 import { DB } from "DB";
 import { Errors } from "Errors";
-import { Subscriptions } from "Subscriptions";
-import type { IInstallationParams, IOrganizationParams } from "./types";
+import type { IOrganizationParams } from "./types";
 
 export class OrganizationController {
   public static async create({
@@ -13,18 +12,27 @@ export class OrganizationController {
     const Org = await DB.organization.create({
       data: {
         name,
-        platform,
-        installation_id,
+        installations: {
+          connectOrCreate: {
+            where: {
+              platform,
+              installation_id,
+            },
+            create: {
+              platform,
+              installation_id,
+            },
+          },
+        },
       },
     });
-    Subscriptions.publish("newOrganization", installation_id, Org);
     return Org;
   }
 
-  public static async delete(installation_id: number) {
+  public static async delete(id: number) {
     const org = await DB.organization.delete({
       where: {
-        installation_id,
+        id,
       },
     });
     if (!org) {
@@ -49,27 +57,6 @@ export class OrganizationController {
       });
     }
     return org;
-  }
-
-  public static findInstallation({
-    platform,
-    installation_id,
-  }: IInstallationParams) {
-    try {
-      return DB.organization.findUniqueOrThrow({
-        where: {
-          platform,
-          installation_id,
-        },
-      });
-    } catch (error) {
-      throw new GraphQLError(
-        `Your ${platform} installation was not found. Please try again in a few minutes`,
-        {
-          extensions: Errors.NOT_FOUND,
-        },
-      );
-    }
   }
 
   public static addUserToOrganization(orgID: number, userId: number) {

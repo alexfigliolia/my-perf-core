@@ -11,13 +11,20 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-model Organization {
-  id              Int        @id @unique @default(autoincrement())
-  name            String
-  installation_id Int        @unique @default(autoincrement())
+model Installation {
+  id              Int           @id @unique @default(autoincrement())
+  installation_id Int           @unique @default(autoincrement())
   platform        Platform
-  users           User[]
-  roles           UserRole[]
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  organizationId  Int?
+}
+
+model Organization {
+  id            Int            @id @unique @default(autoincrement())
+  name          String
+  users         User[]
+  roles         UserRole[]
+  installations Installation[]
 }
 
 model Email {

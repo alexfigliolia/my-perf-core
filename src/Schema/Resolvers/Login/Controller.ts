@@ -1,7 +1,7 @@
 import type { Request } from "express";
 import { GraphQLError } from "graphql";
 import { Errors } from "Errors";
-import { GithubController } from "Schema/Resolvers/Github";
+import { GithubController } from "Schema/Resolvers/Github/Controller";
 import { Sessions } from "Sessions";
 
 export class LoginController {

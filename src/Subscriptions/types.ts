@@ -1,5 +1,5 @@
-import type { Organization } from "@prisma/client";
+import type { Installation } from "@prisma/client";
 
 export type Channels = {
-  newOrganization: [installation_id: number, payload: Organization];
+  newInstallation: [identifier: string, payload: Installation];
 };
