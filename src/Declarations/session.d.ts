@@ -5,7 +5,5 @@ declare module "express-session" {
     userID: number | null;
     loggedIn: boolean | null;
     githubUserToken: string | null;
-    githubInstallationToken: string | null;
-    bitbucketInstallationToken: string | null;
   }
 }

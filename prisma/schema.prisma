@@ -12,13 +12,14 @@ datasource db {
 }
 
 model Installation {
-  id              Int           @id @unique @default(autoincrement())
-  installation_id Int           @unique @default(autoincrement())
+  id              Int              @id @unique @default(autoincrement())
+  installation_id Int              @unique @default(autoincrement())
   platform        Platform
-  organization    Organization? @relation(fields: [organizationId], references: [id])
+  organization    Organization?    @relation(fields: [organizationId], references: [id])
   organizationId  Int?
   token           String
   expiration      String
+  type            InstallationType @default(individual)
 }
 
 model Organization {
@@ -72,4 +73,9 @@ enum Role {
 enum Platform {
   github
   bitbucket
+}
+
+enum InstallationType {
+  individual
+  organization
 }

@@ -28,6 +28,11 @@ export interface GithubEmail {
   visibility: string;
 }
 
+export interface IInstallationRepositoryResponse {
+  total_count: number;
+  repositories: IGithubRepository[];
+}
+
 export interface IGithubRepository {
   id: number;
   name: string;
@@ -38,9 +43,16 @@ export interface IGithubRepository {
   source: "github";
 }
 
-export interface RepositoryQuery {
-  sort?: string | null;
+export interface InstallationRepositoryQuery {
   page?: string | null;
+}
+
+export interface ListRepositoryQuery extends InstallationRepositoryQuery {
+  sort?: string | null;
+}
+
+export interface ListOrganizationRepositoryQuery extends ListRepositoryQuery {
+  organization_name: string;
 }
 
 export interface GithubAPIError {
@@ -53,4 +65,10 @@ export interface IInstallationToken {
   expires_at: string;
   permissions: Record<string, string>;
   repository_selection: string;
+}
+
+export interface ITokenValidation {
+  token: string;
+  expiration: string;
+  installation_id: number;
 }

@@ -5,19 +5,21 @@ import { Errors as GithubError, InstallationTokens } from "Github/API";
 import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { Subscriptions } from "Subscriptions";
-import type { ICreateInstallation, TokenList } from "./types";
+import type { ICreateInstallation, IToken } from "./types";
 
 export class InstallationController {
   public static async create({
+    type,
     platform,
     installation_id,
   }: ICreateInstallation) {
     const { token, expiration } =
-      await this.generateGithubToken(installation_id);
+      await this.generateGithubInstallationToken(installation_id);
     return ORM.query({
       transaction: DB => {
         return DB.installation.create({
           data: {
+            type,
             token,
             platform,
             expiration,
@@ -121,10 +123,10 @@ export class InstallationController {
     return `${installation_id}-${platform}`;
   }
 
-  public static async generateGithubToken(installation_id: number) {
+  public static async generateGithubInstallationToken(installation_id: number) {
     const token = await InstallationTokens.create(installation_id);
     if (GithubError.isAPIEror(token)) {
-      throw new GraphQLError("Failed to authorize github installation", {
+      throw new GraphQLError(token.message, {
         extensions: Errors.UNEXPECTED_ERROR,
       });
     }
@@ -134,16 +136,61 @@ export class InstallationController {
     };
   }
 
-  public static parseTokens<T extends TokenList>(tokens: T) {
-    let github: string | null = null;
-    let bitbucket: string | null = null;
-    for (const { token, platform } of tokens) {
-      if (platform === "github") {
-        github = token;
-      } else if (platform === "bitbucket") {
-        bitbucket = token;
-      }
+  public static async currentToken(id: number) {
+    const current = await this.getToken(id);
+    const nextToken = await InstallationTokens.validateToken({
+      ...current,
+      installation_id: id,
+    });
+    if (GithubError.isAPIEror(nextToken)) {
+      throw new GraphQLError(nextToken.message, {
+        extensions: Errors.UNEXPECTED_ERROR,
+        originalError: new Error("Unexpected Error", { cause: nextToken }),
+      });
     }
-    return { github, bitbucket };
+    const { token, expires_at } = nextToken;
+    if (
+      expires_at !== current.expiration ||
+      nextToken.token !== current.token
+    ) {
+      void this.setToken(id, { token, expiration: expires_at });
+    }
+    return token;
+  }
+
+  private static getToken(id: number) {
+    return ORM.query({
+      transaction: DB => {
+        return DB.installation.findUnique({
+          where: { id },
+          select: {
+            token: true,
+            expiration: true,
+          },
+        });
+      },
+      onResult: data => data,
+      onError: error => {
+        throw new GraphQLError("Unauthorized", {
+          extensions: Errors.UNAUTHORIZED,
+          originalError: error,
+        });
+      },
+    });
+  }
+
+  public static setToken(id: number, token: IToken) {
+    return ORM.query({
+      transaction: DB => {
+        return DB.installation.update({
+          where: { id },
+          data: {
+            ...token,
+          },
+        });
+      },
+      onResult: data => data,
+      onError: () => {},
+    });
   }
 }

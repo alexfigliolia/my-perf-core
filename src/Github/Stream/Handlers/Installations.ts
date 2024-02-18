@@ -27,6 +27,7 @@ export class Installations extends BaseHandler<"installation"> {
       void InstallationController.create({
         platform: "github",
         installation_id: id,
+        type: type === "User" ? "individual" : "organization",
       });
     }
   }

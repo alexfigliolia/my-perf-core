@@ -3,6 +3,9 @@ import {
   createGithubAccount,
   installationSetup,
   listAvailableRepositories,
+  listGithubInstallationRepositories,
+  listGithubOrganizationRepositories,
+  listGithubUserRepositories,
   loginWithGithub,
   logout,
   userAndAffiliations,
@@ -16,6 +19,9 @@ const QueryRoot = new GraphQLObjectType({
     installationSetup,
     userAndAffiliations,
     listAvailableRepositories,
+    listGithubUserRepositories,
+    listGithubInstallationRepositories,
+    listGithubOrganizationRepositories,
   }),
 });
 

@@ -106,6 +106,8 @@ export class UserController {
                 name: true,
                 installations: {
                   select: {
+                    id: true,
+                    type: true,
                     platform: true,
                   },
                 },

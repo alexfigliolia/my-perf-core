@@ -1,6 +1,12 @@
-import type { Platform } from "@prisma/client";
+import type { InstallationType, Platform } from "@prisma/client";
+
+export interface IToken {
+  token: string;
+  expiration: string;
+}
 
 export interface ICreateInstallation {
+  type: InstallationType;
   installation_id: number;
   platform: Platform;
 }

@@ -3,7 +3,6 @@ import type { Role } from "@prisma/client";
 import { Errors } from "Errors";
 import { Errors as GithubErrors, OAuth } from "Github/API";
 import { ORM } from "ORM";
-import { InstallationController } from "Schema/Resolvers/Installation/Controller";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { RoleController } from "Schema/Resolvers/Role/Controller";
 import { UserController } from "Schema/Resolvers/User/Controller";
@@ -19,18 +18,17 @@ export class GithubController {
       installation_id,
       platform: "github",
     });
-    const installTokens = InstallationController.parseTokens(org.installations);
     const token = await this.generateAccessToken(code);
     const { user: githubUser, emails } = await this.getUserAndEmails(token);
     const user = await UserController.findOrCreate(githubUser.name, emails);
-    const userAuth = await this.createGithubUserAuthorization(user.id, token);
+    const auth = await this.createGithubUserAuthorization(user.id, token);
     await RoleController.create({
       role,
       userId: user.id,
       organizationId: org.id,
     });
     await OrganizationController.addUserToOrganization(org.id, user.id);
-    return { userAuth, installTokens };
+    return auth;
   }
 
   public static async getCurrentUser(token: string) {

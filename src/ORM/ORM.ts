@@ -20,10 +20,13 @@ export class ORM {
       return onResult(result) as ReturnType<R>;
     } catch (error) {
       Logger.GQL(error);
+      let thrown: Error;
       if (error instanceof Error) {
-        return onError(error) as ReturnType<E>;
+        thrown = error;
+      } else {
+        thrown = new Error("ORM Error", { cause: error });
       }
-      return onError(new Error("ORM Error", { cause: error })) as ReturnType<E>;
+      return onError(thrown) as ReturnType<E>;
     }
   }
 
