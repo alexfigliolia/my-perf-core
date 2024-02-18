@@ -14,24 +14,24 @@ export class Repositories extends API {
   ) {
     const params = new URLSearchParams({
       page: options.page || "1",
-      sort: options.sort || "full_name",
+      sort: options.sort || "updated",
     });
-    const repos = await this.wrapGet<IGithubRepository[]>(
+    const response = await this.wrapGet<IGithubRepository[]>(
       `https://api.github.com/user/repos?${params.toString()}`,
       token,
     );
-    if (Array.isArray(repos)) {
-      return repos.map(v => ({
-        id: v.id,
-        name: v.name,
-        description: v.description,
-        html_url: v.html_url,
-        clone_url: v.clone_url,
-        language: v.language,
-        source: "github",
-      }));
+    if (Errors.isAPIEror(response)) {
+      return response;
     }
-    return repos;
+    return response.map(v => ({
+      id: v.id,
+      name: v.name,
+      description: v.description,
+      html_url: v.html_url,
+      clone_url: v.clone_url,
+      language: v.language,
+      source: "github",
+    }));
   }
 
   public static async listInstallationRepositories(
@@ -69,23 +69,23 @@ export class Repositories extends API {
     const { organization_name } = options;
     const params = new URLSearchParams({
       page: options.page || "1",
-      sort: options.sort || "full_name",
+      sort: options.sort || "updated",
     });
-    const repos = await this.wrapGet<IGithubRepository[]>(
+    const response = await this.wrapGet<IGithubRepository[]>(
       `https://api.github.com/orgs/${organization_name}/repos?${params.toString()}`,
       token,
     );
-    if (Array.isArray(repos)) {
-      return repos.map(v => ({
-        id: v.id,
-        name: v.name,
-        description: v.description,
-        html_url: v.html_url,
-        clone_url: v.clone_url,
-        language: v.language,
-        source: "github",
-      }));
+    if (Errors.isAPIEror(response)) {
+      return response;
     }
-    return repos;
+    return response.map(v => ({
+      id: v.id,
+      name: v.name,
+      description: v.description,
+      html_url: v.html_url,
+      clone_url: v.clone_url,
+      language: v.language,
+      source: "github",
+    }));
   }
 }
