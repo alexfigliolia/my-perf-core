@@ -15,15 +15,17 @@ export class OrganizationController {
           data: {
             name,
             installations: {
-              connectOrCreate: {
-                where: {
-                  platform,
-                  installation_id,
-                },
-                create: {
-                  platform,
-                  installation_id,
-                },
+              connect: {
+                platform,
+                installation_id,
+              },
+            },
+          },
+          include: {
+            installations: {
+              select: {
+                token: true,
+                platform: true,
               },
             },
           },

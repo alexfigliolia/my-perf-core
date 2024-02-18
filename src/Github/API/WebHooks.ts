@@ -6,9 +6,9 @@ import { Logger } from "Logger";
 import type { GithubEventStream } from "./types";
 
 export class WebHooks {
-  public Emitter = new EventEmitter<GithubEventStream>();
+  public static Emitter = new EventEmitter<GithubEventStream>();
 
-  public registerMiddleware(App: Express) {
+  public static registerMiddleware(App: Express) {
     App.use("/github/events", (req, res) => {
       if (!this.verifyEvent(req)) {
         return res.status(401).send("Unauthorized");
@@ -19,7 +19,7 @@ export class WebHooks {
     });
   }
 
-  public verifyEvent(request: Request) {
+  public static verifyEvent(request: Request) {
     const signature = createHmac("sha256", Environment.GITHUB_WEBHOOK_SECRET)
       .update(JSON.stringify(request.body))
       .digest("hex");

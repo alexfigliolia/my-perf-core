@@ -1,7 +1,7 @@
 import type { GithubAPIError } from "./types";
 
 export class Errors {
-  public isAPIEror<T>(
+  public static isAPIEror<T>(
     response: T | GithubAPIError,
   ): response is GithubAPIError {
     // @ts-ignore

@@ -5,7 +5,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
-  ignorePatterns: ["node_modules", "build", "coverage", "__Stealth__"],
+  ignorePatterns: ["node_modules", "dist", "coverage"],
   extends: [
     "eslint:recommended",
     "plugin:import/recommended",
@@ -22,9 +22,6 @@ module.exports = {
     sourceType: "module",
     tsconfigRootDir: __dirname, // eslint-disable-line no-undef
     project: "./tsconfig.json",
-    ecmaFeatures: {
-      jsx: true,
-    },
   },
   overrides: [
     {

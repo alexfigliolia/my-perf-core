@@ -1,5 +1,5 @@
 import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
-import { GithubAuthorizationType } from "Schema/Resolvers/Github/GQLTypes";
+import { GithubUserAuthorizationType } from "Schema/Resolvers/Github/GQLTypes";
 import { OrgAffiliationType } from "Schema/Resolvers/Organization/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
@@ -31,7 +31,7 @@ export const UserAndAffiliationsType = new GraphQLObjectType<
       resolve: user => user.organizations,
     },
     github: {
-      type: GithubAuthorizationType,
+      type: GithubUserAuthorizationType,
       resolve: user => user.github,
     },
   },

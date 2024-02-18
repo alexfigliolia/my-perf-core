@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Logger } from "Logger/Logger";
+import { Logger } from "Logger";
 import type { IQuery, OnError, OnResult, Transaction } from "./types";
 
 export class ORM {
@@ -19,7 +19,7 @@ export class ORM {
       }
       return onResult(result) as ReturnType<R>;
     } catch (error) {
-      Logger.GQL("Query Error", error);
+      Logger.GQL(error);
       if (error instanceof Error) {
         return onError(error) as ReturnType<E>;
       }

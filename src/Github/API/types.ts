@@ -47,3 +47,10 @@ export interface GithubAPIError {
   message: string;
   documentation_url: string;
 }
+
+export interface IInstallationToken {
+  token: string;
+  expires_at: string;
+  permissions: Record<string, string>;
+  repository_selection: string;
+}

@@ -5,7 +5,7 @@ import type { Express, Request, Response } from "express";
 import session from "express-session";
 import { createYoga } from "graphql-yoga";
 import { Environment } from "Environment";
-import { Github } from "Github";
+import { WebHooks } from "Github/API";
 import { Logger } from "Logger";
 import { RedisCache } from "RedisCache";
 import { Schema } from "Schema";
@@ -76,7 +76,7 @@ export class Middleware {
   }
 
   private static registerGithub() {
-    Github.Webooks.registerMiddleware(this.App);
+    WebHooks.registerMiddleware(this.App);
   }
 
   private static guard() {

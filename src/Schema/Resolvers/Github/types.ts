@@ -7,7 +7,7 @@ export interface ICreateGithubUser extends IGithubCode {
   installation_id: number;
 }
 
-export interface IGithubAuthorization {
+export interface IGithubUserAuthorization {
   id: string;
   token: string;
 }

@@ -20,6 +20,7 @@
     "clear-sessions": "redis-cli flushall",
     "dev": "NODE_EXTRA_CA_CERTS=cert/server.cert ts-node devtools/dev-server/CLI.ts",
     "lint": "ts-node ci/commands/Lint.ts",
+    "reset-db": "npx prisma migrate reset && npx prisma db push && yarn clear-sessions",
     "migrate": "npx prisma migrate dev --name",
     "prod": "pm2 start 'npm run start' -i max",
     "prod:stop": "pm2 stop all",

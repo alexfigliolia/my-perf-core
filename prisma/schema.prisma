@@ -17,6 +17,8 @@ model Installation {
   platform        Platform
   organization    Organization? @relation(fields: [organizationId], references: [id])
   organizationId  Int?
+  token           String
+  expiration      Int
 }
 
 model Organization {
@@ -36,7 +38,7 @@ model Email {
   userId   Int
 }
 
-model GithubAuthorization {
+model GithubUserAuthorization {
   id     Int    @id @unique @default(autoincrement())
   token  String
   user   User   @relation(fields: [userId], references: [id])
@@ -44,12 +46,12 @@ model GithubAuthorization {
 }
 
 model User {
-  id            Int                  @id @unique @default(autoincrement())
+  id            Int                      @id @unique @default(autoincrement())
   name          String
   emails        Email[]
   roles         UserRole[]
   organizations Organization[]
-  github        GithubAuthorization?
+  github        GithubUserAuthorization?
 }
 
 model UserRole {

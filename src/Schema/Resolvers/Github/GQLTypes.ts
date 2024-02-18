@@ -1,13 +1,13 @@
 import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
 import type { IGithubRepository } from "Github";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
-import type { IGithubAuthorization } from "./types";
+import type { IGithubUserAuthorization } from "./types";
 
-export const GithubAuthorizationType = new GraphQLObjectType<
-  IGithubAuthorization,
+export const GithubUserAuthorizationType = new GraphQLObjectType<
+  IGithubUserAuthorization,
   Context
 >({
-  name: "GithubAuthorizationType",
+  name: "GithubUserAuthorizationType",
   fields: {
     id: {
       type: SchemaBuilder.nonNull(GraphQLInt),

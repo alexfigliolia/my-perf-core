@@ -2,7 +2,7 @@ import nodeFetch from "node-fetch";
 import type { GithubAPIError } from "./types";
 
 export class API {
-  protected async wrapRequest<T>(url: string, token: string) {
+  protected static async wrapGet<T>(url: string, token: string) {
     const response = await nodeFetch(url, {
       method: "GET",
       headers: this.createHeaders(token),
@@ -10,7 +10,15 @@ export class API {
     return response.json() as unknown as T | GithubAPIError;
   }
 
-  protected createHeaders(token: string) {
+  protected static async wrapPost<T>(url: string, token: string) {
+    const response = await nodeFetch(url, {
+      method: "POST",
+      headers: this.createHeaders(token),
+    });
+    return response.json() as unknown as T | GithubAPIError;
+  }
+
+  protected static createHeaders(token: string) {
     return {
       Accept: "application/json",
       Authorization: `Bearer ${token}`,

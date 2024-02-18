@@ -1,33 +1,27 @@
-import type { EventEmitter } from "@figliolia/event-emitter";
-import type { GithubEventStream } from "Github/API";
-import type { Handler, IHandler } from "./Handlers";
+import { type GithubEventStream, WebHooks } from "Github/API";
 import { Installations } from "./Handlers";
 
 export class Stream {
-  private Listeners: Handler[];
-  private Emitter: EventEmitter<GithubEventStream>;
-  private static readonly DefaultListeners: IHandler[] = [Installations];
-  constructor(Emitter: EventEmitter<GithubEventStream>) {
-    this.Emitter = Emitter;
-    this.Listeners = Stream.DefaultListeners.map(L => {
-      const H = new L(Emitter);
-      H.initialize();
-      return H;
-    });
-  }
+  private static readonly DefaultListeners = [Installations];
+  private static Listeners = this.DefaultListeners.map(L => {
+    return new L().initialize();
+  });
 
-  public subscribe<E extends keyof GithubEventStream>(
+  public static subscribe<E extends keyof GithubEventStream>(
     event: E,
     callback: (payload: GithubEventStream[E]) => void,
   ) {
-    return this.Emitter.on(event, callback);
+    return WebHooks.Emitter.on(event, callback);
   }
 
-  public unsubscribe<E extends keyof GithubEventStream>(event: E, ID: string) {
-    return this.Emitter.off(event, ID);
+  public static unsubscribe<E extends keyof GithubEventStream>(
+    event: E,
+    ID: string,
+  ) {
+    return WebHooks.Emitter.off(event, ID);
   }
 
-  public destroy() {
+  public static destroy() {
     this.Listeners.forEach(L => L.destroy());
   }
 }

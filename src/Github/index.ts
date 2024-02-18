@@ -1,3 +1,3 @@
-export { Github } from "./Github";
+export * from "./Stream";
+export * from "./API";
 export { WebHookProxy } from "./WebHookProxy";
-export * from "./API/types";

@@ -1,21 +1,26 @@
 import { GraphQLError } from "graphql";
 import type { Platform } from "@prisma/client";
 import { Errors } from "Errors";
+import { Errors as GithubError, InstallationTokens } from "Github/API";
 import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { Subscriptions } from "Subscriptions";
-import type { ICreateInstallation } from "./types";
+import type { ICreateInstallation, TokenList } from "./types";
 
 export class InstallationController {
   public static async create({
     platform,
     installation_id,
   }: ICreateInstallation) {
+    const { token, expiration } =
+      await this.generateGithubToken(installation_id);
     return ORM.query({
       transaction: DB => {
         return DB.installation.create({
           data: {
+            token,
             platform,
+            expiration,
             installation_id,
           },
         });
@@ -114,5 +119,31 @@ export class InstallationController {
 
   public static broadcastKey(installation_id: number, platform: string) {
     return `${installation_id}-${platform}`;
+  }
+
+  public static async generateGithubToken(installation_id: number) {
+    const token = await InstallationTokens.create(installation_id);
+    if (GithubError.isAPIEror(token)) {
+      throw new GraphQLError("Failed to authorize github installation", {
+        extensions: Errors.UNEXPECTED_ERROR,
+      });
+    }
+    return {
+      token: token.token,
+      expiration: Date.parse(token.expires_at),
+    };
+  }
+
+  public static parseTokens<T extends TokenList>(tokens: T) {
+    let github: string | null = null;
+    let bitbucket: string | null = null;
+    for (const { token, platform } of tokens) {
+      if (platform === "github") {
+        github = token;
+      } else if (platform === "bitbucket") {
+        bitbucket = token;
+      }
+    }
+    return { github, bitbucket };
   }
 }

@@ -1,8 +1,9 @@
 import { GraphQLError } from "graphql";
 import type { Role } from "@prisma/client";
 import { Errors } from "Errors";
-import { Github } from "Github";
+import { Errors as GithubErrors, OAuth } from "Github/API";
 import { ORM } from "ORM";
+import { InstallationController } from "Schema/Resolvers/Installation/Controller";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { RoleController } from "Schema/Resolvers/Role/Controller";
 import { UserController } from "Schema/Resolvers/User/Controller";
@@ -18,22 +19,23 @@ export class GithubController {
       installation_id,
       platform: "github",
     });
+    const installTokens = InstallationController.parseTokens(org.installations);
     const token = await this.generateAccessToken(code);
     const { user: githubUser, emails } = await this.getUserAndEmails(token);
     const user = await UserController.findOrCreate(githubUser.name, emails);
-    const auth = await this.createGithubAuthorization(user.id, token);
+    const userAuth = await this.createGithubUserAuthorization(user.id, token);
     await RoleController.create({
       role,
       userId: user.id,
       organizationId: org.id,
     });
     await OrganizationController.addUserToOrganization(org.id, user.id);
-    return auth;
+    return { userAuth, installTokens };
   }
 
   public static async getCurrentUser(token: string) {
-    const emails = await Github.OAuth.getUserEmails(token);
-    if (Github.Errors.isAPIEror(emails)) {
+    const emails = await OAuth.getUserEmails(token);
+    if (GithubErrors.isAPIEror(emails)) {
       throw this.notFoundError;
     }
     const user = await UserController.findByEmail(emails);
@@ -43,10 +45,10 @@ export class GithubController {
     return user;
   }
 
-  private static createGithubAuthorization(userId: number, token: string) {
+  private static createGithubUserAuthorization(userId: number, token: string) {
     return ORM.query({
       transaction: DB => {
-        return DB.githubAuthorization.upsert({
+        return DB.githubUserAuthorization.upsert({
           where: { userId },
           create: {
             userId,
@@ -69,8 +71,8 @@ export class GithubController {
   }
 
   private static async getUserAndEmails(token: string) {
-    const { user, emails } = await Github.OAuth.getUser(token);
-    if (Github.Errors.isAPIEror(user)) {
+    const { user, emails } = await OAuth.getUser(token);
+    if (GithubErrors.isAPIEror(user)) {
       throw new GraphQLError(
         "We ran into an error authenticating your account with github. Please try again.",
         {
@@ -78,15 +80,15 @@ export class GithubController {
         },
       );
     }
-    if (Github.Errors.isAPIEror(emails)) {
+    if (GithubErrors.isAPIEror(emails)) {
       return { user, emails: [] };
     }
     return { user, emails };
   }
 
   private static async generateAccessToken(code: string) {
-    const token = await Github.OAuth.generateToken(code);
-    if (Github.Errors.isAPIEror(token)) {
+    const token = await OAuth.generateToken(code);
+    if (GithubErrors.isAPIEror(token)) {
       throw new GraphQLError(
         "We ran into an error authenticating your account with github. Please try again.",
         {
