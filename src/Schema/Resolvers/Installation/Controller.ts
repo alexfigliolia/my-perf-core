@@ -130,7 +130,7 @@ export class InstallationController {
     }
     return {
       token: token.token,
-      expiration: Date.parse(token.expires_at),
+      expiration: token.expires_at,
     };
   }
 
