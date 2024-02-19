@@ -40,7 +40,8 @@ export interface IGithubRepository {
   html_url: string;
   clone_url: string;
   language: string;
-  source: "github";
+  platform: "github";
+  url: string;
 }
 
 export interface InstallationRepositoryQuery {

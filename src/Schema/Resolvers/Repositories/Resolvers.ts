@@ -7,7 +7,7 @@ import { InstallationController } from "Schema/Resolvers/Installation/Controller
 import { InstallationTypeEnum } from "Schema/Resolvers/Installation/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import { GithubRepository } from "./GQLTypes";
+import { AvailableRepositoryType } from "./GQLTypes";
 import type {
   IAvailableRepositories,
   IInstallationRepositories,
@@ -19,7 +19,7 @@ export const listGithubUserRepositories: GraphQLFieldConfig<
   Context,
   ListRepositoryQuery
 > = {
-  type: SchemaBuilder.nonNullArray(GithubRepository),
+  type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
   args: {
     sort: {
       type: GraphQLString,
@@ -44,7 +44,7 @@ export const listGithubInstallationRepositories: GraphQLFieldConfig<
   Context,
   IInstallationRepositories
 > = {
-  type: SchemaBuilder.nonNullArray(GithubRepository),
+  type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
   args: {
     page: {
       type: GraphQLString,
@@ -64,7 +64,7 @@ export const listGithubOrganizationRepositories: GraphQLFieldConfig<
   Context,
   IOrganizationRepositories
 > = {
-  type: SchemaBuilder.nonNullArray(GithubRepository),
+  type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
   args: {
     page: {
       type: GraphQLString,
@@ -90,7 +90,7 @@ export const listAvailableRepositories: GraphQLFieldConfig<
   Context,
   IAvailableRepositories
 > = {
-  type: SchemaBuilder.nonNullArray(GithubRepository),
+  type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
   args: {
     page: {
       type: GraphQLString,

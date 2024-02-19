@@ -1,18 +1,15 @@
 import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
-import type { IGithubRepository } from "Github/API";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
+import { PlatformType } from "../Platform/GQLTypes";
+import type { IAvailableRepository } from "./types";
 
-export const GithubRepository = new GraphQLObjectType<
-  IGithubRepository,
+export const AvailableRepositoryType = new GraphQLObjectType<
+  IAvailableRepository,
   Context
 >({
-  name: "GithubRepository",
+  name: "AvailableRepository",
   fields: {
-    id: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
-      resolve: repo => repo.id,
-    },
     name: {
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.name,
@@ -25,6 +22,10 @@ export const GithubRepository = new GraphQLObjectType<
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.html_url,
     },
+    api_url: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+      resolve: repo => repo.api_url,
+    },
     clone_url: {
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.clone_url,
@@ -33,9 +34,13 @@ export const GithubRepository = new GraphQLObjectType<
       type: GraphQLString,
       resolve: repo => repo.language,
     },
-    source: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-      resolve: repo => repo.source,
+    platform: {
+      type: SchemaBuilder.nonNull(PlatformType),
+      resolve: repo => repo.platform,
+    },
+    platform_id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: repo => repo.platform_id,
     },
   },
 });

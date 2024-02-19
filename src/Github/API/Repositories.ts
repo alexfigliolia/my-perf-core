@@ -24,13 +24,14 @@ export class Repositories extends API {
       return response;
     }
     return response.map(v => ({
-      id: v.id,
       name: v.name,
       description: v.description,
       html_url: v.html_url,
       clone_url: v.clone_url,
       language: v.language,
-      source: "github",
+      platform: "github",
+      api_url: v.url,
+      platform_id: v.id,
     }));
   }
 
@@ -51,13 +52,14 @@ export class Repositories extends API {
     }
     if (Array.isArray(response.repositories)) {
       return response.repositories.map(v => ({
-        id: v.id,
         name: v.name,
         description: v.description,
         html_url: v.html_url,
         clone_url: v.clone_url,
         language: v.language,
-        source: "github",
+        platform: "github",
+        api_url: v.url,
+        platform_id: v.id,
       }));
     }
   }
@@ -79,13 +81,14 @@ export class Repositories extends API {
       return response;
     }
     return response.map(v => ({
-      id: v.id,
       name: v.name,
       description: v.description,
       html_url: v.html_url,
       clone_url: v.clone_url,
       language: v.language,
-      source: "github",
+      platform: "github",
+      api_url: v.url,
+      platform_id: v.id,
     }));
   }
 }

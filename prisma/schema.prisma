@@ -23,11 +23,12 @@ model Installation {
 }
 
 model Organization {
-  id            Int            @id @unique @default(autoincrement())
-  name          String
-  users         User[]
-  roles         UserRole[]
-  installations Installation[]
+  id                  Int                 @id @unique @default(autoincrement())
+  name                String
+  users               User[]
+  roles               UserRole[]
+  installations       Installation[]
+  trackedRepositories TrackedRepository[]
 }
 
 model Email {
@@ -62,6 +63,18 @@ model UserRole {
   role           Role
   user           User         @relation(fields: [userId], references: [id])
   organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model TrackedRepository {
+  id             Int          @id @unique @default(autoincrement())
+  name           String
+  description    String       @default("")
+  language       String       @default("")
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  platform       Platform
+  api_url        String
+  platform_id    Int
 }
 
 enum Role {

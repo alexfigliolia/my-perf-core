@@ -8,6 +8,8 @@ import {
   listGithubUserRepositories,
   loginWithGithub,
   logout,
+  trackedRepositories,
+  trackRepository,
   userAndAffiliations,
   verifyAnonymous,
   verifySession,
@@ -18,6 +20,7 @@ const QueryRoot = new GraphQLObjectType({
   fields: () => ({
     installationSetup,
     userAndAffiliations,
+    trackedRepositories,
     listAvailableRepositories,
     listGithubUserRepositories,
     listGithubInstallationRepositories,
@@ -33,6 +36,7 @@ const MutationRoot = new GraphQLObjectType({
     verifyAnonymous,
     loginWithGithub,
     createGithubAccount,
+    trackRepository,
   }),
 });
 
