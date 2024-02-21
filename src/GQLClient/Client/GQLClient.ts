@@ -2,18 +2,25 @@ import { GraphQLClient } from "graphql-request";
 import type { ErrorHandling, IGQLRequest } from "./types";
 
 export class GQLClient<D, V extends Record<string, any> = Record<string, any>> {
+  url: string;
   query: string;
   variables: V;
   errorHandling: ErrorHandling;
   signal = new AbortController();
-  constructor({ query, variables, errorHandling = "first" }: IGQLRequest<V>) {
+  constructor({
+    url,
+    query,
+    variables,
+    errorHandling = "first",
+  }: IGQLRequest<V>) {
+    this.url = url;
     this.query = query;
     this.variables = variables;
     this.errorHandling = errorHandling;
   }
 
   public async request() {
-    const client = new GraphQLClient("/graphql", {
+    const client = new GraphQLClient(this.url, {
       mode: "cors",
       method: "POST",
       errorPolicy: "all",

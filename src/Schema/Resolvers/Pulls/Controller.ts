@@ -1,5 +1,4 @@
-import { GQLRequest } from "GQLClient/Client";
-import { pullGithubRepositories, resumeGithubPull } from "GQLClient/Queries";
+import { pullGithubRepositories, resumeGithubPull } from "GQLClient";
 import type {
   PullGithubRepositoriesMutation,
   PullGithubRepositoriesMutationVariables,
@@ -7,12 +6,13 @@ import type {
   ResumeGithubPullMutationVariables,
 } from "GQLClient/Types";
 import { Platform, Status } from "GQLClient/Types";
+import { JobServiceRequest } from "JobService/Request";
 import { ORM } from "ORM/ORM";
 import type { ICreatePull, IResumePull, PullIdentifiers } from "./types";
 
 export class PullController {
   public static async createGithubPull({ id, name, type, token }: ICreatePull) {
-    const response = await GQLRequest<
+    const response = await JobServiceRequest<
       PullGithubRepositoriesMutation,
       PullGithubRepositoriesMutationVariables
     >({
@@ -33,7 +33,7 @@ export class PullController {
   }
 
   public static async resumeGithubPull({ id, token }: IResumePull) {
-    const response = await GQLRequest<
+    const response = await JobServiceRequest<
       ResumeGithubPullMutation,
       ResumeGithubPullMutationVariables
     >({
