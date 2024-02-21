@@ -11,7 +11,7 @@ import { ProcessManager } from "./ProcessManager";
 
 export class Server extends ProcessManager {
   public static APP = express();
-  private static CERTS = path.resolve(__dirname, "../../cert");
+  private static CERTS = path.resolve(__dirname, Environment.CERTS_PATH);
 
   public static async start() {
     this.listenForKills();

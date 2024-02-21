@@ -6,6 +6,7 @@ export class Environment {
   public static LOCAL = !!process.env.LOCAL;
   public static REDIS_URL = this.accessOrThrow("REDIS_URL");
   public static SERVER_PORT = this.parsePort("SERVER_PORT");
+  public static CERTS_PATH = this.accessOrThrow("CERTS_PATH");
   public static AUTH_SECRET = this.accessOrThrow("AUTH_SECRET");
   public static POSTGRES_URL = this.accessOrThrow("POSTGRES_URL");
   public static PULL_SERVICE_URL = this.accessOrThrow("PULL_SERVICE_URL");
