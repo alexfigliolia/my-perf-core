@@ -32,6 +32,9 @@ export const trackRepository: GraphQLFieldConfig<
     html_url: {
       type: SchemaBuilder.nonNull(GraphQLString),
     },
+    clone_url: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+    },
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },

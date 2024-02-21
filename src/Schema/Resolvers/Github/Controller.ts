@@ -4,6 +4,7 @@ import { Errors } from "Errors";
 import { Errors as GithubErrors, OAuth } from "Github/API";
 import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
+import { RepositoryController } from "Schema/Resolvers/Repositories/Controller";
 import { RoleController } from "Schema/Resolvers/Role/Controller";
 import { UserController } from "Schema/Resolvers/User/Controller";
 import type { ICreateGithubUser } from "./types";
@@ -19,6 +20,7 @@ export class GithubController {
       platform: "github",
     });
     const token = await this.generateAccessToken(code);
+    await RepositoryController.pullGithub(org, token);
     const { user: githubUser, emails } = await this.getUserAndEmails(token);
     const user = await UserController.findOrCreate(githubUser.name, emails);
     const auth = await this.createGithubUserAuthorization(user.id, token);

@@ -17,6 +17,7 @@
   "scripts": {
     "build": "npx ts-packager -e src/Start.ts",
     "certs": "ts-node devtools/certs-generator/CLI.ts",
+    "generate-types": "ts-node devtools/codegen/CLI.ts",
     "clear-sessions": "redis-cli flushall",
     "dev": "NODE_EXTRA_CA_CERTS=cert/server.cert ts-node devtools/dev-server/CLI.ts",
     "lint": "ts-node ci/commands/Lint.ts",
@@ -40,6 +41,7 @@
     "express": "^4.18.2",
     "express-session": "^1.18.0",
     "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
     "graphql-yoga": "^5.1.1",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
@@ -52,6 +54,8 @@
   "devDependencies": {
     "@figliolia/child-process": "^1.0.3",
     "@figliolia/ts-packager": "^1.0.6",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "^4.1.0",
     "@swc/core": "^1.3.107",
     "@types/bcrypt": "^5.0.2",
     "@types/chalk": "^2.2.0",
@@ -83,5 +87,8 @@
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
+  },
+  "resolutions": {
+    "graphql": "^16.0.0"
   }
 }

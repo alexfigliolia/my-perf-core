@@ -24,8 +24,10 @@ export class OrganizationController {
           include: {
             installations: {
               select: {
+                id: true,
                 token: true,
                 platform: true,
+                type: true,
               },
             },
           },

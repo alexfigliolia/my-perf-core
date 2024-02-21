@@ -42,5 +42,13 @@ export const TrackedRepositoryType = new GraphQLObjectType<
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.html_url,
     },
+    clone_url: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+      resolve: repo => repo.clone_url,
+    },
+    platform_id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: repo => repo.platform_id,
+    },
   },
 });

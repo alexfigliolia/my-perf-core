@@ -13,7 +13,7 @@ export interface IOrganizationRepositories extends ListRepositoryQuery {
   installation_id: number;
 }
 
-export interface IAvailableRepositories extends IOrganizationRepositories {
+export interface IAvailableRepositoryQuery extends IOrganizationRepositories {
   type: InstallationType;
 }
 
@@ -27,4 +27,21 @@ export interface IAvailableRepository {
   platform: Platform;
   api_url: string;
   platform_id: number;
+}
+
+export interface NewOrg {
+  id: number;
+  name: string;
+  installations: {
+    id: number;
+    platform: Platform;
+    token: string;
+    type: InstallationType;
+  }[];
+}
+
+export interface IResumeGithubPull {
+  jobId: number;
+  token: string;
+  organizationId: number;
 }

@@ -25,17 +25,23 @@
     "noEmit": true,
     "baseUrl": "./src",
     "paths": {
-      "ORM/*": [
-        "./ORM/*"
-      ],
       "Environment/*": [
         "./Environment/*"
+      ],
+      "Errors/*": [
+        "./Errors/*"
       ],
       "Github/*": [
         "./Github/*"
       ],
+      "GQLClient/*": [
+        "./GQLClient/*"
+      ],
       "Logger/*": [
         "./Logger/*"
+      ],
+      "ORM/*": [
+        "./ORM/*"
       ],
       "RedisCache/*": [
         "./RedisCache/*"

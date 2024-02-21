@@ -10,6 +10,10 @@ export const AvailableRepositoryType = new GraphQLObjectType<
 >({
   name: "AvailableRepository",
   fields: {
+    id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: repo => repo.id,
+    },
     name: {
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.name,
@@ -37,10 +41,6 @@ export const AvailableRepositoryType = new GraphQLObjectType<
     platform: {
       type: SchemaBuilder.nonNull(PlatformType),
       resolve: repo => repo.platform,
-    },
-    platform_id: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
-      resolve: repo => repo.platform_id,
     },
   },
 });

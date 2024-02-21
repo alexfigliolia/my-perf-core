@@ -8,6 +8,7 @@ export class Environment {
   public static SERVER_PORT = this.parsePort("SERVER_PORT");
   public static AUTH_SECRET = this.accessOrThrow("AUTH_SECRET");
   public static POSTGRES_URL = this.accessOrThrow("POSTGRES_URL");
+  public static PULL_SERVICE_URL = this.accessOrThrow("PULL_SERVICE_URL");
   public static GITHUB_WEBHOOK_SECRET = this.accessOrThrow(
     "GITHUB_WEBHOOK_SECRET",
   );

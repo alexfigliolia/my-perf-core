@@ -39,13 +39,14 @@ export interface IGithubRepository {
   description: string | null;
   html_url: string;
   clone_url: string;
-  language: string;
+  language?: string | null;
   platform: "github";
   url: string;
 }
 
 export interface InstallationRepositoryQuery {
   page?: string | null;
+  per_page?: string | null;
 }
 
 export interface ListRepositoryQuery extends InstallationRepositoryQuery {

@@ -23,12 +23,13 @@ model Installation {
 }
 
 model Organization {
-  id                  Int                 @id @unique @default(autoincrement())
-  name                String
-  users               User[]
-  roles               UserRole[]
-  installations       Installation[]
-  trackedRepositories TrackedRepository[]
+  id            Int            @id @unique @default(autoincrement())
+  name          String
+  Pull          Pull[]
+  users         User[]
+  roles         UserRole[]
+  installations Installation[]
+  repositories  Repository[]
 }
 
 model Email {
@@ -65,16 +66,27 @@ model UserRole {
   organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
-model TrackedRepository {
+model Repository {
   id             Int          @id @unique @default(autoincrement())
   name           String
+  html_url       String
   description    String       @default("")
   language       String       @default("")
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   platform       Platform
   api_url        String
   platform_id    Int
+  clone_url      String
+  tracked        Boolean      @default(false)
+}
+
+model Pull {
+  id             Int          @id @unique @default(autoincrement())
+  jobId          Int          @unique
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  platform       Platform
 }
 
 enum Role {
@@ -91,4 +103,9 @@ enum Platform {
 enum InstallationType {
   individual
   organization
+}
+
+enum RequestMethod {
+  GET
+  POST
 }

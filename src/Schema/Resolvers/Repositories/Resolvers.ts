@@ -9,7 +9,7 @@ import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { AvailableRepositoryType } from "./GQLTypes";
 import type {
-  IAvailableRepositories,
+  IAvailableRepositoryQuery,
   IInstallationRepositories,
   IOrganizationRepositories,
 } from "./types";
@@ -55,7 +55,7 @@ export const listGithubInstallationRepositories: GraphQLFieldConfig<
   },
   resolve: async (_, { page, installation_id }) => {
     const token = await InstallationController.currentToken(installation_id);
-    return Repositories.listInstallationRepositories(token, page);
+    return Repositories.listInstallationRepositories(token, { page });
   },
 };
 
@@ -88,7 +88,7 @@ export const listGithubOrganizationRepositories: GraphQLFieldConfig<
 export const listAvailableRepositories: GraphQLFieldConfig<
   any,
   Context,
-  IAvailableRepositories
+  IAvailableRepositoryQuery
 > = {
   type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
   args: {

@@ -1,14 +1,17 @@
 import { GraphQLError } from "graphql";
 import { Errors } from "Errors";
-import { ORM } from "ORM/ORM";
+import { ORM } from "ORM";
 import type { TrackRepositoryArgs } from "./types";
 
 export class TrackedRepositoriesController {
   public static track(args: TrackRepositoryArgs) {
     return ORM.query({
       transaction: DB => {
-        return DB.trackedRepository.create({
-          data: args,
+        return DB.repository.create({
+          data: {
+            ...args,
+            tracked: true,
+          },
         });
       },
       onResult: data => data,
@@ -24,9 +27,9 @@ export class TrackedRepositoriesController {
   public static list(organizationId: number) {
     return ORM.query({
       transaction: DB => {
-        return DB.trackedRepository.findMany({
+        return DB.repository.findMany({
           where: {
-            organizationId,
+            AND: [{ organizationId }, { tracked: true }],
           },
         });
       },

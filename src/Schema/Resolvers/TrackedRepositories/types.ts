@@ -11,6 +11,7 @@ export interface TrackRepositoryArgs extends TrackedRepositoriesByOrg {
   platform: Platform;
   api_url: string;
   html_url: string;
+  clone_url: string;
   platform_id: number;
 }
 
