@@ -24,44 +24,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "baseUrl": "./src",
-    "paths": {
-      "Environment/*": [
-        "./Environment/*"
-      ],
-      "Errors/*": [
-        "./Errors/*"
-      ],
-      "Github/*": [
-        "./Github/*"
-      ],
-      "GQLClient/*": [
-        "./GQLClient/*"
-      ],
-      "Logger/*": [
-        "./Logger/*"
-      ],
-      "ORM/*": [
-        "./ORM/*"
-      ],
-      "RedisCache/*": [
-        "./RedisCache/*"
-      ],
-      "Sanitizers/*": [
-        "./Sanitizers/*"
-      ],
-      "Schema/*": [
-        "./Schema/*"
-      ],
-      "Server/*": [
-        "./Server/*"
-      ],
-      "Sessions/*": [
-        "./Sessions/*"
-      ],
-      "Subscriptions/*": [
-        "./Subscriptions/*"
-      ]
-    }
   },
   "include": [
     "ci",
