@@ -1,7 +1,12 @@
-import type { InstallationEvent } from "@octokit/webhooks-types/";
+import type {
+  InstallationEvent,
+  Repository,
+  RepositoryEvent,
+} from "@octokit/webhooks-types";
 
 export type GithubEventStream = {
   installation: InstallationEvent;
+  repository: RepositoryEvent;
 };
 
 export type WebHookEvent = Extract<keyof GithubEventStream, string>;
@@ -30,18 +35,7 @@ export interface GithubEmail {
 
 export interface IInstallationRepositoryResponse {
   total_count: number;
-  repositories: IGithubRepository[];
-}
-
-export interface IGithubRepository {
-  id: number;
-  name: string;
-  description: string | null;
-  html_url: string;
-  clone_url: string;
-  language?: string | null;
-  platform: "github";
-  url: string;
+  repositories: Repository[];
 }
 
 export interface InstallationRepositoryQuery {

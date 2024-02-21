@@ -12,7 +12,6 @@ export const resumeGithubPull = gql`
         html_url
         clone_url
         language
-        platform
         url
       }
     }

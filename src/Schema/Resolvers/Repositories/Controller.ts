@@ -1,12 +1,13 @@
 import { GraphQLError } from "graphql";
+import type { Repository as GithubWebookRepository } from "@octokit/webhooks-types";
 import type { Platform, Repository } from "@prisma/client";
-import { type IGithubRepository } from "Github";
 import type { GithubRepository } from "GQLClient/Types";
 import { InstallationType } from "GQLClient/Types";
 import { ORM } from "ORM";
 import { InstallationController } from "Schema/Resolvers/Installation/Controller";
 import { PullController } from "Schema/Resolvers/Pulls/Controller";
 import type { ICreatePull } from "Schema/Resolvers/Pulls/types";
+import { Transforms } from "./Transforms";
 import type { IResumeGithubPull, NewOrg } from "./types";
 
 export class RepositoryController {
@@ -85,7 +86,7 @@ export class RepositoryController {
   }
 
   public static createGithubRepository(
-    repo: IGithubRepository,
+    repo: GithubWebookRepository,
     organizationId: number,
   ) {
     return ORM.query({
@@ -93,14 +94,7 @@ export class RepositoryController {
         return DB.repository.create({
           data: {
             organizationId,
-            name: repo.name,
-            api_url: repo.url,
-            platform: "github",
-            platform_id: repo.id,
-            html_url: repo.html_url,
-            clone_url: repo.clone_url,
-            language: repo.language || undefined,
-            description: repo.description || undefined,
+            ...Transforms.githubTransform(repo),
           },
         });
       },
@@ -114,16 +108,7 @@ export class RepositoryController {
       transaction: DB => {
         return DB.repository.update({
           where: { id },
-          data: {
-            name: repo.name,
-            api_url: repo.url,
-            platform: "github",
-            platform_id: repo.id,
-            html_url: repo.html_url,
-            clone_url: repo.clone_url,
-            language: repo.language || undefined,
-            description: repo.description || undefined,
-          },
+          data: Transforms.githubTransform(repo),
         });
       },
       onResult: data => data,
@@ -167,18 +152,52 @@ export class RepositoryController {
         return DB.repository.createMany({
           data: repos.map(repo => ({
             organizationId,
-            name: repo.name,
-            api_url: repo.url,
-            platform: "github",
-            platform_id: repo.id,
-            html_url: repo.html_url,
-            clone_url: repo.clone_url,
-            language: repo.language || undefined,
-            description: repo.description || undefined,
+            ...Transforms.githubTransform(repo),
           })),
         });
       },
       onResult: data => data,
+      onError: () => {},
+    });
+  }
+
+  public static deleteGithubRepository(id: number) {
+    return ORM.query({
+      transaction: DB => {
+        return DB.repository.deleteMany({
+          where: {
+            AND: [{ platform: "github" }, { platform_id: id }],
+          },
+        });
+      },
+      onResult: data => {
+        if (!data || !data.length) {
+          return null;
+        }
+        return data[0];
+      },
+      onError: () => {},
+    });
+  }
+
+  public static updateGithubRepositoryByPlatformID(
+    repo: GithubWebookRepository,
+  ) {
+    return ORM.query({
+      transaction: DB => {
+        return DB.repository.updateMany({
+          where: {
+            AND: [{ platform: "github" }, { platform_id: repo.id }],
+          },
+          data: Transforms.githubTransform(repo),
+        });
+      },
+      onResult: data => {
+        if (!data || !data.length) {
+          return null;
+        }
+        return data[0];
+      },
       onError: () => {},
     });
   }

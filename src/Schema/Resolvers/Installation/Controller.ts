@@ -193,4 +193,21 @@ export class InstallationController {
       onError: () => {},
     });
   }
+
+  public static getOrganization(installation_id: number, platform: Platform) {
+    return ORM.query({
+      transaction: DB => {
+        return DB.installation.findFirst({
+          where: { AND: [{ installation_id }, { platform }] },
+          select: {
+            organization: true,
+          },
+        });
+      },
+      onResult: installation => {
+        return installation.organization;
+      },
+      onError: () => {},
+    });
+  }
 }

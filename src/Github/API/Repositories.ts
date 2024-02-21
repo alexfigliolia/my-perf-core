@@ -1,7 +1,7 @@
+import type { Repository } from "@octokit/webhooks-types";
 import { API } from "./API";
 import { Errors } from "./Errors";
 import type {
-  IGithubRepository,
   IInstallationRepositoryResponse,
   InstallationRepositoryQuery,
   ListOrganizationRepositoryQuery,
@@ -18,14 +18,14 @@ export class Repositories extends API {
       sort: options.sort || "updated",
       per_page: options.per_page || "25",
     });
-    const response = await this.wrapGet<IGithubRepository[]>(
+    const response = await this.wrapGet<Repository[]>(
       `https://api.github.com/user/repos?${params.toString()}`,
       token,
     );
     if (Errors.isAPIEror(response)) {
       return response;
     }
-    return this.transformList(response);
+    return response;
   }
 
   public static async listInstallationRepositories(
@@ -43,7 +43,7 @@ export class Repositories extends API {
     if (Errors.isAPIEror(response)) {
       return response;
     }
-    return this.transformList(response.repositories);
+    return response;
   }
 
   public static async listOrganizationRepositories(
@@ -56,26 +56,13 @@ export class Repositories extends API {
       sort: options.sort || "updated",
       per_page: options.per_page || "25",
     });
-    const response = await this.wrapGet<IGithubRepository[]>(
+    const response = await this.wrapGet<Repository[]>(
       `https://api.github.com/orgs/${organization_name}/repos?${params.toString()}`,
       token,
     );
     if (Errors.isAPIEror(response)) {
       return response;
     }
-    return this.transformList(response);
-  }
-
-  public static transformList(repos: IGithubRepository[]) {
-    return repos.map(v => ({
-      id: v.id,
-      name: v.name,
-      description: v.description,
-      html_url: v.html_url,
-      clone_url: v.clone_url,
-      language: v.language,
-      platform: "github",
-      api_url: v.url,
-    }));
+    return response;
   }
 }
