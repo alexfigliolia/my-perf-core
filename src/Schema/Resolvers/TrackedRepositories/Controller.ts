@@ -1,15 +1,15 @@
 import { GraphQLError } from "graphql";
 import { Errors } from "Errors";
 import { ORM } from "ORM";
-import type { TrackRepositoryArgs } from "./types";
+import type { ITrackRepository } from "./types";
 
 export class TrackedRepositoriesController {
-  public static track(args: TrackRepositoryArgs) {
+  public static track({ id }: ITrackRepository) {
     return ORM.query({
       transaction: DB => {
-        return DB.repository.create({
+        return DB.repository.update({
+          where: { id },
           data: {
-            ...args,
             tracked: true,
           },
         });

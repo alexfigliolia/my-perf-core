@@ -1,45 +1,20 @@
-import { type GraphQLFieldConfig, GraphQLInt, GraphQLString } from "graphql";
+import { type GraphQLFieldConfig, GraphQLInt } from "graphql";
 import type { Context } from "vm";
-import { PlatformType } from "Schema/Resolvers/Platform/GQLTypes";
+import { AvailableRepositoryType } from "Schema/Resolvers/Repositories/GQLTypes";
+import type { IAvailableRepository } from "Schema/Resolvers/Repositories/types";
 import { SchemaBuilder } from "Schema/Utilities";
 import { TrackedRepositoriesController } from "./Controller";
-import { TrackedRepositoryType } from "./GQLTypes";
-import type {
-  ITrackedRepository,
-  TrackedRepositoriesByOrg,
-  TrackRepositoryArgs,
-} from "./types";
+import type { ITrackRepository, TrackedRepositoriesByOrg } from "./types";
 
 export const trackRepository: GraphQLFieldConfig<
-  ITrackedRepository,
+  IAvailableRepository,
   Context,
-  TrackRepositoryArgs
+  ITrackRepository
 > = {
-  type: SchemaBuilder.nonNull(TrackedRepositoryType),
+  type: SchemaBuilder.nonNull(AvailableRepositoryType),
   args: {
-    name: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    description: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    language: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    api_url: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    html_url: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    clone_url: {
-      type: SchemaBuilder.nonNull(GraphQLString),
-    },
-    organizationId: {
+    id: {
       type: SchemaBuilder.nonNull(GraphQLInt),
-    },
-    platform: {
-      type: SchemaBuilder.nonNull(PlatformType),
     },
   },
   resolve: (_, args) => {
@@ -48,11 +23,11 @@ export const trackRepository: GraphQLFieldConfig<
 };
 
 export const trackedRepositories: GraphQLFieldConfig<
-  ITrackedRepository,
+  IAvailableRepository,
   Context,
   TrackedRepositoriesByOrg
 > = {
-  type: SchemaBuilder.nonNullArray(TrackedRepositoryType),
+  type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
   args: {
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
