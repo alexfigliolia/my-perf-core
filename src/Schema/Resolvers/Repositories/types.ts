@@ -1,32 +1,19 @@
 import type { InstallationType, Platform } from "@prisma/client";
-import type {
-  InstallationRepositoryQuery,
-  ListRepositoryQuery,
-} from "Github/API";
-
-export interface IInstallationRepositories extends InstallationRepositoryQuery {
-  installation_id: number;
-}
-
-export interface IOrganizationRepositories extends ListRepositoryQuery {
-  organization_name: string;
-  installation_id: number;
-}
-
-export interface IAvailableRepositoryQuery extends IOrganizationRepositories {
-  type: InstallationType;
-}
+import type { IPaginatedQuery } from "Schema/Utilities";
 
 export interface IAvailableRepository {
   id: number;
   name: string;
-  description: string | null;
+  description: string;
   html_url: string;
   clone_url: string;
   language: string;
   platform: Platform;
   api_url: string;
+  tracked: boolean;
   platform_id: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface NewOrg {
@@ -43,5 +30,10 @@ export interface NewOrg {
 export interface IResumeGithubPull {
   jobId: number;
   token: string;
+  organizationId: number;
+}
+
+export interface IRepositoryQuery
+  extends IPaginatedQuery<IAvailableRepository> {
   organizationId: number;
 }

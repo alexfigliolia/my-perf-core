@@ -25,6 +25,8 @@ export const pullGithubRepositories = gql`
         clone_url
         language
         url
+        created_at
+        updated_at
       }
     }
   }

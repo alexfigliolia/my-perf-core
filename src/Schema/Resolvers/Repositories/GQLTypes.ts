@@ -1,7 +1,12 @@
-import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
+import {
+  GraphQLBoolean,
+  GraphQLInt,
+  GraphQLObjectType,
+  GraphQLString,
+} from "graphql";
+import { PlatformType } from "Schema/Resolvers/Platform/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import { PlatformType } from "../Platform/GQLTypes";
 import type { IAvailableRepository } from "./types";
 
 export const AvailableRepositoryType = new GraphQLObjectType<
@@ -19,7 +24,7 @@ export const AvailableRepositoryType = new GraphQLObjectType<
       resolve: repo => repo.name,
     },
     description: {
-      type: GraphQLString,
+      type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.description,
     },
     html_url: {
@@ -34,13 +39,29 @@ export const AvailableRepositoryType = new GraphQLObjectType<
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.clone_url,
     },
+    tracked: {
+      type: SchemaBuilder.nonNull(GraphQLBoolean),
+      resolve: repo => repo.tracked,
+    },
     language: {
-      type: GraphQLString,
+      type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.language,
     },
     platform: {
       type: SchemaBuilder.nonNull(PlatformType),
       resolve: repo => repo.platform,
+    },
+    platform_id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: repo => repo.platform,
+    },
+    created_at: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+      resolve: repo => repo.created_at,
+    },
+    updated_at: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+      resolve: repo => repo.updated_at,
     },
   },
 });

@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import type { Repository as GithubWebookRepository } from "@octokit/webhooks-types";
-import type { Platform, Repository } from "@prisma/client";
+import type { Platform, Prisma, Repository } from "@prisma/client";
 import type { GithubRepository } from "GQLClient/Types";
 import { InstallationType } from "GQLClient/Types";
 import { ORM } from "ORM";
@@ -8,7 +8,7 @@ import { InstallationController } from "Schema/Resolvers/Installation/Controller
 import { PullController } from "Schema/Resolvers/Pulls/Controller";
 import type { ICreatePull } from "Schema/Resolvers/Pulls/types";
 import { Transforms } from "./Transforms";
-import type { IResumeGithubPull, NewOrg } from "./types";
+import type { IRepositoryQuery, IResumeGithubPull, NewOrg } from "./types";
 
 export class RepositoryController {
   public static async pullGithub(org: NewOrg, githubToken: string) {
@@ -94,7 +94,7 @@ export class RepositoryController {
         return DB.repository.create({
           data: {
             organizationId,
-            ...Transforms.githubTransform(repo),
+            ...Transforms.githubWebhookTransform(repo),
           },
         });
       },
@@ -189,7 +189,7 @@ export class RepositoryController {
           where: {
             AND: [{ platform: "github" }, { platform_id: repo.id }],
           },
-          data: Transforms.githubTransform(repo),
+          data: Transforms.githubWebhookTransform(repo),
         });
       },
       onResult: data => {
@@ -198,6 +198,43 @@ export class RepositoryController {
         }
         return data[0];
       },
+      onError: () => {},
+    });
+  }
+
+  public static async getAvailableRepositories({
+    offset = 0,
+    limit = 30,
+    sort = "updated_at",
+    search,
+    organizationId,
+  }: IRepositoryQuery) {
+    let where: Prisma.RepositoryFindManyArgs["where"] = { organizationId };
+    if (search) {
+      where = {
+        AND: [
+          where,
+          {
+            OR: [
+              { name: { contains: search, mode: "insensitive" } },
+              { description: { contains: search, mode: "insensitive" } },
+            ],
+          },
+        ],
+      };
+    }
+    return ORM.query({
+      transaction: DB => {
+        return DB.repository.findMany({
+          where,
+          skip: offset,
+          take: limit,
+          orderBy: {
+            [sort]: "desc",
+          },
+        });
+      },
+      onResult: data => data,
       onError: () => {},
     });
   }

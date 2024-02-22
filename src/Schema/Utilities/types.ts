@@ -6,3 +6,10 @@ export interface Context {
 }
 
 export type None = Record<string, never>;
+
+export interface IPaginatedQuery<T> {
+  offset?: number;
+  limit?: number;
+  sort?: keyof T;
+  search?: string;
+}

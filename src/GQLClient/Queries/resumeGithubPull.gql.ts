@@ -13,6 +13,8 @@ export const resumeGithubPull = gql`
         clone_url
         language
         url
+        created_at
+        updated_at
       }
     }
   }

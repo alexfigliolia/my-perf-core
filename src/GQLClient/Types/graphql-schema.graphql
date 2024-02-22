@@ -22,6 +22,8 @@ type GithubRepository {
   clone_url: String!
   language: String
   url: String!
+  created_at: String!
+  updated_at: String!
 }
 enum Status {
   complete

@@ -79,6 +79,8 @@ model Repository {
   platform_id    Int
   clone_url      String
   tracked        Boolean      @default(false)
+  created_at     String
+  updated_at     String
 }
 
 model Pull {
