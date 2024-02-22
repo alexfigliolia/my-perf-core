@@ -53,7 +53,7 @@ export const AvailableRepositoryType = new GraphQLObjectType<
     },
     platform_id: {
       type: SchemaBuilder.nonNull(GraphQLInt),
-      resolve: repo => repo.platform,
+      resolve: repo => repo.platform_id,
     },
     created_at: {
       type: SchemaBuilder.nonNull(GraphQLString),
