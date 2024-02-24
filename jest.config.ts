@@ -1,5 +1,4 @@
 import type { Config } from "jest";
-import { pathsToModuleNameMapper } from "ts-jest";
 import { compilerOptions } from "./tsconfig.json";
 
 const config: Config = {
@@ -10,7 +9,6 @@ const config: Config = {
   slowTestThreshold: 10,
   roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
   testMatch: ["**/__tests__/*.test.ts"],
   globalTeardown: "<rootDir>/CI/cleanup/Zombies.ts",
 };

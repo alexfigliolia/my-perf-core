@@ -3,46 +3,53 @@ import path from "path";
 import { ChildProcess } from "@figliolia/child-process";
 
 export class CodeGen {
-  private static readonly SCHEMA_URL = "https://localhost:5001";
-  private static readonly TYPES_DIRECTORY = "src/GQLClient/Types";
+  private static readonly Schemas = [
+    { url: "https://localhost:5001", types: "src/GQL/PullService/Types" },
+    {
+      url: "https://localhost:5002",
+      types: "src/GQL/StatsService/Types",
+    },
+  ] as const;
+
   public static async run() {
-    await this.getSchema();
+    await this.getSchemas();
     await this.generateTypes();
-    this.fixEntryPoint();
+    this.fixEntryPoints();
     await this.lint();
   }
 
-  private static getSchema() {
-    return new ChildProcess(
-      `npx -p @apollo/rover rover graph introspect ${this.SCHEMA_URL}/graphql --output ${this.schemaPath} --insecure-accept-invalid-certs`,
-    ).handler;
+  private static async getSchemas() {
+    for (const { url, types } of this.Schemas) {
+      await new ChildProcess(
+        `npx -p @apollo/rover rover graph introspect ${url}/graphql --output ${this.schemaPath(types)} --insecure-accept-invalid-certs`,
+      ).handler;
+    }
   }
 
   private static generateTypes() {
     return new ChildProcess(`graphql-codegen`).handler;
   }
 
-  private static fixEntryPoint() {
-    writeFileSync(
-      this.typesEntrypoint,
-      ['export * from "./gql";', 'export * from "./graphql";'].join("\n"),
-    );
+  private static fixEntryPoints() {
+    for (const { types } of this.Schemas) {
+      writeFileSync(
+        this.typesEntrypoint(types),
+        ['export * from "./gql";', 'export * from "./graphql";'].join("\n"),
+      );
+    }
   }
 
-  private static lint() {
-    return new ChildProcess(
-      `npx eslint --fix --ext .ts ${this.TYPES_DIRECTORY}`,
-    ).handler;
+  private static async lint() {
+    for (const { types } of this.Schemas) {
+      await new ChildProcess(`npx eslint --fix --ext .ts ${types}`).handler;
+    }
   }
 
-  private static get schemaPath() {
-    return path.resolve(
-      process.cwd(),
-      `${this.TYPES_DIRECTORY}/graphql-schema.graphql`,
-    );
+  private static schemaPath(directory: string) {
+    return path.resolve(process.cwd(), `${directory}/graphql-schema.graphql`);
   }
 
-  private static get typesEntrypoint() {
-    return path.resolve(process.cwd(), `${this.TYPES_DIRECTORY}/index.ts`);
+  private static typesEntrypoint(directory: string) {
+    return path.resolve(process.cwd(), `${directory}/index.ts`);
   }
 }

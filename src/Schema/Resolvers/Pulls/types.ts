@@ -1,5 +1,5 @@
 import type { Platform } from "@prisma/client";
-import type { InstallationType } from "GQLClient/Types";
+import type { InstallationType } from "GQL/PullService";
 
 export interface ICreatePull extends IResumePull {
   name: string;

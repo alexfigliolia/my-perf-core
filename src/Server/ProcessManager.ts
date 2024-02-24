@@ -23,7 +23,7 @@ export class ProcessManager {
     Logger.silence();
     void WebHookProxy.stop();
     void RedisCache.close();
-    void ORM.disconnect();
+    void ORM.$disconnect();
     this.Server?.close();
   };
 }

@@ -1,6 +1,6 @@
 import type { Repository as GithubWebookRepository } from "@octokit/webhooks-types";
 import type { Platform } from "@prisma/client";
-import type { GithubRepository } from "GQLClient/Types";
+import type { GithubRepository } from "GQL/PullService";
 
 export class Transforms {
   public static githubTransform<T extends GithubRepository>(repository: T) {

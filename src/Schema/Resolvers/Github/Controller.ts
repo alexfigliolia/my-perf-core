@@ -46,28 +46,24 @@ export class GithubController {
   }
 
   private static createGithubUserAuthorization(userId: number, token: string) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.githubUserAuthorization.upsert({
-          where: { userId },
-          create: {
-            userId,
-            token,
-          },
-          update: {
-            userId,
-            token,
-          },
-        });
-      },
-      onResult: data => data,
-      onError: error => {
+    return ORM.githubUserAuthorization
+      .upsert({
+        where: { userId },
+        create: {
+          userId,
+          token,
+        },
+        update: {
+          userId,
+          token,
+        },
+      })
+      .catch(error => {
         throw new GraphQLError("Failed to authorized through github", {
           extensions: Errors.UNEXPECTED_ERROR,
           originalError: error,
         });
-      },
-    });
+      });
   }
 
   private static async getUserAndEmails(token: string) {

@@ -2,6 +2,7 @@ import { GraphQLError } from "graphql";
 import type { Platform } from "@prisma/client";
 import { Errors } from "Errors";
 import { Errors as GithubError, InstallationTokens } from "Github/API";
+import { Logger } from "Logger";
 import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { Subscriptions } from "Subscriptions";
@@ -13,94 +14,82 @@ export class InstallationController {
     platform,
     installation_id,
   }: ICreateInstallation) {
-    const { token, expiration } =
-      await this.generateGithubInstallationToken(installation_id);
-    return ORM.query({
-      transaction: DB => {
-        return DB.installation.create({
-          data: {
-            type,
-            token,
-            platform,
-            expiration,
-            installation_id,
-          },
-        });
-      },
-      onResult: installation => {
-        Subscriptions.publish(
-          "newInstallation",
-          this.broadcastKey(installation_id, platform),
-          installation,
-        );
-        return installation;
-      },
-      onError: error => {
-        throw new GraphQLError("Failed to create installation", {
-          extensions: Errors.UNEXPECTED_ERROR,
-          originalError: error,
-        });
-      },
-    });
+    try {
+      const { token, expiration } =
+        await this.generateGithubInstallationToken(installation_id);
+      const install = await ORM.installation.create({
+        data: {
+          type,
+          token,
+          platform,
+          expiration,
+          installation_id,
+        },
+      });
+      Subscriptions.publish(
+        "newInstallation",
+        this.broadcastKey(installation_id, platform),
+        install,
+      );
+      return install;
+    } catch (error: any) {
+      throw new GraphQLError("Failed to create installation", {
+        extensions: Errors.UNEXPECTED_ERROR,
+        originalError: error,
+      });
+    }
   }
 
   public static async delete(installation_id: number) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.installation.delete({
-          where: {
-            installation_id,
-          },
-          select: {
-            id: true,
-            organization: {
-              select: {
-                id: true,
-                installations: {
-                  where: {
-                    NOT: {
-                      installation_id: {
-                        equals: installation_id,
-                      },
+    try {
+      const install = await ORM.installation.delete({
+        where: {
+          installation_id,
+        },
+        select: {
+          id: true,
+          organization: {
+            select: {
+              id: true,
+              installations: {
+                where: {
+                  NOT: {
+                    installation_id: {
+                      equals: installation_id,
                     },
                   },
-                  select: {
-                    id: true,
-                  },
+                },
+                select: {
+                  id: true,
                 },
               },
             },
           },
-        });
-      },
-      onResult: async installation => {
-        if (installation.organization) {
-          const installs = installation.organization?.installations || [];
-          if (!installs.length) {
-            await OrganizationController.delete(installation.organization.id);
-          }
-          return installation;
+        },
+      });
+      if (install.organization) {
+        const installs = install.organization?.installations || [];
+        if (!installs.length) {
+          await OrganizationController.delete(install.organization.id);
         }
-      },
-      onError: _ => {},
-    });
+        return install;
+      }
+    } catch (error) {
+      Logger.ORM("Failed to delete installation", error);
+    }
   }
 
   public static find(installation_id: number, platform: Platform) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.installation.findFirst({
-          where: { AND: [{ installation_id }, { platform }] },
-        });
-      },
-      onResult: installation => installation,
-      onError: error => {
+    return ORM.installation
+      .findFirstOrThrow({
+        where: { AND: [{ installation_id }, { platform }] },
+      })
+      .catch(error => {
         throw new GraphQLError("Installation not found", {
           extensions: Errors.NOT_FOUND,
           originalError: error,
         });
-      },
-    });
+      });
   }
 
   public static async emitLast(installation_id: number, platform: Platform) {
@@ -159,55 +148,43 @@ export class InstallationController {
   }
 
   private static getToken(id: number) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.installation.findUnique({
-          where: { id },
-          select: {
-            token: true,
-            expiration: true,
-          },
-        });
-      },
-      onResult: data => data,
-      onError: error => {
+    return ORM.installation
+      .findUniqueOrThrow({
+        where: { id },
+        select: {
+          token: true,
+          expiration: true,
+        },
+      })
+      .catch(error => {
         throw new GraphQLError("Unauthorized", {
           extensions: Errors.UNAUTHORIZED,
           originalError: error,
         });
-      },
-    });
+      });
   }
 
   public static setToken(id: number, token: IToken) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.installation.update({
-          where: { id },
-          data: {
-            ...token,
-          },
-        });
-      },
-      onResult: data => data,
-      onError: () => {},
-    });
+    return ORM.query(
+      ORM.installation.update({
+        where: { id },
+        data: {
+          ...token,
+        },
+      }),
+    );
   }
 
-  public static getOrganization(installation_id: number, platform: Platform) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.installation.findFirst({
-          where: { AND: [{ installation_id }, { platform }] },
-          select: {
-            organization: true,
-          },
-        });
+  public static async getOrganization(
+    installation_id: number,
+    platform: Platform,
+  ) {
+    const install = await ORM.installation.findFirstOrThrow({
+      where: { AND: [{ installation_id }, { platform }] },
+      select: {
+        organization: true,
       },
-      onResult: installation => {
-        return installation.organization;
-      },
-      onError: () => {},
     });
+    return install.organization;
   }
 }

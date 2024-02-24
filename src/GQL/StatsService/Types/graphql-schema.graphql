@@ -1,0 +1,26 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+type Query {
+  hello: String
+}
+type Mutation {
+  pullContributions(token: String!, clone_url: String!, emails: [String!]!): Contributions!
+}
+type Contributions {
+  users: [UserContributions!]!
+  totalLines: Int!
+  totalCommits: Int!
+}
+type UserContributions {
+  name: String!
+  email: String!
+  lines: Int!
+  commits: Int!
+}
+"Exposes a URL that specifies the behavior of this scalar."
+directive @specifiedBy(
+    "The URL that specifies the behavior of this scalar."
+    url: String!
+  ) on SCALAR

@@ -25,7 +25,7 @@ model Installation {
 model Organization {
   id            Int            @id @unique @default(autoincrement())
   name          String
-  Pull          Pull[]
+  pulls         Pull[]
   users         User[]
   roles         UserRole[]
   installations Installation[]
@@ -81,6 +81,8 @@ model Repository {
   tracked        Boolean      @default(false)
   created_at     String
   updated_at     String
+
+  @@unique([platform_id, platform])
 }
 
 model Pull {

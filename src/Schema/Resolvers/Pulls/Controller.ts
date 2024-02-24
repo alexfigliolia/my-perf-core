@@ -1,18 +1,22 @@
-import { pullGithubRepositories, resumeGithubPull } from "GQLClient";
 import type {
   PullGithubRepositoriesMutation,
   PullGithubRepositoriesMutationVariables,
   ResumeGithubPullMutation,
   ResumeGithubPullMutationVariables,
-} from "GQLClient/Types";
-import { Platform, Status } from "GQLClient/Types";
-import { JobServiceRequest } from "JobService/Request";
-import { ORM } from "ORM/ORM";
+} from "GQL/PullService";
+import {
+  Platform,
+  pullGithubRepositories,
+  resumeGithubPull,
+  Status,
+} from "GQL/PullService";
+import { ORM } from "ORM";
+import { PullServiceRequest } from "PullService/Request";
 import type { ICreatePull, IResumePull, PullIdentifiers } from "./types";
 
 export class PullController {
   public static async createGithubPull({ id, name, type, token }: ICreatePull) {
-    const response = await JobServiceRequest<
+    const response = await PullServiceRequest<
       PullGithubRepositoriesMutation,
       PullGithubRepositoriesMutationVariables
     >({
@@ -33,7 +37,7 @@ export class PullController {
   }
 
   public static async resumeGithubPull({ id, token }: IResumePull) {
-    const response = await JobServiceRequest<
+    const response = await PullServiceRequest<
       ResumeGithubPullMutation,
       ResumeGithubPullMutationVariables
     >({
@@ -62,45 +66,33 @@ export class PullController {
 
   public static create(jobId: number, ...args: PullIdentifiers) {
     const [organizationId, platform] = args;
-    return ORM.query({
-      transaction: DB => {
-        return DB.pull.create({
-          data: {
-            jobId,
-            platform,
-            organizationId,
-          },
-        });
-      },
-      onResult: data => data,
-      onError: () => {},
-    });
+    return ORM.query(
+      ORM.pull.create({
+        data: {
+          jobId,
+          platform,
+          organizationId,
+        },
+      }),
+    );
   }
 
   public static deleteByJobID(jobId: number) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.pull.delete({
-          where: { jobId },
-        });
-      },
-      onResult: data => data,
-      onError: () => {},
-    });
+    return ORM.query(
+      ORM.pull.delete({
+        where: { jobId },
+      }),
+    );
   }
 
   private static findByOrganization(...args: PullIdentifiers) {
     const [organizationId, platform] = args;
-    return ORM.query({
-      transaction: DB => {
-        return DB.pull.findFirst({
-          where: {
-            AND: [{ organizationId }, { platform }],
-          },
-        });
-      },
-      onResult: data => data,
-      onError: () => {},
-    });
+    return ORM.query(
+      ORM.pull.findFirst({
+        where: {
+          AND: [{ organizationId }, { platform }],
+        },
+      }),
+    );
   }
 }

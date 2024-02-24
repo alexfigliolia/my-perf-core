@@ -1,7 +1,8 @@
 import { type GraphQLFieldConfig, GraphQLInt } from "graphql";
-import type { Context } from "vm";
+import { ContributionsController } from "Schema/Resolvers/Contributions/Controller";
 import { AvailableRepositoryType } from "Schema/Resolvers/Repositories/GQLTypes";
 import type { IAvailableRepository } from "Schema/Resolvers/Repositories/types";
+import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { TrackedRepositoriesController } from "./Controller";
 import type { ITrackRepository, TrackedRepositoriesByOrg } from "./types";
@@ -17,8 +18,13 @@ export const trackRepository: GraphQLFieldConfig<
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
   },
-  resolve: (_, args) => {
-    return TrackedRepositoriesController.track(args);
+  resolve: async (_, args, context) => {
+    const repo = await TrackedRepositoriesController.track(args);
+    void ContributionsController.enqueue(
+      repo,
+      context.req.session.githubUserToken,
+    );
+    return repo;
   },
 };
 

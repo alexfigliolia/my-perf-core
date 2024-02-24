@@ -1,8 +1,8 @@
 import { GraphQLError } from "graphql";
 import type { Repository as GithubWebookRepository } from "@octokit/webhooks-types";
-import type { Platform, Prisma, Repository } from "@prisma/client";
-import type { GithubRepository } from "GQLClient/Types";
-import { InstallationType } from "GQLClient/Types";
+import type { Platform, Prisma } from "@prisma/client";
+import type { GithubRepository } from "GQL/PullService";
+import { InstallationType } from "GQL/PullService";
 import { ORM } from "ORM";
 import { InstallationController } from "Schema/Resolvers/Installation/Controller";
 import { PullController } from "Schema/Resolvers/Pulls/Controller";
@@ -85,61 +85,50 @@ export class RepositoryController {
     ]);
   }
 
-  public static createGithubRepository(
+  public static async createGithubRepository(
     repo: GithubWebookRepository,
     organizationId: number,
   ) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.repository.create({
-          data: {
-            organizationId,
-            ...Transforms.githubWebhookTransform(repo),
-          },
-        });
-      },
-      onResult: data => data,
-      onError: _ => {},
-    });
+    return ORM.query(
+      ORM.repository.create({
+        data: {
+          organizationId,
+          ...Transforms.githubWebhookTransform(repo),
+        },
+      }),
+    );
   }
 
   public static updateGithubRepository(id: number, repo: GithubRepository) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.repository.update({
-          where: { id },
-          data: Transforms.githubTransform(repo),
-        });
-      },
-      onResult: data => data,
-      onError: _ => {},
-    });
+    return ORM.query(
+      ORM.repository.update({
+        where: { id },
+        data: Transforms.githubTransform(repo),
+      }),
+    );
   }
 
   private static async findBatch(platform_ids: number[], platform: Platform) {
     const found = new Map<number, number>();
-    await ORM.query({
-      transaction: DB => {
-        return DB.repository.findMany({
-          where: {
-            AND: [
-              { platform },
-              {
-                platform_id: {
-                  in: platform_ids,
-                },
+    const repos = await ORM.query(
+      ORM.repository.findMany({
+        where: {
+          AND: [
+            { platform },
+            {
+              platform_id: {
+                in: platform_ids,
               },
-            ],
-          },
-        });
-      },
-      onResult: (data: Repository[]) => {
-        for (const { id, platform_id } of data) {
-          found.set(platform_id, id);
-        }
-      },
-      onError: () => {},
-    });
+            },
+          ],
+        },
+      }),
+    );
+    if (repos) {
+      for (const { id, platform_id } of repos) {
+        found.set(platform_id, id);
+      }
+    }
     return found;
   }
 
@@ -147,62 +136,46 @@ export class RepositoryController {
     repos: GithubRepository[],
     organizationId: number,
   ) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.repository.createMany({
-          data: repos.map(repo => ({
-            organizationId,
-            ...Transforms.githubTransform(repo),
-          })),
-        });
-      },
-      onResult: data => data,
-      onError: () => {},
-    });
+    return ORM.query(
+      ORM.repository.createMany({
+        data: repos.map(repo => ({
+          organizationId,
+          ...Transforms.githubTransform(repo),
+        })),
+      }),
+    );
   }
 
   public static deleteGithubRepository(id: number) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.repository.deleteMany({
-          where: {
-            AND: [{ platform: "github" }, { platform_id: id }],
+    return ORM.query(
+      ORM.repository.delete({
+        where: {
+          platform_id_platform: {
+            platform: "github",
+            platform_id: id,
           },
-        });
-      },
-      onResult: data => {
-        if (!data || !data.length) {
-          return null;
-        }
-        return data[0];
-      },
-      onError: () => {},
-    });
+        },
+      }),
+    );
   }
 
-  public static updateGithubRepositoryByPlatformID(
+  public static async updateGithubRepositoryByPlatformID(
     repo: GithubWebookRepository,
   ) {
-    return ORM.query({
-      transaction: DB => {
-        return DB.repository.updateMany({
-          where: {
-            AND: [{ platform: "github" }, { platform_id: repo.id }],
+    return ORM.query(
+      ORM.repository.update({
+        where: {
+          platform_id_platform: {
+            platform: "github",
+            platform_id: repo.id,
           },
-          data: Transforms.githubWebhookTransform(repo),
-        });
-      },
-      onResult: data => {
-        if (!data || !data.length) {
-          return null;
-        }
-        return data[0];
-      },
-      onError: () => {},
-    });
+        },
+        data: Transforms.githubWebhookTransform(repo),
+      }),
+    );
   }
 
-  public static async getAvailableRepositories({
+  public static getAvailableRepositories({
     offset = 0,
     limit = 30,
     sort = "updated_at",
@@ -223,19 +196,13 @@ export class RepositoryController {
         ],
       };
     }
-    return ORM.query({
-      transaction: DB => {
-        return DB.repository.findMany({
-          where,
-          skip: offset,
-          take: limit,
-          orderBy: {
-            [sort]: "desc",
-          },
-        });
+    return ORM.repository.findMany({
+      where,
+      skip: offset,
+      take: limit,
+      orderBy: {
+        [sort]: "desc",
       },
-      onResult: data => data,
-      onError: () => {},
     });
   }
 }

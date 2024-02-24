@@ -23,11 +23,13 @@ export class Repositories extends BaseHandler<"repository"> {
       return;
     }
     const { repository, installation } = event;
-    const { id } = await InstallationController.getOrganization(
+    const org = await InstallationController.getOrganization(
       installation.id,
       "github",
     );
-    void RepositoryController.createGithubRepository(repository, id);
+    if (org) {
+      void RepositoryController.createGithubRepository(repository, org.id);
+    }
   }
 
   private onRepositoryDeleted(event: RepositoryEvent) {

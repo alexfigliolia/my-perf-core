@@ -17,6 +17,10 @@ export class Logger {
     this.LOG(chalk.greenBright.bold("GQL:"), ...messages);
   };
 
+  public static ORM = (...messages: any[]) => {
+    this.LOG(chalk.magentaBright.bold("ORM:"), ...messages);
+  };
+
   public static github = (...messages: any[]) => {
     this.LOG(chalk.cyanBright.bold("Github:"), ...messages);
   };

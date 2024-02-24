@@ -1,12 +1,12 @@
 import { Environment } from "Environment";
-import { GQLClient } from "GQLClient";
-import type { JobServiceOptions } from "./types";
+import { GQLClient } from "GQL/Client";
+import type { PullServiceOptions } from "./types";
 
-export class JobServiceClient<
+export class PullServiceClient<
   D,
   V extends Record<string, any> = Record<string, any>,
 > extends GQLClient<D, V> {
-  constructor(options: JobServiceOptions<V>) {
+  constructor(options: PullServiceOptions<V>) {
     super({
       url: `${Environment.PULL_SERVICE_URL}/graphql`,
       ...options,
