@@ -19,7 +19,7 @@
     "certs": "ts-node devtools/certs-generator/CLI.ts",
     "generate-types": "ts-node devtools/codegen/CLI.ts",
     "clear-sessions": "redis-cli flushall",
-    "dev": "NODE_EXTRA_CA_CERTS=cert/server.cert ts-node devtools/dev-server/CLI.ts",
+    "dev": "ts-node devtools/dev-server/CLI.ts",
     "lint": "ts-node ci/commands/Lint.ts",
     "reset-db": "npx prisma migrate reset && npx prisma db push && yarn clear-sessions",
     "migrate": "npx prisma migrate dev --name",

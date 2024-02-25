@@ -7,11 +7,11 @@ export class Development {
   private static TSX?: CP;
   private static readonly serviceCommands = {
     Redis: "brew services start redis",
-    Postgres: "brew services start postgresql@14",
+    Postgres: "brew services start postgresql@16",
   } as const;
   private static readonly killCommands = {
     Redis: "brew services stop redis",
-    Postgres: "brew services stop postgresql@14",
+    Postgres: "brew services stop postgresql@16",
   } as const;
 
   public static async run() {
@@ -19,11 +19,19 @@ export class Development {
     try {
       this.listenForKills();
       await this.bootServices();
-      const { handler, process } = new ChildProcess(
+      const { handler, process: CP } = new ChildProcess(
         "tsx watch --clear-screen=false src/Start.ts",
+        {
+          stdio: "inherit",
+          env: {
+            ...process.env,
+            NODE_ENV: "development",
+            NODE_OPTIONS: "--enable-source-maps",
+            NODE_EXTRA_CA_CERTS: "./cert/server.cert",
+          },
+        },
       );
-      this.TSX = process;
-      this.listenForKills(this.TSX);
+      this.TSX = CP;
       return handler;
     } catch (error) {
       await this.killAll();
@@ -32,16 +40,16 @@ export class Development {
 
   private static async killAll() {
     if (this.TSX) {
-      this.TSX?.kill();
+      this.TSX.kill();
       this.TSX = undefined;
       await this.killServices();
     }
   }
 
-  private static listenForKills(current: NodeJS.Process | CP = process) {
-    current.on("exit", () => void this.killAll());
-    current.on("SIGINT", () => void this.killAll());
-    current.on("SIGTERM", () => void this.killAll());
+  private static listenForKills() {
+    process.on("exit", () => void this.killAll());
+    process.on("SIGINT", () => void this.killAll());
+    process.on("SIGTERM", () => void this.killAll());
   }
 
   private static async bootServices() {
