@@ -28,7 +28,7 @@ export class Repositories extends BaseHandler<"repository"> {
       "github",
     );
     if (org) {
-      void RepositoryController.createGithubRepository(repository, org.id);
+      void RepositoryController.createFromWebhook(repository, org.id);
     }
   }
 
@@ -43,8 +43,6 @@ export class Repositories extends BaseHandler<"repository"> {
     if (event.action !== "edited") {
       return;
     }
-    void RepositoryController.updateGithubRepositoryByPlatformID(
-      event.repository,
-    );
+    void RepositoryController.updateFromWebhook(event.repository);
   }
 }

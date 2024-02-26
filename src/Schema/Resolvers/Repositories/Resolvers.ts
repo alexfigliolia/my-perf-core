@@ -16,6 +16,6 @@ export const setOrganizationRepositories: GraphQLFieldConfig<
     },
   },
   resolve: (_, args) => {
-    return RepositoryController.saveRepositories(args.repositories);
+    return RepositoryController.createMany(args.repositories);
   },
 };

@@ -16,10 +16,17 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export enum JobStatus {
+  Complete = 'complete',
+  Failed = 'failed',
+  Pending = 'pending'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
   registerRepositoryPull: Scalars['Int']['output'];
   registerRepositoryStatsPull: Scalars['Int']['output'];
+  setJobStatus: Scalars['Boolean']['output'];
 };
 
 
@@ -37,6 +44,12 @@ export type MutationRegisterRepositoryStatsPullArgs = {
   organizationId: Scalars['Int']['input'];
   repositoryId: Scalars['Int']['input'];
   token: Scalars['String']['input'];
+};
+
+
+export type MutationSetJobStatusArgs = {
+  id: Scalars['Int']['input'];
+  status: JobStatus;
 };
 
 export enum Platform {

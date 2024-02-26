@@ -18,6 +18,7 @@ type RepositoryPullJob {
   organizationId: Int!
 }
 type Mutation {
+  setJobStatus(id: Int!, status: JobStatus!): Boolean!
   registerRepositoryPull(token: String!, api_url: String!, platform: Platform!, requestMethod: RequestMethod!, organizationId: Int!): Int!
   registerRepositoryStatsPull(token: String!, clone_url: String!, repositoryId: Int!, organizationId: Int!): Int!
 }
@@ -31,6 +32,11 @@ enum Platform {
 enum RequestMethod {
   GET
   POST
+}
+enum JobStatus {
+  complete
+  failed
+  pending
 }
 "Exposes a URL that specifies the behavior of this scalar."
 directive @specifiedBy(
