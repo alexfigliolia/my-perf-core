@@ -1,4 +1,5 @@
 import { GraphQLClient } from "graphql-request";
+import nodeFetch from "node-fetch";
 import type { ErrorHandling, IGQLRequest } from "./types";
 
 export class GQLClient<D, V extends Record<string, any> = Record<string, any>> {
@@ -26,6 +27,7 @@ export class GQLClient<D, V extends Record<string, any> = Record<string, any>> {
       errorPolicy: "all",
       credentials: "include",
       signal: this.signal.signal,
+      fetch: nodeFetch as unknown as typeof fetch,
     });
     try {
       const response = await client.rawRequest<D>(this.query, this.variables);

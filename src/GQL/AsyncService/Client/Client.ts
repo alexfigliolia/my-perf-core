@@ -8,7 +8,7 @@ export class AsyncServiceClient<
 > extends GQLClient<D, V> {
   constructor(options: AsyncServiceOptions<V>) {
     super({
-      url: `${Environment.PULL_SERVICE_URL}/graphql`,
+      url: `${Environment.ASYNC_SERVICE_URL}/graphql`,
       ...options,
     });
   }

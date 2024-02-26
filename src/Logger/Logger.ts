@@ -10,7 +10,7 @@ export class Logger {
   };
 
   public static core = (...messages: any[]) => {
-    this.LOG(chalk.blueBright.bold("Core:"), ...messages);
+    this.LOG(chalk.blueBright.bold("Core Service:"), ...messages);
   };
 
   public static GQL = (...messages: any[]) => {
