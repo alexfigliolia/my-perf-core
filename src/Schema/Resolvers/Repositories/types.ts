@@ -1,39 +1,32 @@
-import type { InstallationType, Platform } from "@prisma/client";
-import type { IPaginatedQuery } from "Schema/Utilities";
+import type { Platform } from "@prisma/client";
 
-export interface IAvailableRepository {
-  id: number;
+export interface IRepository {
   name: string;
-  description: string;
-  html_url: string;
-  clone_url: string;
-  language: string;
-  platform: Platform;
   api_url: string;
-  tracked: boolean;
-  platform_id: number;
+  html_url: string;
+  language: string;
+  clone_url: string;
   created_at: string;
   updated_at: string;
+  platform: Platform;
+  platform_id: number;
+  description: string;
 }
 
-export interface NewOrg {
-  id: number;
+export interface InputRepository {
   name: string;
-  installations: {
-    id: number;
-    platform: Platform;
-    token: string;
-    type: InstallationType;
-  }[];
+  api_url: string;
+  html_url: string;
+  clone_url: string;
+  created_at: string;
+  updated_at: string;
+  platform: Platform;
+  platform_id: number;
+  organizationId: number;
+  language: string | null;
+  description: string | null;
 }
 
-export interface IResumeGithubPull {
-  jobId: number;
-  token: string;
-  organizationId: number;
-}
-
-export interface IRepositoryQuery
-  extends IPaginatedQuery<IAvailableRepository> {
-  organizationId: number;
+export interface ISetRepositories {
+  repositories: InputRepository[];
 }

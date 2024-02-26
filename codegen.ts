@@ -4,9 +4,9 @@ const config: CodegenConfig = {
   overwrite: true,
   verbose: true,
   generates: {
-    "./src/GQL/PullService/Types/": {
-      documents: ["src/GQL/PullService/Queries/*.gql.ts"],
-      schema: "./src/GQL/PullService/Types/graphql-schema.graphql",
+    "./src/GQL/AsyncService/Types/": {
+      documents: ["src/GQL/AsyncService/Queries/*.gql.ts"],
+      schema: "./src/GQL/AsyncService/Types/graphql-schema.graphql",
       preset: "client",
       plugins: [],
       presetConfig: {

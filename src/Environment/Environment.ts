@@ -9,8 +9,10 @@ export class Environment {
   public static CERTS_PATH = this.accessOrThrow("CERTS_PATH");
   public static AUTH_SECRET = this.accessOrThrow("AUTH_SECRET");
   public static POSTGRES_URL = this.accessOrThrow("POSTGRES_URL");
+  public static UI_SERVICE_URL = this.accessOrThrow("UI_SERVICE_URL");
   public static PULL_SERVICE_URL = this.accessOrThrow("PULL_SERVICE_URL");
   public static STATS_SERVICE_URL = this.accessOrThrow("STATS_SERVICE_URL");
+  public static ASYNC_SERVICE_URL = this.accessOrThrow("ASYNC_SERVICE_URL");
   public static GITHUB_WEBHOOK_SECRET = this.accessOrThrow(
     "GITHUB_WEBHOOK_SECRET",
   );
@@ -31,11 +33,8 @@ export class Environment {
     "GITHUB_ORG_CLIENT_SECRET",
   );
 
-  public static get origin() {
-    if (this.LOCAL) {
-      return "http://localhost:3000";
-    }
-    return "https://my-performance.vercel.app";
+  public static get origins() {
+    return [this.UI_SERVICE_URL, this.PULL_SERVICE_URL];
   }
 
   private static accessOrThrow(key: string) {

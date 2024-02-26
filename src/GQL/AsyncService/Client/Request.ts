@@ -1,12 +1,12 @@
-import { StatsServiceClient } from "./Client";
+import { AsyncServiceClient } from "./Client";
 import type { AsyncServiceOptions } from "./types";
 
-export const StatsServiceRequest = <
+export const AsyncServiceRequest = <
   D,
   V extends Record<string, any> = Record<string, any>,
 >(
   options: AsyncServiceOptions<V>,
 ) => {
-  const client = new StatsServiceClient<D, V>(options);
+  const client = new AsyncServiceClient<D, V>(options);
   return client.request();
 };

@@ -1,11 +1,11 @@
 import { GraphQLError } from "graphql";
 import type { Repository } from "@prisma/client";
 import { Errors } from "Errors";
+import { pullContributions } from "GQL/StatsService";
 import type {
   PullContributionsMutation,
   PullContributionsMutationVariables,
-} from "GQL/StatsService";
-import { pullContributions } from "GQL/StatsService";
+} from "GQL/StatsService/Types";
 import { Logger } from "Logger";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { StatsServiceRequest } from "StatsService/Request";

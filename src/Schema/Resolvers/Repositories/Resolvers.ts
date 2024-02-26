@@ -1,37 +1,21 @@
-import type { GraphQLFieldConfig } from "graphql";
-import { GraphQLInt, GraphQLString } from "graphql";
-import type { Context } from "Schema/Utilities";
-import { SchemaBuilder } from "Schema/Utilities";
+import { GraphQLBoolean, type GraphQLFieldConfig } from "graphql";
+import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { RepositoryController } from "./Controller";
-import { AvailableRepositoryType } from "./GQLTypes";
-import type { IRepositoryQuery } from "./types";
+import { InputRepositoryType } from "./GQLTypes";
+import type { ISetRepositories } from "./types";
 
-export const listAvailableRepositories: GraphQLFieldConfig<
-  any,
+export const setOrganizationRepositories: GraphQLFieldConfig<
+  boolean,
   Context,
-  IRepositoryQuery
+  ISetRepositories
 > = {
-  type: SchemaBuilder.nonNullArray(AvailableRepositoryType),
+  type: SchemaBuilder.nonNull(GraphQLBoolean),
   args: {
-    offset: {
-      type: GraphQLInt,
-    },
-    limit: {
-      type: GraphQLInt,
-    },
-    sort: {
-      type: GraphQLString,
-      description:
-        'A key of the Available Repository Type. Defaults to "updated_at"',
-    },
-    search: {
-      type: GraphQLString,
-    },
-    organizationId: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
+    repositories: {
+      type: SchemaBuilder.nonNullArray(InputRepositoryType),
     },
   },
-  resolve: async (_, args) => {
-    return RepositoryController.getAvailableRepositories(args);
+  resolve: (_, args) => {
+    return RepositoryController.saveRepositories(args.repositories);
   },
 };

@@ -1,14 +1,14 @@
 import { Environment } from "Environment";
 import { GQLClient } from "GQL/Client";
-import type { PullServiceOptions } from "./types";
+import type { StatsServiceOptions } from "./types";
 
-export class PullServiceClient<
+export class StatsServiceClient<
   D,
   V extends Record<string, any> = Record<string, any>,
 > extends GQLClient<D, V> {
-  constructor(options: PullServiceOptions<V>) {
+  constructor(options: StatsServiceOptions<V>) {
     super({
-      url: `${Environment.PULL_SERVICE_URL}/graphql`,
+      url: `${Environment.STATS_SERVICE_URL}/graphql`,
       ...options,
     });
   }

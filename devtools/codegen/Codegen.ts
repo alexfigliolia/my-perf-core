@@ -1,14 +1,11 @@
 import { writeFileSync } from "fs";
 import path from "path";
 import { ChildProcess } from "@figliolia/child-process";
+import { Environment } from "../../src/Environment";
 
 export class CodeGen {
   private static readonly Schemas = [
-    { url: "https://localhost:5001", types: "src/GQL/PullService/Types" },
-    {
-      url: "https://localhost:5002",
-      types: "src/GQL/StatsService/Types",
-    },
+    { url: Environment.ASYNC_SERVICE_URL, types: "src/GQL/AsyncService/Types" },
   ] as const;
 
   public static async run() {
@@ -32,10 +29,7 @@ export class CodeGen {
 
   private static fixEntryPoints() {
     for (const { types } of this.Schemas) {
-      writeFileSync(
-        this.typesEntrypoint(types),
-        ['export * from "./gql";', 'export * from "./graphql";'].join("\n"),
-      );
+      writeFileSync(this.typesEntrypoint(types), 'export * from "./graphql";');
     }
   }
 

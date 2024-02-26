@@ -38,7 +38,7 @@ export class Middleware {
       cors({
         credentials: true,
         optionsSuccessStatus: 200,
-        origin: [Environment.origin],
+        origin: Environment.origins,
       }),
     );
     this.App.set("trust proxy", 1);
