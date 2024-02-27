@@ -1,5 +1,5 @@
+import { GQLClient } from "@figliolia/graphql-client";
 import { Environment } from "Environment";
-import { GQLClient } from "GQL/Client";
 import type { StatsServiceOptions } from "./types";
 
 export class StatsServiceClient<
