@@ -1,10 +1,15 @@
 import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import {
+  availableRepositories,
+  availableRepositoriesStream,
   createGithubAccount,
   installationSetup,
+  installationSetupStream,
   loginWithGithub,
   logout,
   setOrganizationRepositories,
+  trackedRepositories,
+  trackRepository,
   userAndAffiliations,
   verifyAnonymous,
   verifySession,
@@ -15,6 +20,8 @@ const QueryRoot = new GraphQLObjectType({
   fields: () => ({
     installationSetup,
     userAndAffiliations,
+    trackedRepositories,
+    availableRepositories,
   }),
 });
 
@@ -25,6 +32,7 @@ const MutationRoot = new GraphQLObjectType({
     verifySession,
     verifyAnonymous,
     loginWithGithub,
+    trackRepository,
     createGithubAccount,
     setOrganizationRepositories,
   }),
@@ -33,7 +41,8 @@ const MutationRoot = new GraphQLObjectType({
 const SubscriptionRoot = new GraphQLObjectType({
   name: "Subscription",
   fields: () => ({
-    installationSetup,
+    installationSetupStream,
+    availableRepositoriesStream,
   }),
 });
 

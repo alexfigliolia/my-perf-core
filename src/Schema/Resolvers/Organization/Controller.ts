@@ -40,20 +40,25 @@ export class OrganizationController {
   }
 
   public static async delete(id: number) {
-    const org = await ORM.organization.delete({
-      where: {
-        id,
-      },
-    });
-    return ORM.user.deleteMany({
-      where: {
-        organizations: {
-          every: {
-            id: org.id,
+    const org = await ORM.query(
+      ORM.organization.delete({
+        where: {
+          id,
+        },
+      }),
+    );
+    if (org) {
+      await ORM.user.deleteMany({
+        where: {
+          organizations: {
+            every: {
+              id: org.id,
+            },
           },
         },
-      },
-    });
+      });
+    }
+    return org;
   }
 
   public static async findByID(id: number) {

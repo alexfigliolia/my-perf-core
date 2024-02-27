@@ -1,4 +1,5 @@
 import {
+  GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLInt,
   GraphQLObjectType,
@@ -9,9 +10,31 @@ import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import type { IRepository } from "./types";
 
+export const RepositorySortKeysType = new GraphQLEnumType({
+  name: "RepositorySortKeys",
+  values: {
+    name: {
+      value: "name",
+    },
+    created_at: {
+      value: "created_at",
+    },
+    updated_at: {
+      value: "updated_at",
+    },
+    language: {
+      value: "language",
+    },
+  },
+});
+
 export const RepositoryType = new GraphQLObjectType<IRepository, Context>({
   name: "Repository",
   fields: {
+    id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: repo => repo.id,
+    },
     name: {
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.name,

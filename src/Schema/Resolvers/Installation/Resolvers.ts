@@ -8,7 +8,7 @@ import { InstallationController } from "./Controller";
 import { InstallationType } from "./GQLTypes";
 import type { ICreateInstallation } from "./types";
 
-export const installationSetup: GraphQLFieldConfig<
+export const installationSetupStream: GraphQLFieldConfig<
   any,
   Context,
   ICreateInstallation
@@ -27,6 +27,23 @@ export const installationSetup: GraphQLFieldConfig<
     const subscription = Subscriptions.subscribe("newInstallation", key);
     void InstallationController.emitLast(installation_id, platform);
     return subscription;
+  },
+  resolve: installation => installation,
+};
+
+export const installationSetup: GraphQLFieldConfig<
+  any,
+  Context,
+  ICreateInstallation
+> = {
+  type: SchemaBuilder.nonNull(InstallationType),
+  args: {
+    platform: {
+      type: SchemaBuilder.nonNull(PlatformType),
+    },
+    installation_id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
   },
   resolve: (_, { installation_id, platform }) => {
     return InstallationController.find(installation_id, platform);
