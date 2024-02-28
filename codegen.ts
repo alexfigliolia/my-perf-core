@@ -14,16 +14,6 @@ const config: CodegenConfig = {
         fragmentMasking: false,
       },
     },
-    "./src/GQL/StatsService/Types/": {
-      documents: ["src/GQL/StatsService/Queries/*.gql.ts"],
-      schema: "./src/GQL/StatsService/Types/graphql-schema.graphql",
-      preset: "client",
-      plugins: [],
-      presetConfig: {
-        gqlTagName: "gql",
-        fragmentMasking: false,
-      },
-    },
   },
   ignoreNoDocuments: true,
 };

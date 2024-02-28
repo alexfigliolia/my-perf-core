@@ -52,11 +52,11 @@ model User {
   name          String
   emails        Email[]
   roles         UserRole[]
-  organizations Organization[]
-  github        GithubUserAuthorization?
-  overallStats  UserStats[]
-  monthlyStats  MonthlyStats[]
   pullRequests  PullRequest[]
+  organizations Organization[]
+  overallStats  OverallUserStats[]
+  monthlyStats  MonthlyUserStats[]
+  github        GithubUserAuthorization?
 }
 
 model UserRole {
@@ -69,45 +69,51 @@ model UserRole {
 }
 
 model Repository {
-  id             Int           @id @unique @default(autoincrement())
-  name           String
-  html_url       String
-  description    String        @default("")
-  language       String        @default("Unknown Language")
-  organizationId Int
-  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  platform       Platform
-  api_url        String
-  platform_id    Int
-  clone_url      String
-  tracked        Boolean       @default(false)
-  created_at     String
-  updated_at     String
-  totalLines     Int           @default(0)
-  totalCommits   Int           @default(0)
-  userStats      UserStats[]
-  pullRequests   PullRequest[]
+  id               Int                @id @unique @default(autoincrement())
+  name             String
+  html_url         String
+  description      String             @default("")
+  language         String             @default("Unknown Language")
+  organizationId   Int
+  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  platform         Platform
+  api_url          String
+  platform_id      Int
+  clone_url        String
+  tracked          Boolean            @default(false)
+  created_at       String
+  updated_at       String
+  lines            Int                @default(0)
+  commits          Int                @default(0)
+  pullRequests     PullRequest[]
+  monthlyUserStats MonthlyUserStats[]
+  userStats        OverallUserStats[]
 
   @@unique([platform_id, platform])
 }
 
-model UserStats {
+model OverallUserStats {
   id           Int        @id @unique @default(autoincrement())
-  totalLines   Int
-  totalCommits Int
+  lines        Int
+  commits      Int
+  date         DateTime   @default(now())
   repositoryId Int
   repository   Repository @relation(fields: [repositoryId], references: [id])
   userId       Int
   user         User       @relation(fields: [userId], references: [id])
+
+  @@unique([userId, repositoryId])
 }
 
-model MonthlyStats {
-  id      Int      @id @unique @default(autoincrement())
-  user    User     @relation(fields: [userId], references: [id])
-  userId  Int
-  lines   Int      @default(0)
-  commits Int      @default(0)
-  date    DateTime @default(now())
+model MonthlyUserStats {
+  id           Int        @id @unique @default(autoincrement())
+  lines        Int
+  commits      Int
+  date         DateTime   @default(now())
+  repositoryId Int
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
 }
 
 model PullRequest {

@@ -14,9 +14,11 @@ import { RequestMethod } from "GQL/AsyncService/Types";
 import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import type {
+  FilteredContributions,
   IIndexRepoStats,
   IRegisterRepoStatsPull,
   ISetRepositories,
+  IUserStats,
   NewOrg,
 } from "./types";
 
@@ -104,33 +106,38 @@ export class AsyncController {
     return results[1];
   }
 
-  public static async indexRepositoryStats({
+  public static indexRepositoryStats(args: IIndexRepoStats) {
+    if (args.date) {
+      return this.indexMonthlyStats(args);
+    }
+    return this.indexOverallStats(args);
+  }
+
+  private static async indexOverallStats({
+    lines,
+    commits,
     userStats,
-    totalLines,
-    totalCommits,
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
-    const [allEmails, emailToUserID] =
-      await OrganizationController.userEmailList(organizationId);
-    if (!allEmails || !emailToUserID) {
-      throw new GraphQLError("Organization not found");
-    }
     await this.deleteUserStatsForRepository(repositoryId);
-    const stats = userStats.filter(stats => allEmails.has(stats.email));
+    const [emailToUserID, stats] = await this.filterUserStats(
+      organizationId,
+      userStats,
+    );
     const repository = await ORM.query(
       ORM.repository.update({
         where: {
           id: repositoryId,
         },
         data: {
-          totalLines,
-          totalCommits,
+          lines,
+          commits,
           userStats: {
             createMany: {
               data: stats.map(stat => ({
-                totalLines: stat.lines,
-                totalCommits: stat.commits,
+                lines: stat.lines,
+                commits: stat.commits,
                 userId: emailToUserID.get(stat.email)!,
               })),
             },
@@ -144,10 +151,52 @@ export class AsyncController {
     if (!repository) {
       throw new GraphQLError("Error setting repository stats");
     }
-    return repository;
+  }
+
+  private static async indexMonthlyStats({
+    date,
+    userStats,
+    repositoryId,
+    organizationId,
+  }: IIndexRepoStats) {
+    const [emailToUserID, stats] = await this.filterUserStats(
+      organizationId,
+      userStats,
+    );
+    const entry = await ORM.query(
+      ORM.monthlyUserStats.createMany({
+        data: stats.map(stat => ({
+          date,
+          repositoryId,
+          lines: stat.lines,
+          commits: stat.commits,
+          userId: emailToUserID.get(stat.email)!,
+        })),
+      }),
+    );
+    if (!entry) {
+      throw new GraphQLError("Failed to create user stats");
+    }
+  }
+
+  private static async filterUserStats(
+    organizationId: number,
+    userStats: IUserStats[],
+  ): Promise<FilteredContributions> {
+    const [allEmails, emailToUserID] =
+      await OrganizationController.userEmailList(organizationId);
+    if (!allEmails || !emailToUserID) {
+      throw new GraphQLError("Organization not found");
+    }
+    return [
+      emailToUserID,
+      userStats.filter(stats => allEmails.has(stats.email)),
+    ];
   }
 
   private static deleteUserStatsForRepository(id: number) {
-    return ORM.query(ORM.userStats.deleteMany({ where: { repositoryId: id } }));
+    return ORM.query(
+      ORM.overallUserStats.deleteMany({ where: { repositoryId: id } }),
+    );
   }
 }

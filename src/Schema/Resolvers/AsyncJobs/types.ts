@@ -37,14 +37,22 @@ export interface IRegisterRepoStatsPull {
   organizationId: number;
 }
 
+export interface IUserStats {
+  email: string;
+  lines: number;
+  commits: number;
+}
+
 export interface IIndexRepoStats {
-  totalLines: number;
-  totalCommits: number;
+  date?: string;
+  lines: number;
+  commits: number;
   repositoryId: number;
   organizationId: number;
-  userStats: {
-    email: string;
-    lines: number;
-    commits: number;
-  }[];
+  userStats: IUserStats[];
 }
+
+export type FilteredContributions = [
+  emailMap: Map<string, number>,
+  stats: IUserStats[],
+];

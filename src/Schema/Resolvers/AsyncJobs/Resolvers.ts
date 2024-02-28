@@ -1,4 +1,9 @@
-import { GraphQLBoolean, type GraphQLFieldConfig, GraphQLInt } from "graphql";
+import {
+  GraphQLBoolean,
+  type GraphQLFieldConfig,
+  GraphQLInt,
+  GraphQLString,
+} from "graphql";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import { AsyncController } from "./Controller";
@@ -33,28 +38,27 @@ export const setRepositoryStats: GraphQLFieldConfig<
 > = {
   type: SchemaBuilder.nonNull(GraphQLBoolean),
   args: {
+    lines: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+    date: {
+      type: GraphQLString,
+    },
+    commits: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+    userStats: {
+      type: SchemaBuilder.nonNullArray(UserContributionsInputType),
+    },
     repositoryId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
-    userStats: {
-      type: SchemaBuilder.nonNullArray(UserContributionsInputType),
-    },
-    totalLines: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
-    },
-    totalCommits: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
-    },
   },
   resolve: async (_, args) => {
-    const { userStats, ...repo } =
-      await AsyncController.indexRepositoryStats(args);
-    const { organizationId } = args;
-    Subscriptions.publish("newRepositoryStats", organizationId, repo);
-    Subscriptions.publish("newUserStats", organizationId, userStats);
+    await AsyncController.indexRepositoryStats(args);
     return true;
   },
 };

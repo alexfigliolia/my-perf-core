@@ -42,6 +42,7 @@ export type MutationRegisterRepositoryPullArgs = {
 
 export type MutationRegisterRepositoryStatsPullArgs = {
   clone_url: Scalars['String']['input'];
+  date?: InputMaybe<Scalars['String']['input']>;
   organizationId: Scalars['Int']['input'];
   repositoryId: Scalars['Int']['input'];
   token: Scalars['String']['input'];
@@ -80,6 +81,7 @@ export type RepositoryPullJob = {
 export type RepositoryStatsPullJob = {
   __typename?: 'RepositoryStatsPullJob';
   clone_url: Scalars['String']['output'];
+  date?: Maybe<Scalars['String']['output']>;
   id: Scalars['Int']['output'];
   jobId: Scalars['Int']['output'];
   organizationId: Scalars['Int']['output'];
