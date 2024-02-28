@@ -7,6 +7,24 @@
   resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
   integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
+"@alexfigliolia/graphql-client@^1.0.1":
+  version "1.0.1"
+  resolved "https://npm.pkg.github.com/download/@alexfigliolia/graphql-client/1.0.1/d8dd29f249080bbde5bfa343519c4f563d45b138#d8dd29f249080bbde5bfa343519c4f563d45b138"
+  integrity sha512-lLNsueAZ2yQScg7rZqDBMRlEaUyzfzSh9ER92tbclVkrjhX23lhc/bCNR4+1fFlT2nEjbUHfgNwxszbx1PAX0g==
+  dependencies:
+    "@figliolia/event-emitter" "^1.1.3"
+    graphql "^16.0.0"
+    graphql-request "^6.1.0"
+    graphql-sse "^2.5.2"
+
+"@alexfigliolia/my-performance-clients@^1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@alexfigliolia/my-performance-clients/1.0.0/9ea6ba5eb5d741672258fe994fd21ae811e2dc5e#9ea6ba5eb5d741672258fe994fd21ae811e2dc5e"
+  integrity sha512-WuCcgavCIExi3Itx69ayHN9mq6Bcczl32/knCifuCiaKlKqWdfPlSN5Lg7/jD4PThaDbccgnQUSVMj2vZeX+9g==
+  dependencies:
+    "@alexfigliolia/graphql-client" "^1.0.1"
+    dotenv "^16.4.5"
+
 "@ampproject/remapping@^2.2.0":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.1.tgz#99e8e11851128b8702cd57c33684f1d0f260b630"
@@ -762,13 +780,6 @@
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@figliolia/event-emitter/-/event-emitter-1.1.3.tgz#204b0942e34eea51aa1e7904cf9489d9f457678f"
   integrity sha512-hOSonRPEkgcVxjI4HXyCTqxy/iHywuVU+D1EGoLrxeNHhBd7aVRxmCMKUZ7kuJLUm2UWYVuzi8Gp++uGfvmTaA==
-
-"@figliolia/graphql-client@file:../graphql-client":
-  version "1.0.0"
-  dependencies:
-    "@figliolia/event-emitter" "^1.1.3"
-    graphql-request "^6.1.0"
-    graphql-sse "^2.5.2"
 
 "@figliolia/ts-packager@^1.0.6":
   version "1.0.7"
@@ -3636,7 +3647,7 @@ dot-case@^3.0.4:
     no-case "^3.0.4"
     tslib "^2.0.3"
 
-dotenv@^16.0.0, dotenv@^16.4.1:
+dotenv@^16.0.0, dotenv@^16.4.1, dotenv@^16.4.5:
   version "16.4.5"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.4.5.tgz#cdd3b3b604cb327e286b4762e13502f717cb099f"
   integrity sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==
