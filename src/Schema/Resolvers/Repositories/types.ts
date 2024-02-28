@@ -14,25 +14,6 @@ export interface IRepository {
   description: string;
 }
 
-export interface InputRepository {
-  name: string;
-  api_url: string;
-  html_url: string;
-  clone_url: string;
-  created_at: string;
-  updated_at: string;
-  platform: Platform;
-  platform_id: number;
-  organizationId: number;
-  language: string | null;
-  description: string | null;
-}
-
-export interface ISetRepositories {
-  organizationId: number;
-  repositories: InputRepository[];
-}
-
 export type IRepositorySortKeys =
   | "name"
   | "created_at"

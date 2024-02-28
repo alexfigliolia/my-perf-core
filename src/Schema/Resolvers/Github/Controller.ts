@@ -3,7 +3,7 @@ import type { Role } from "@prisma/client";
 import { Errors } from "Errors";
 import { Errors as GithubErrors, OAuth } from "Github/API";
 import { ORM } from "ORM";
-import { AsyncController } from "Schema/Resolvers/Async/Controller";
+import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import { RoleController } from "Schema/Resolvers/Role/Controller";
 import { UserController } from "Schema/Resolvers/User/Controller";

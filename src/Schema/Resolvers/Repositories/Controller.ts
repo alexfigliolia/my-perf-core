@@ -1,12 +1,11 @@
+import type { Session, SessionData } from "express-session";
+import { GraphQLError } from "graphql";
 import type { Repository as WebHookRepository } from "@octokit/webhooks-types";
 import type { Prisma } from "@prisma/client";
 import { ORM } from "ORM";
+import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
 import { Transforms } from "./Transforms";
-import type {
-  IAvailableRepositories,
-  ISetRepositories,
-  ITrackedRepositories,
-} from "./types";
+import type { IAvailableRepositories, ITrackedRepositories } from "./types";
 
 export class RepositoryController {
   public static list({
@@ -59,47 +58,39 @@ export class RepositoryController {
     );
   }
 
-  public static trackRepository(id: number) {
-    return ORM.query(
+  public static async trackRepository(
+    repositoryId: number,
+    session: Session & Partial<SessionData>,
+  ) {
+    const repo = await ORM.query(
       ORM.repository.update({
         where: {
-          id,
+          id: repositoryId,
         },
         data: {
           tracked: true,
         },
       }),
     );
-  }
-
-  public static async createMany({
-    organizationId,
-    repositories,
-  }: ISetRepositories) {
-    if (!repositories.length) {
-      return [];
+    if (!repo) {
+      throw new GraphQLError("Failed to update repository");
     }
-    const results = await ORM.query(
-      ORM.$transaction([
-        ORM.repository.createMany({
-          skipDuplicates: true,
-          data: repositories.map(repo => ({
-            ...repo,
-            language: repo.language || "",
-            description: repo.description || "",
-          })),
-        }),
-        ORM.repository.findMany({
-          where: {
-            organizationId,
-          },
-        }),
-      ]),
-    );
-    if (!results) {
-      return [];
+    const { id, organizationId, platform, clone_url } = repo;
+    let token: string;
+    if (platform === "github") {
+      token = session.githubUserToken as string;
+    } else {
+      throw new GraphQLError(
+        "Tracking bitbucket repositories is not yet implemented",
+      );
     }
-    return results[1];
+    void AsyncController.registerRepositoryStatsPull({
+      token,
+      clone_url,
+      organizationId,
+      repositoryId: id,
+    });
+    return repo;
   }
 
   public static createFromWebhook(

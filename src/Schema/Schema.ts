@@ -8,6 +8,7 @@ import {
   loginWithGithub,
   logout,
   setOrganizationRepositories,
+  setRepositoryStats,
   trackedRepositories,
   trackRepository,
   userAndAffiliations,
@@ -34,6 +35,7 @@ const MutationRoot = new GraphQLObjectType({
     loginWithGithub,
     trackRepository,
     createGithubAccount,
+    setRepositoryStats,
     setOrganizationRepositories,
   }),
 });

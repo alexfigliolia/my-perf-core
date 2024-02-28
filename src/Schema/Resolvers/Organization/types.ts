@@ -19,3 +19,8 @@ export interface IOrgAffiliation {
     platform: Platform;
   }[];
 }
+
+export type EmailMapTuple = [
+  emails: Set<string> | undefined,
+  emailToUserID: Map<string, number> | undefined,
+];

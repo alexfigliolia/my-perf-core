@@ -1,44 +1,13 @@
-import {
-  GraphQLBoolean,
-  type GraphQLFieldConfig,
-  GraphQLInt,
-  GraphQLString,
-} from "graphql";
+import { type GraphQLFieldConfig, GraphQLInt, GraphQLString } from "graphql";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import { RepositoryController } from "./Controller";
-import {
-  InputRepositoryType,
-  RepositorySortKeysType,
-  RepositoryType,
-} from "./GQLTypes";
+import { RepositorySortKeysType, RepositoryType } from "./GQLTypes";
 import type {
   IAvailableRepositories,
-  ISetRepositories,
   ITrackedRepositories,
   ITrackRepository,
 } from "./types";
-
-export const setOrganizationRepositories: GraphQLFieldConfig<
-  any,
-  Context,
-  ISetRepositories
-> = {
-  type: SchemaBuilder.nonNull(GraphQLBoolean),
-  args: {
-    repositories: {
-      type: SchemaBuilder.nonNullArray(InputRepositoryType),
-    },
-    organizationId: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
-    },
-  },
-  resolve: async (_, args) => {
-    const repos = await RepositoryController.createMany(args);
-    Subscriptions.publish("newRepositories", args.organizationId, repos);
-    return true;
-  },
-};
 
 export const availableRepositories: GraphQLFieldConfig<
   any,
@@ -126,7 +95,7 @@ export const trackRepository: GraphQLFieldConfig<
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
   },
-  resolve: (_, args) => {
-    return RepositoryController.trackRepository(args.id);
+  resolve: (_, args, context) => {
+    return RepositoryController.trackRepository(args.id, context.req.session);
   },
 };

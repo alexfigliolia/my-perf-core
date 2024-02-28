@@ -19,6 +19,7 @@ export type Scalars = {
 export enum JobStatus {
   Complete = 'complete',
   Failed = 'failed',
+  Inprogress = 'inprogress',
   Pending = 'pending'
 }
 
@@ -59,7 +60,8 @@ export enum Platform {
 
 export type Query = {
   __typename?: 'Query';
-  nextPullJob: RepositoryPullJob;
+  nextRepositoryPullJob: RepositoryPullJob;
+  nextRepositoryStatsPullJob: RepositoryStatsPullJob;
 };
 
 export type RepositoryPullJob = {
@@ -75,6 +77,16 @@ export type RepositoryPullJob = {
   token: Scalars['String']['output'];
 };
 
+export type RepositoryStatsPullJob = {
+  __typename?: 'RepositoryStatsPullJob';
+  clone_url: Scalars['String']['output'];
+  id: Scalars['Int']['output'];
+  jobId: Scalars['Int']['output'];
+  organizationId: Scalars['Int']['output'];
+  repositoryId: Scalars['Int']['output'];
+  token: Scalars['String']['output'];
+};
+
 export enum RequestMethod {
   Get = 'GET',
   Post = 'POST'
@@ -83,6 +95,7 @@ export enum RequestMethod {
 export type Subscription = {
   __typename?: 'Subscription';
   repositoryPulls: RepositoryPullJob;
+  repositoryStatsPulls: RepositoryStatsPullJob;
 };
 
 export type RegisterRepositoryPullMutationVariables = Exact<{
@@ -96,5 +109,16 @@ export type RegisterRepositoryPullMutationVariables = Exact<{
 
 export type RegisterRepositoryPullMutation = { __typename?: 'Mutation', registerRepositoryPull: number };
 
+export type RegisterRepositoryStatsPullMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  clone_url: Scalars['String']['input'];
+  repositoryId: Scalars['Int']['input'];
+  organizationId: Scalars['Int']['input'];
+}>;
+
+
+export type RegisterRepositoryStatsPullMutation = { __typename?: 'Mutation', registerRepositoryStatsPull: number };
+
 
 export const RegisterRepositoryPullDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"registerRepositoryPull"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"api_url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"platform"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Platform"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"requestMethod"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RequestMethod"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"registerRepositoryPull"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}},{"kind":"Argument","name":{"kind":"Name","value":"api_url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"api_url"}}},{"kind":"Argument","name":{"kind":"Name","value":"platform"},"value":{"kind":"Variable","name":{"kind":"Name","value":"platform"}}},{"kind":"Argument","name":{"kind":"Name","value":"organizationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}}},{"kind":"Argument","name":{"kind":"Name","value":"requestMethod"},"value":{"kind":"Variable","name":{"kind":"Name","value":"requestMethod"}}}]}]}}]} as unknown as DocumentNode<RegisterRepositoryPullMutation, RegisterRepositoryPullMutationVariables>;
+export const RegisterRepositoryStatsPullDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"registerRepositoryStatsPull"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"clone_url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repositoryId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"registerRepositoryStatsPull"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}},{"kind":"Argument","name":{"kind":"Name","value":"clone_url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"clone_url"}}},{"kind":"Argument","name":{"kind":"Name","value":"repositoryId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repositoryId"}}},{"kind":"Argument","name":{"kind":"Name","value":"organizationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}}}]}]}}]} as unknown as DocumentNode<RegisterRepositoryStatsPullMutation, RegisterRepositoryStatsPullMutationVariables>;

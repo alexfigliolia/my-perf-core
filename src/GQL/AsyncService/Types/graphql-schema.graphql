@@ -4,7 +4,8 @@ schema {
   subscription: Subscription
 }
 type Query {
-  nextPullJob: RepositoryPullJob!
+  nextRepositoryPullJob: RepositoryPullJob!
+  nextRepositoryStatsPullJob: RepositoryStatsPullJob!
 }
 type RepositoryPullJob {
   jobId: Int!
@@ -17,6 +18,14 @@ type RepositoryPullJob {
   requestMethod: RequestMethod!
   organizationId: Int!
 }
+type RepositoryStatsPullJob {
+  jobId: Int!
+  id: Int!
+  clone_url: String!
+  token: String!
+  repositoryId: Int!
+  organizationId: Int!
+}
 type Mutation {
   setJobStatus(id: Int!, status: JobStatus!): Boolean!
   registerRepositoryPull(token: String!, api_url: String!, platform: Platform!, requestMethod: RequestMethod!, organizationId: Int!): Int!
@@ -24,6 +33,7 @@ type Mutation {
 }
 type Subscription {
   repositoryPulls: RepositoryPullJob!
+  repositoryStatsPulls: RepositoryStatsPullJob!
 }
 enum Platform {
   github
@@ -37,6 +47,7 @@ enum JobStatus {
   complete
   failed
   pending
+  inprogress
 }
 "Exposes a URL that specifies the behavior of this scalar."
 directive @specifiedBy(

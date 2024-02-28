@@ -93,7 +93,6 @@ model Repository {
 
 model UserStats {
   id           Int        @id @unique @default(autoincrement())
-  email        String
   totalLines   Int
   totalCommits Int
   repositoryId Int

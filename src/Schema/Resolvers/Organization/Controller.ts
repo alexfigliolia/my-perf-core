@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { Errors } from "Errors";
 import { ORM } from "ORM";
-import type { IOrganizationParams } from "./types";
+import type { EmailMapTuple, IOrganizationParams } from "./types";
 
 export class OrganizationController {
   public static async create({
@@ -83,20 +83,38 @@ export class OrganizationController {
     });
   }
 
-  public static allUsers(id: number) {
-    return ORM.organization.findUnique({
-      where: { id },
-      include: {
-        users: {
-          select: {
-            emails: {
-              select: {
-                name: true,
+  public static async userEmailList(id: number): Promise<EmailMapTuple> {
+    const users = await ORM.query(
+      ORM.organization.findUnique({
+        where: { id },
+        include: {
+          users: {
+            select: {
+              id: true,
+              emails: {
+                select: {
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      }),
+    );
+    if (!users) {
+      return [undefined, undefined];
+    }
+    const emailList = new Set<string>();
+    const userMap = new Map<string, number>();
+    for (const user of users.users) {
+      const userEmails = new Set<string>();
+      const { id, emails } = user;
+      for (const { name } of emails) {
+        emailList.add(name);
+        userEmails.add(name);
+        userMap.set(name, id);
+      }
+    }
+    return [emailList, userMap];
   }
 }
