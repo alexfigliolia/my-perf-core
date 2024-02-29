@@ -84,7 +84,7 @@ export class RepositoryController {
         "Tracking bitbucket repositories is not yet implemented",
       );
     }
-    void AsyncController.registerRepositoryStatsPull({
+    void AsyncController.subscribeToRepositoryStats({
       token,
       clone_url,
       organizationId,
@@ -107,14 +107,24 @@ export class RepositoryController {
     );
   }
 
-  public static deleteGithubRepository(id: number) {
-    return ORM.query(
+  public static async deleteGithubRepository(id: number) {
+    const [repos] = await ORM.$transaction([
+      ORM.repository.findMany({
+        where: {
+          AND: [{ platform: "github" }, { platform_id: id }],
+        },
+      }),
       ORM.repository.deleteMany({
         where: {
           AND: [{ platform: "github" }, { platform_id: id }],
         },
       }),
-    );
+    ]);
+    for (const repo of repos) {
+      if (repo.tracked) {
+        void AsyncController.deleteRepositoryStatsJobs(repo.id);
+      }
+    }
   }
 
   public static updateFromWebhook(repo: WebHookRepository) {

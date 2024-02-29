@@ -2,13 +2,21 @@ import { GraphQLError } from "graphql";
 import { AsyncServiceRequest } from "@alexfigliolia/my-performance-clients";
 import type { InstallationType, Platform } from "@prisma/client";
 import { registerRepositoryPull } from "GQL";
-import { registerRepositoryStatsPull } from "GQL/AsyncService";
+import {
+  deleteRepositoryStatsJobs,
+  registerRepositoryStatsPull,
+  subscribeToRepositoryStats,
+} from "GQL/AsyncService";
 import type {
+  DeleteRepositoryStatsJobsMutation,
+  DeleteRepositoryStatsJobsMutationVariables,
   Platform as APlatform,
   RegisterRepositoryPullMutation,
   RegisterRepositoryPullMutationVariables,
   RegisterRepositoryStatsPullMutation,
   RegisterRepositoryStatsPullMutationVariables,
+  SubscribeToRepositoryStatsMutation,
+  SubscribeToRepositoryStatsMutationVariables,
 } from "GQL/AsyncService/Types";
 import { RequestMethod } from "GQL/AsyncService/Types";
 import { ORM } from "ORM";
@@ -31,6 +39,16 @@ export class AsyncController {
       RegisterRepositoryStatsPullMutationVariables
     >({
       query: registerRepositoryStatsPull,
+      variables: args,
+    });
+  }
+
+  public static async subscribeToRepositoryStats(args: IRegisterRepoStatsPull) {
+    return AsyncServiceRequest<
+      SubscribeToRepositoryStatsMutation,
+      SubscribeToRepositoryStatsMutationVariables
+    >({
+      query: subscribeToRepositoryStats,
       variables: args,
     });
   }
@@ -111,6 +129,16 @@ export class AsyncController {
       return this.indexMonthlyStats(args);
     }
     return this.indexOverallStats(args);
+  }
+
+  public static deleteRepositoryStatsJobs(id: number) {
+    return AsyncServiceRequest<
+      DeleteRepositoryStatsJobsMutation,
+      DeleteRepositoryStatsJobsMutationVariables
+    >({
+      query: deleteRepositoryStatsJobs,
+      variables: { repositoryId: id },
+    });
   }
 
   private static async indexOverallStats({

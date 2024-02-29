@@ -13,8 +13,10 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+    "\n  mutation deleteRepositoryStatsJobs($repositoryId: Int!) {\n    deleteRepositoryStatsJobs(repositoryId: $repositoryId)\n  }\n": types.DeleteRepositoryStatsJobsDocument,
     "\n  mutation registerRepositoryPull(\n    $token: String!\n    $api_url: String!\n    $platform: Platform!\n    $organizationId: Int!\n    $requestMethod: RequestMethod!\n  ) {\n    registerRepositoryPull(\n      token: $token\n      api_url: $api_url\n      platform: $platform\n      organizationId: $organizationId\n      requestMethod: $requestMethod\n    )\n  }\n": types.RegisterRepositoryPullDocument,
     "\n  mutation registerRepositoryStatsPull(\n    $token: String!\n    $clone_url: String!\n    $repositoryId: Int!\n    $organizationId: Int!\n  ) {\n    registerRepositoryStatsPull(\n      token: $token\n      clone_url: $clone_url\n      repositoryId: $repositoryId\n      organizationId: $organizationId\n    )\n  }\n": types.RegisterRepositoryStatsPullDocument,
+    "\n  mutation subscribeToRepositoryStats(\n    $token: String!\n    $clone_url: String!\n    $repositoryId: Int!\n    $organizationId: Int!\n  ) {\n    subscribeToRepositoryStats(\n      token: $token\n      clone_url: $clone_url\n      repositoryId: $repositoryId\n      organizationId: $organizationId\n    )\n  }\n": types.SubscribeToRepositoryStatsDocument,
 };
 
 /**
@@ -34,11 +36,19 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  mutation deleteRepositoryStatsJobs($repositoryId: Int!) {\n    deleteRepositoryStatsJobs(repositoryId: $repositoryId)\n  }\n"): (typeof documents)["\n  mutation deleteRepositoryStatsJobs($repositoryId: Int!) {\n    deleteRepositoryStatsJobs(repositoryId: $repositoryId)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation registerRepositoryPull(\n    $token: String!\n    $api_url: String!\n    $platform: Platform!\n    $organizationId: Int!\n    $requestMethod: RequestMethod!\n  ) {\n    registerRepositoryPull(\n      token: $token\n      api_url: $api_url\n      platform: $platform\n      organizationId: $organizationId\n      requestMethod: $requestMethod\n    )\n  }\n"): (typeof documents)["\n  mutation registerRepositoryPull(\n    $token: String!\n    $api_url: String!\n    $platform: Platform!\n    $organizationId: Int!\n    $requestMethod: RequestMethod!\n  ) {\n    registerRepositoryPull(\n      token: $token\n      api_url: $api_url\n      platform: $platform\n      organizationId: $organizationId\n      requestMethod: $requestMethod\n    )\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation registerRepositoryStatsPull(\n    $token: String!\n    $clone_url: String!\n    $repositoryId: Int!\n    $organizationId: Int!\n  ) {\n    registerRepositoryStatsPull(\n      token: $token\n      clone_url: $clone_url\n      repositoryId: $repositoryId\n      organizationId: $organizationId\n    )\n  }\n"): (typeof documents)["\n  mutation registerRepositoryStatsPull(\n    $token: String!\n    $clone_url: String!\n    $repositoryId: Int!\n    $organizationId: Int!\n  ) {\n    registerRepositoryStatsPull(\n      token: $token\n      clone_url: $clone_url\n      repositoryId: $repositoryId\n      organizationId: $organizationId\n    )\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation subscribeToRepositoryStats(\n    $token: String!\n    $clone_url: String!\n    $repositoryId: Int!\n    $organizationId: Int!\n  ) {\n    subscribeToRepositoryStats(\n      token: $token\n      clone_url: $clone_url\n      repositoryId: $repositoryId\n      organizationId: $organizationId\n    )\n  }\n"): (typeof documents)["\n  mutation subscribeToRepositoryStats(\n    $token: String!\n    $clone_url: String!\n    $repositoryId: Int!\n    $organizationId: Int!\n  ) {\n    subscribeToRepositoryStats(\n      token: $token\n      clone_url: $clone_url\n      repositoryId: $repositoryId\n      organizationId: $organizationId\n    )\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
