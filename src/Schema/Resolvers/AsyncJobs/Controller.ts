@@ -18,7 +18,7 @@ import type {
   SubscribeToRepositoryStatsMutation,
   SubscribeToRepositoryStatsMutationVariables,
 } from "GQL/AsyncService/Types";
-import { RequestMethod } from "GQL/AsyncService/Types";
+import { RequestMethod, Schedule } from "GQL/AsyncService/Types";
 import { ORM } from "ORM";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import type {
@@ -125,10 +125,13 @@ export class AsyncController {
   }
 
   public static indexRepositoryStats(args: IIndexRepoStats) {
-    if (args.date) {
+    if (!args.range) {
+      return this.indexOverallStats(args);
+    }
+    if (args.range === Schedule.Monthly) {
       return this.indexMonthlyStats(args);
     }
-    return this.indexOverallStats(args);
+    throw new GraphQLError("Error indexing repository stats: not implemented");
   }
 
   public static deleteRepositoryStatsJobs(id: number) {
@@ -182,7 +185,6 @@ export class AsyncController {
   }
 
   private static async indexMonthlyStats({
-    date,
     userStats,
     repositoryId,
     organizationId,
@@ -194,7 +196,6 @@ export class AsyncController {
     const entry = await ORM.query(
       ORM.monthlyUserStats.createMany({
         data: stats.map(stat => ({
-          date,
           repositoryId,
           lines: stat.lines,
           commits: stat.commits,

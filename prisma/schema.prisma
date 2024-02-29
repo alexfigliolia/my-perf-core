@@ -64,7 +64,7 @@ model UserRole {
   userId         Int
   organizationId Int
   role           Role
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id])
   organization   Organization @relation(fields: [organizationId], references: [id])
 }
 

@@ -1,13 +1,12 @@
-import {
-  GraphQLBoolean,
-  type GraphQLFieldConfig,
-  GraphQLInt,
-  GraphQLString,
-} from "graphql";
+import { GraphQLBoolean, type GraphQLFieldConfig, GraphQLInt } from "graphql";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import { AsyncController } from "./Controller";
-import { InputRepositoryType, UserContributionsInputType } from "./GQLTypes";
+import {
+  InputRepositoryType,
+  ScheduleType,
+  UserContributionsInputType,
+} from "./GQLTypes";
 import type { IIndexRepoStats, ISetRepositories } from "./types";
 
 export const setOrganizationRepositories: GraphQLFieldConfig<
@@ -41,8 +40,8 @@ export const setRepositoryStats: GraphQLFieldConfig<
     lines: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
-    date: {
-      type: GraphQLString,
+    range: {
+      type: ScheduleType,
     },
     commits: {
       type: SchemaBuilder.nonNull(GraphQLInt),

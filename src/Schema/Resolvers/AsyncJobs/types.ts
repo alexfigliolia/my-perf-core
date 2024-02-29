@@ -1,4 +1,5 @@
 import type { InstallationType, Platform } from "@prisma/client";
+import type { Schedule } from "GQL/AsyncService/Types";
 
 export interface NewOrg {
   id: number;
@@ -44,8 +45,8 @@ export interface IUserStats {
 }
 
 export interface IIndexRepoStats {
-  date?: string;
   lines: number;
+  range?: Schedule;
   commits: number;
   repositoryId: number;
   organizationId: number;

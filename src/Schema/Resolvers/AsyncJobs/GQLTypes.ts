@@ -1,4 +1,9 @@
-import { GraphQLInputObjectType, GraphQLInt, GraphQLString } from "graphql";
+import {
+  GraphQLEnumType,
+  GraphQLInputObjectType,
+  GraphQLInt,
+  GraphQLString,
+} from "graphql";
 import { PlatformType } from "Schema/Resolvers/Platform/GQLTypes";
 import { SchemaBuilder } from "Schema/Utilities";
 
@@ -52,6 +57,27 @@ export const UserContributionsInputType = new GraphQLInputObjectType({
     },
     commits: {
       type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+  },
+});
+
+export const ScheduleType = new GraphQLEnumType({
+  name: "Schedule",
+  values: {
+    once: {
+      value: "once",
+    },
+    daily: {
+      value: "daily",
+    },
+    weekly: {
+      value: "weekly",
+    },
+    monthly: {
+      value: "monthly",
+    },
+    yearly: {
+      value: "yearly",
     },
   },
 });
