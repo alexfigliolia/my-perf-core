@@ -96,7 +96,7 @@ model OverallUserStats {
   id           Int        @id @unique @default(autoincrement())
   lines        Int
   commits      Int
-  date         DateTime   @default(now())
+  date         DateTime   @default(now()) @db.Timestamptz()
   repositoryId Int
   repository   Repository @relation(fields: [repositoryId], references: [id])
   userId       Int
@@ -109,7 +109,7 @@ model MonthlyUserStats {
   id           Int        @id @unique @default(autoincrement())
   lines        Int
   commits      Int
-  date         DateTime   @default(now())
+  date         DateTime   @default(now()) @db.Timestamptz()
   repositoryId Int
   repository   Repository @relation(fields: [repositoryId], references: [id])
   user         User       @relation(fields: [userId], references: [id])
@@ -118,7 +118,7 @@ model MonthlyUserStats {
 
 model PullRequest {
   id           Int               @id @unique @default(autoincrement())
-  date         DateTime
+  date         DateTime          @db.Timestamptz()
   author       User              @relation(fields: [authorId], references: [id])
   authorId     Int
   status       PullRequestStatus
