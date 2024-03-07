@@ -23,12 +23,14 @@ model Installation {
 }
 
 model Organization {
-  id            Int            @id @unique @default(autoincrement())
-  name          String
-  users         User[]
-  roles         UserRole[]
-  repositories  Repository[]
-  installations Installation[]
+  id               Int                @id @unique @default(autoincrement())
+  name             String
+  users            User[]
+  roles            UserRole[]
+  repositories     Repository[]
+  installations    Installation[]
+  overallUserStats OverallUserStats[]
+  monthlyUserStats MonthlyUserStats[]
 }
 
 model Email {
@@ -64,7 +66,7 @@ model UserRole {
   userId         Int
   organizationId Int
   role           Role
-  user           User         @relation(fields: [userId], references: [id])
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
@@ -93,27 +95,31 @@ model Repository {
 }
 
 model OverallUserStats {
-  id           Int        @id @unique @default(autoincrement())
-  lines        Int
-  commits      Int
-  date         DateTime   @default(now()) @db.Timestamptz()
-  repositoryId Int
-  repository   Repository @relation(fields: [repositoryId], references: [id])
-  userId       Int
-  user         User       @relation(fields: [userId], references: [id])
+  id             Int          @id @unique @default(autoincrement())
+  lines          Int
+  commits        Int
+  date           DateTime     @default(now()) @db.Timestamptz()
+  repositoryId   Int
+  repository     Repository   @relation(fields: [repositoryId], references: [id])
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, repositoryId])
 }
 
 model MonthlyUserStats {
-  id           Int        @id @unique @default(autoincrement())
-  lines        Int
-  commits      Int
-  date         DateTime   @default(now()) @db.Timestamptz()
-  repositoryId Int
-  repository   Repository @relation(fields: [repositoryId], references: [id])
-  user         User       @relation(fields: [userId], references: [id])
-  userId       Int
+  id             Int          @id @unique @default(autoincrement())
+  lines          Int
+  commits        Int
+  date           DateTime     @default(now()) @db.Timestamptz()
+  repositoryId   Int
+  repository     Repository   @relation(fields: [repositoryId], references: [id])
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
 model PullRequest {

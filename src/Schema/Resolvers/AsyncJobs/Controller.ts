@@ -167,6 +167,7 @@ export class AsyncController {
           userStats: {
             createMany: {
               data: stats.map(stat => ({
+                organizationId,
                 lines: stat.lines,
                 commits: stat.commits,
                 userId: emailToUserID.get(stat.email)!,
@@ -197,6 +198,7 @@ export class AsyncController {
       ORM.monthlyUserStats.createMany({
         data: stats.map(stat => ({
           repositoryId,
+          organizationId,
           lines: stat.lines,
           commits: stat.commits,
           userId: emailToUserID.get(stat.email)!,

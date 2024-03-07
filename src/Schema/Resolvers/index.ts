@@ -4,3 +4,4 @@ export * from "./Github/Resolvers";
 export * from "./Installation/Resolvers";
 export * from "./Repositories/Resolvers";
 export * from "./AsyncJobs/Resolvers";
+export * from "./Team/Resolvers";

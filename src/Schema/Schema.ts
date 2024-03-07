@@ -7,8 +7,10 @@ import {
   installationSetupStream,
   loginWithGithub,
   logout,
+  overallStatsPerUser,
   setOrganizationRepositories,
   setRepositoryStats,
+  standouts,
   trackedRepositories,
   trackRepository,
   userAndAffiliations,
@@ -19,10 +21,12 @@ import {
 const QueryRoot = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
+    standouts,
     installationSetup,
     userAndAffiliations,
     trackedRepositories,
     availableRepositories,
+    overallStatsPerUser,
   }),
 });
 
