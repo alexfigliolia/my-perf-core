@@ -84,8 +84,14 @@ export enum Platform {
 
 export type Query = {
   __typename?: 'Query';
+  checkRepositoryPullStatus: JobStatus;
   nextRepositoryPullJob: RepositoryPullJob;
   nextRepositoryStatsPullJob: RepositoryStatsPullJob;
+};
+
+
+export type QueryCheckRepositoryPullStatusArgs = {
+  organizationId: Scalars['Int']['input'];
 };
 
 export type RepositoryPullJob = {
@@ -132,6 +138,13 @@ export type Subscription = {
   repositoryStatsPulls: RepositoryStatsPullJob;
 };
 
+export type CheckRepositoryPullStatusQueryVariables = Exact<{
+  organizationId: Scalars['Int']['input'];
+}>;
+
+
+export type CheckRepositoryPullStatusQuery = { __typename?: 'Query', checkRepositoryPullStatus: JobStatus };
+
 export type DeleteRepositoryStatsJobsMutationVariables = Exact<{
   repositoryId: Scalars['Int']['input'];
 }>;
@@ -171,6 +184,7 @@ export type SubscribeToRepositoryStatsMutationVariables = Exact<{
 export type SubscribeToRepositoryStatsMutation = { __typename?: 'Mutation', subscribeToRepositoryStats: number };
 
 
+export const CheckRepositoryPullStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"checkRepositoryPullStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"checkRepositoryPullStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"organizationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}}}]}]}}]} as unknown as DocumentNode<CheckRepositoryPullStatusQuery, CheckRepositoryPullStatusQueryVariables>;
 export const DeleteRepositoryStatsJobsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"deleteRepositoryStatsJobs"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repositoryId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteRepositoryStatsJobs"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"repositoryId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repositoryId"}}}]}]}}]} as unknown as DocumentNode<DeleteRepositoryStatsJobsMutation, DeleteRepositoryStatsJobsMutationVariables>;
 export const RegisterRepositoryPullDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"registerRepositoryPull"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"api_url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"platform"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Platform"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"requestMethod"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RequestMethod"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"registerRepositoryPull"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}},{"kind":"Argument","name":{"kind":"Name","value":"api_url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"api_url"}}},{"kind":"Argument","name":{"kind":"Name","value":"platform"},"value":{"kind":"Variable","name":{"kind":"Name","value":"platform"}}},{"kind":"Argument","name":{"kind":"Name","value":"organizationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}}},{"kind":"Argument","name":{"kind":"Name","value":"requestMethod"},"value":{"kind":"Variable","name":{"kind":"Name","value":"requestMethod"}}}]}]}}]} as unknown as DocumentNode<RegisterRepositoryPullMutation, RegisterRepositoryPullMutationVariables>;
 export const RegisterRepositoryStatsPullDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"registerRepositoryStatsPull"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"clone_url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"repositoryId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"registerRepositoryStatsPull"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}},{"kind":"Argument","name":{"kind":"Name","value":"clone_url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"clone_url"}}},{"kind":"Argument","name":{"kind":"Name","value":"repositoryId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"repositoryId"}}},{"kind":"Argument","name":{"kind":"Name","value":"organizationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}}}]}]}}]} as unknown as DocumentNode<RegisterRepositoryStatsPullMutation, RegisterRepositoryStatsPullMutationVariables>;

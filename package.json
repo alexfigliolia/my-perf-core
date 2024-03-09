@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@alexfigliolia/my-performance-clients": "^1.0.0",
+    "@alexfigliolia/my-performance-gql-errors": "^1.0.0",
     "@figliolia/event-emitter": "^1.1.3",
     "@prisma/client": "^5.9.1",
     "body-parser": "^1.20.2",

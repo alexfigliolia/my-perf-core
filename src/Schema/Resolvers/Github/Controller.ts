@@ -1,5 +1,5 @@
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { Role } from "@prisma/client";
-import { Errors } from "Errors";
 import { Errors as GithubErrors, OAuth } from "Github/API";
 import { ORM } from "ORM";
 import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";

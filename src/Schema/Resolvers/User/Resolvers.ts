@@ -1,6 +1,6 @@
 import type { GraphQLFieldConfig } from "graphql";
 import { GraphQLError } from "graphql";
-import { Errors } from "Errors";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { UserController } from "./Controller";

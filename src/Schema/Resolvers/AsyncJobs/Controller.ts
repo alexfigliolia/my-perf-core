@@ -1,13 +1,16 @@
 import { AsyncServiceRequest } from "@alexfigliolia/my-performance-clients";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { InstallationType, Platform } from "@prisma/client";
-import { Errors } from "Errors";
 import { registerRepositoryPull } from "GQL";
 import {
+  checkRepositoryPullStatus,
   deleteRepositoryStatsJobs,
   registerRepositoryStatsPull,
   subscribeToRepositoryStats,
 } from "GQL/AsyncService";
 import type {
+  CheckRepositoryPullStatusQuery,
+  CheckRepositoryPullStatusQueryVariables,
   DeleteRepositoryStatsJobsMutation,
   DeleteRepositoryStatsJobsMutationVariables,
   Platform as APlatform,
@@ -238,5 +241,20 @@ export class AsyncController {
     return ORM.query(
       ORM.overallUserStats.deleteMany({ where: { repositoryId: id } }),
     );
+  }
+
+  public static async checkRepoPullStatus(organizationId: number) {
+    try {
+      const status = await AsyncServiceRequest<
+        CheckRepositoryPullStatusQuery,
+        CheckRepositoryPullStatusQueryVariables
+      >({
+        query: checkRepositoryPullStatus,
+        variables: { organizationId },
+      });
+      return status.data.checkRepositoryPullStatus;
+    } catch (error) {
+      return "Unknown";
+    }
   }
 }

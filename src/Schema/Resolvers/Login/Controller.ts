@@ -1,6 +1,6 @@
 import type { Request } from "express";
 import { GraphQLError } from "graphql";
-import { Errors } from "Errors";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { GithubController } from "Schema/Resolvers/Github/Controller";
 import { Sessions } from "Sessions";
 

@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { Errors } from "Errors";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { ORM } from "ORM";
 import type { EmailMapTuple, IOrganizationParams } from "./types";
 

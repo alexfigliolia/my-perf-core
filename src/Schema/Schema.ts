@@ -14,6 +14,8 @@ import {
   setRepositoryStats,
   standouts,
   teams,
+  totalRepositories,
+  totalTeams,
   trackedRepositories,
   trackRepository,
   userAndAffiliations,
@@ -27,11 +29,13 @@ const QueryRoot = new GraphQLObjectType({
     teams,
     myTeams,
     standouts,
+    totalTeams,
     installationSetup,
     userAndAffiliations,
     trackedRepositories,
     availableRepositories,
     overallStatsPerUser,
+    totalRepositories,
   }),
 });
 

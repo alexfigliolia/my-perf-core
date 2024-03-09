@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { Platform } from "@prisma/client";
-import { Errors } from "Errors";
 import { Errors as GithubError, InstallationTokens } from "Github/API";
 import { Logger } from "Logger";
 import { ORM } from "ORM";

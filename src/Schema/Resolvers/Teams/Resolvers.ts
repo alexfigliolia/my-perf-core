@@ -5,7 +5,7 @@ import {
   GraphQLInt,
   GraphQLString,
 } from "graphql";
-import { Errors } from "Errors";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
@@ -75,5 +75,17 @@ export const createTeam: GraphQLFieldConfig<any, Context, ICreateTeam> = {
       throw new GraphQLError("Unauthorized");
     }
     return TeamsController.create(userID, args);
+  },
+};
+
+export const totalTeams: GraphQLFieldConfig<any, Context, IByOrganization> = {
+  type: SchemaBuilder.nonNull(GraphQLInt),
+  args: {
+    organizationId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+  },
+  resolve: (_, args) => {
+    return TeamsController.count(args.organizationId);
   },
 };

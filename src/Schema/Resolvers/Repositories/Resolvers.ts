@@ -1,7 +1,9 @@
 import { type GraphQLFieldConfig, GraphQLInt, GraphQLString } from "graphql";
+import { JobStatus } from "GQL/AsyncService/Types";
 import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
+import { AsyncController } from "../AsyncJobs/Controller";
 import { RepositoryController } from "./Controller";
 import { RepositorySortKeysType, RepositoryType } from "./GQLTypes";
 import type { IAvailableRepositories, ITrackRepository } from "./types";
@@ -57,8 +59,22 @@ export const availableRepositoriesStream: GraphQLFieldConfig<
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
   },
-  subscribe: (_, args) => {
-    return Subscriptions.subscribe("newRepositories", args.organizationId);
+  subscribe: async (_, args) => {
+    const subscription = Subscriptions.subscribe(
+      "newRepositories",
+      args.organizationId,
+    );
+    const status = await AsyncController.checkRepoPullStatus(
+      args.organizationId,
+    );
+    if (status === JobStatus.Complete) {
+      void RepositoryController.list(args).then(result => {
+        if (result) {
+          Subscriptions.publish("newRepositories", args.organizationId, result);
+        }
+      });
+    }
+    return subscription;
   },
   resolve: (_, args) => {
     return RepositoryController.list(args);
@@ -94,5 +110,21 @@ export const trackRepository: GraphQLFieldConfig<
   },
   resolve: (_, args, context) => {
     return RepositoryController.trackRepository(args.id, context.req.session);
+  },
+};
+
+export const totalRepositories: GraphQLFieldConfig<
+  any,
+  Context,
+  IByOrganization
+> = {
+  type: SchemaBuilder.nonNull(GraphQLInt),
+  args: {
+    organizationId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+  },
+  resolve: (_, args) => {
+    return RepositoryController.count(args.organizationId);
   },
 };

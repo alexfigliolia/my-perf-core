@@ -1,9 +1,23 @@
 import { GraphQLError } from "graphql";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { Prisma } from "@prisma/client";
 import { ORM } from "ORM";
 import type { ICreateTeam, ISearchTeams } from "./types";
 
 export class TeamsController {
+  public static async count(organizationId: number) {
+    try {
+      const count = await ORM.team.count({ where: { organizationId } });
+      return count;
+    } catch (error) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "Organization not found",
+        error as Error,
+      );
+    }
+  }
+
   public static async create(
     userId: number,
     { name, organizationId }: ICreateTeam,

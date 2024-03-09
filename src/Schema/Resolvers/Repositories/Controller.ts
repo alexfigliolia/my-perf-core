@@ -1,5 +1,6 @@
 import type { Session, SessionData } from "express-session";
 import { GraphQLError } from "graphql";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import type { Repository as WebHookRepository } from "@octokit/webhooks-types";
 import type { Prisma } from "@prisma/client";
 import { ORM } from "ORM";
@@ -138,4 +139,22 @@ export class RepositoryController {
       }),
     );
   }
+
+  public static async count(organizationId: number) {
+    return ORM.repository
+      .count({
+        where: {
+          organizationId,
+        },
+      })
+      .catch(error => {
+        throw Errors.createError(
+          "UNEXPECTED_ERROR",
+          "Something went wrong when counting your projects",
+          error,
+        );
+      });
+  }
+
+  public static async checkPullStatus(organizationId: number) {}
 }

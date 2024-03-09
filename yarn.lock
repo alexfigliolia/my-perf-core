@@ -25,6 +25,13 @@
     "@alexfigliolia/graphql-client" "^1.0.1"
     dotenv "^16.4.5"
 
+"@alexfigliolia/my-performance-gql-errors@^1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@alexfigliolia/my-performance-gql-errors/1.0.0/4cc3b4631a3daccd3406d3632004d2a96b83f075#4cc3b4631a3daccd3406d3632004d2a96b83f075"
+  integrity sha512-FOw2y+T39r2QfbwIRcchoBfJTjMsd2N5DzBs0J3XGpBrZdvFSlhq1MyCh7nKiBGFdmA6PbVUbYmN6yJNXr7v0g==
+  dependencies:
+    graphql "^16.8.1"
+
 "@ampproject/remapping@^2.2.0":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.2.1.tgz#99e8e11851128b8702cd57c33684f1d0f260b630"

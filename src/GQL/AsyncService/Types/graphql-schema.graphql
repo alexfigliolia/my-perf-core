@@ -6,6 +6,7 @@ schema {
 type Query {
   nextRepositoryPullJob: RepositoryPullJob!
   nextRepositoryStatsPullJob: RepositoryStatsPullJob!
+  checkRepositoryPullStatus(organizationId: Int!): JobStatus!
 }
 type RepositoryPullJob {
   jobId: Int!
