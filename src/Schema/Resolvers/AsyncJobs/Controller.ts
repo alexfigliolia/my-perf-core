@@ -1,6 +1,6 @@
-import { GraphQLError } from "graphql";
 import { AsyncServiceRequest } from "@alexfigliolia/my-performance-clients";
 import type { InstallationType, Platform } from "@prisma/client";
+import { Errors } from "Errors";
 import { registerRepositoryPull } from "GQL";
 import {
   deleteRepositoryStatsJobs,
@@ -131,7 +131,10 @@ export class AsyncController {
     if (args.range === Schedule.Monthly) {
       return this.indexMonthlyStats(args);
     }
-    throw new GraphQLError("Error indexing repository stats: not implemented");
+    throw Errors.createError(
+      "UNEXPECTED_ERROR",
+      "Error indexing repository stats: not implemented",
+    );
   }
 
   public static deleteRepositoryStatsJobs(id: number) {
@@ -181,7 +184,10 @@ export class AsyncController {
       }),
     );
     if (!repository) {
-      throw new GraphQLError("Error setting repository stats");
+      throw Errors.createError(
+        "UNEXPECTED_ERROR",
+        "Error setting repository stats",
+      );
     }
   }
 
@@ -206,7 +212,10 @@ export class AsyncController {
       }),
     );
     if (!entry) {
-      throw new GraphQLError("Failed to create user stats");
+      throw Errors.createError(
+        "UNEXPECTED_ERROR",
+        "Failed to create user stats",
+      );
     }
   }
 
@@ -217,7 +226,7 @@ export class AsyncController {
     const [allEmails, emailToUserID] =
       await OrganizationController.userEmailList(organizationId);
     if (!allEmails || !emailToUserID) {
-      throw new GraphQLError("Organization not found");
+      throw Errors.createError("NOT_FOUND", "Organization not found");
     }
     return [
       emailToUserID,

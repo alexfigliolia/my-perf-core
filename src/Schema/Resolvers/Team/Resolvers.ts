@@ -1,35 +1,34 @@
 import { type GraphQLFieldConfig, GraphQLInt } from "graphql";
-import type { ITrackedRepositories } from "Schema/Resolvers/Repositories/types";
+import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { TeamController } from "./Controller";
-import { OverallStatsPerUserType, StandoutType } from "./GQLTypes";
+import { StandoutType, TeamStatsType } from "./GQLTypes";
 
 export const overallStatsPerUser: GraphQLFieldConfig<
   any,
   Context,
-  ITrackedRepositories
+  IByOrganization
 > = {
-  type: SchemaBuilder.nonNullArray(OverallStatsPerUserType),
+  type: SchemaBuilder.nonNull(TeamStatsType),
   args: {
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
   },
   resolve: (_, args) => {
-    return TeamController.getHighestContributors(args.organizationId);
+    return TeamController.overallStatsPerUser(args.organizationId);
   },
 };
 
-export const standouts: GraphQLFieldConfig<any, Context, ITrackedRepositories> =
-  {
-    type: SchemaBuilder.nonNullArray(StandoutType),
-    args: {
-      organizationId: {
-        type: SchemaBuilder.nonNull(GraphQLInt),
-      },
+export const standouts: GraphQLFieldConfig<any, Context, IByOrganization> = {
+  type: SchemaBuilder.nonNullArray(StandoutType),
+  args: {
+    organizationId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
     },
-    resolve: (_, args) => {
-      return TeamController.getStandouts(args.organizationId);
-    },
-  };
+  },
+  resolve: (_, args) => {
+    return TeamController.getStandouts(args.organizationId);
+  },
+};

@@ -1,5 +1,6 @@
 import type { Response } from "express";
-import type { GraphQLError } from "graphql";
+import { GraphQLError } from "graphql";
+import type { GQLErrorType } from "./types";
 
 export class Errors {
   public static readonly NOT_FOUND = {
@@ -18,6 +19,17 @@ export class Errors {
     status: 500,
     code: "UNEXPECTED_ERROR",
   };
+
+  public static createError(
+    type: GQLErrorType,
+    message: string,
+    error?: Error,
+  ) {
+    return new GraphQLError(message, {
+      extensions: this[type],
+      originalError: error,
+    });
+  }
 
   public static handler(response: Response) {
     return (error: GraphQLError) => {

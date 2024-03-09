@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import type { Role } from "@prisma/client";
 import { Errors } from "Errors";
 import { Errors as GithubErrors, OAuth } from "Github/API";
@@ -59,21 +58,20 @@ export class GithubController {
         },
       })
       .catch(error => {
-        throw new GraphQLError("Failed to authorized through github", {
-          extensions: Errors.UNEXPECTED_ERROR,
-          originalError: error,
-        });
+        throw Errors.createError(
+          "UNEXPECTED_ERROR",
+          "Failed to authorized through github",
+          error,
+        );
       });
   }
 
   private static async getUserAndEmails(token: string) {
     const { user, emails } = await OAuth.getUser(token);
     if (GithubErrors.isAPIEror(user)) {
-      throw new GraphQLError(
+      throw Errors.createError(
+        "NOT_FOUND",
         "We ran into an error authenticating your account with github. Please try again.",
-        {
-          extensions: Errors.NOT_FOUND,
-        },
       );
     }
     if (GithubErrors.isAPIEror(emails)) {
@@ -85,22 +83,18 @@ export class GithubController {
   private static async generateAccessToken(code: string) {
     const token = await OAuth.generateToken(code);
     if (GithubErrors.isAPIEror(token)) {
-      throw new GraphQLError(
+      throw Errors.createError(
+        "UNEXPECTED_ERROR",
         "We ran into an error authenticating your account with github. Please try again.",
-        {
-          extensions: Errors.UNEXPECTED_ERROR,
-        },
       );
     }
     return token.access_token;
   }
 
   private static get notFoundError() {
-    return new GraphQLError(
+    return Errors.createError(
+      "NOT_FOUND",
       "You user account could not be found in Github's API. Please ensure you've logged in before and verified your account.",
-      {
-        extensions: Errors.NOT_FOUND,
-      },
     );
   }
 }

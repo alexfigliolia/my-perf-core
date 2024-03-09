@@ -1,13 +1,10 @@
 import { type GraphQLFieldConfig, GraphQLInt, GraphQLString } from "graphql";
+import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import { RepositoryController } from "./Controller";
 import { RepositorySortKeysType, RepositoryType } from "./GQLTypes";
-import type {
-  IAvailableRepositories,
-  ITrackedRepositories,
-  ITrackRepository,
-} from "./types";
+import type { IAvailableRepositories, ITrackRepository } from "./types";
 
 export const availableRepositories: GraphQLFieldConfig<
   any,
@@ -71,7 +68,7 @@ export const availableRepositoriesStream: GraphQLFieldConfig<
 export const trackedRepositories: GraphQLFieldConfig<
   any,
   Context,
-  ITrackedRepositories
+  IByOrganization
 > = {
   type: SchemaBuilder.nonNullArray(RepositoryType),
   args: {

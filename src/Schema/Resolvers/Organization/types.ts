@@ -24,3 +24,14 @@ export type EmailMapTuple = [
   emails: Set<string> | undefined,
   emailToUserID: Map<string, number> | undefined,
 ];
+
+export interface IByOrganization {
+  organizationId: number;
+}
+
+export interface IOrganizationSearchScope extends IByOrganization {
+  offset?: number;
+  limit?: number;
+  search?: string;
+  organizationId: number;
+}

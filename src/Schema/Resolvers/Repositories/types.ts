@@ -1,4 +1,5 @@
 import type { Platform } from "@prisma/client";
+import type { IOrganizationSearchScope } from "Schema/Resolvers/Organization/types";
 
 export interface IRepository {
   id: number;
@@ -20,18 +21,14 @@ export type IRepositorySortKeys =
   | "updated_at"
   | "language";
 
-export interface IAvailableRepositories {
-  offset?: number;
-  limit?: number;
-  search?: string;
-  organizationId: number;
+export interface IAvailableRepositories extends IOrganizationSearchScope {
   sort?: IRepositorySortKeys;
-}
-
-export interface ITrackedRepositories {
-  organizationId: number;
 }
 
 export interface ITrackRepository {
   id: number;
+}
+
+export interface ITrackedRepository extends ITrackRepository {
+  repository: IRepository;
 }

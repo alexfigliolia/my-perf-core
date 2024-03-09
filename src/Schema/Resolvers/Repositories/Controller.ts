@@ -4,8 +4,9 @@ import type { Repository as WebHookRepository } from "@octokit/webhooks-types";
 import type { Prisma } from "@prisma/client";
 import { ORM } from "ORM";
 import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
+import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import { Transforms } from "./Transforms";
-import type { IAvailableRepositories, ITrackedRepositories } from "./types";
+import type { IAvailableRepositories } from "./types";
 
 export class RepositoryController {
   public static list({
@@ -48,7 +49,7 @@ export class RepositoryController {
     );
   }
 
-  public static trackedRepositories({ organizationId }: ITrackedRepositories) {
+  public static trackedRepositories({ organizationId }: IByOrganization) {
     return ORM.query(
       ORM.repository.findMany({
         where: {

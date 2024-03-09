@@ -26,11 +26,23 @@ model Organization {
   id               Int                @id @unique @default(autoincrement())
   name             String
   users            User[]
+  teams            Team[]
+  teamRoles        TeamRole[]
   roles            UserRole[]
   repositories     Repository[]
   installations    Installation[]
   overallUserStats OverallUserStats[]
   monthlyUserStats MonthlyUserStats[]
+}
+
+model Team {
+  id             Int                 @id @unique @default(autoincrement())
+  name           String
+  users          User[]
+  organizationId Int
+  organization   Organization        @relation(fields: [organizationId], references: [id])
+  roles          TeamRole[]
+  projects       TrackedRepository[]
 }
 
 model Email {
@@ -52,8 +64,10 @@ model GithubUserAuthorization {
 model User {
   id            Int                      @id @unique @default(autoincrement())
   name          String
+  teams         Team[]
   emails        Email[]
   roles         UserRole[]
+  teamRoles     TeamRole[]
   pullRequests  PullRequest[]
   organizations Organization[]
   overallStats  OverallUserStats[]
@@ -70,28 +84,52 @@ model UserRole {
   organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
+model TeamRole {
+  id             Int          @id @unique @default(autoincrement())
+  role           Role
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  teamId         Int
+  team           Team         @relation(fields: [teamId], references: [id])
+
+  @@unique([userId, teamId])
+}
+
 model Repository {
-  id               Int                @id @unique @default(autoincrement())
+  id               Int                 @id @unique @default(autoincrement())
   name             String
   html_url         String
-  description      String             @default("")
-  language         String             @default("Unknown Language")
+  description      String              @default("")
+  language         String              @default("Unknown Language")
   organizationId   Int
-  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization     Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   platform         Platform
   api_url          String
   platform_id      Int
   clone_url        String
-  tracked          Boolean            @default(false)
+  tracked          Boolean             @default(false)
   created_at       String
   updated_at       String
-  lines            Int                @default(0)
-  commits          Int                @default(0)
+  lines            Int                 @default(0)
+  commits          Int                 @default(0)
   pullRequests     PullRequest[]
   monthlyUserStats MonthlyUserStats[]
   userStats        OverallUserStats[]
+  trackers         TrackedRepository[]
 
   @@unique([platform_id, platform])
+}
+
+model TrackedRepository {
+  id           Int        @id @unique @default(autoincrement())
+  teamId       Int
+  team         Team       @relation(fields: [teamId], references: [id])
+  repositoryId Int
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+
+  @@unique([teamId, repositoryId])
 }
 
 model OverallUserStats {
@@ -125,8 +163,8 @@ model MonthlyUserStats {
 model PullRequest {
   id           Int               @id @unique @default(autoincrement())
   date         DateTime          @db.Timestamptz()
-  author       User              @relation(fields: [authorId], references: [id])
-  authorId     Int
+  user         User              @relation(fields: [userId], references: [id])
+  userId       Int
   status       PullRequestStatus
   repositoryId Int
   repository   Repository        @relation(fields: [repositoryId], references: [id])

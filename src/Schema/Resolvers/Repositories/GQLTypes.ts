@@ -7,7 +7,7 @@ import {
 import { PlatformType } from "Schema/Resolvers/Platform/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import type { IRepository } from "./types";
+import type { IRepository, ITrackedRepository } from "./types";
 
 export const RepositorySortKeysType = new GraphQLEnumType({
   name: "RepositorySortKeys",
@@ -73,6 +73,23 @@ export const RepositoryType = new GraphQLObjectType<IRepository, Context>({
     description: {
       type: SchemaBuilder.nonNull(GraphQLString),
       resolve: repo => repo.description,
+    },
+  },
+});
+
+export const TrackedRepositoryType = new GraphQLObjectType<
+  ITrackedRepository,
+  Context
+>({
+  name: "TrackedRepositoryType",
+  fields: {
+    id: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: tracking => tracking.id,
+    },
+    repository: {
+      type: SchemaBuilder.nonNull(RepositoryType),
+      resolve: tracking => tracking.repository,
     },
   },
 });

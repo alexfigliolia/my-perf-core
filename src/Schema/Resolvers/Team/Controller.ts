@@ -1,7 +1,8 @@
-import { isBefore, subMonths } from "date-fns";
+import { differenceInMonths, isBefore, subMonths } from "date-fns";
 import { GraphQLError } from "graphql";
 import { ORM } from "ORM";
 import type {
+  MonthlyStatsPerRepo,
   Standout,
   StatsEntry,
   StatsPerMonth,
@@ -9,7 +10,7 @@ import type {
 } from "./types";
 
 export class TeamController {
-  public static async getHighestContributors(id: number) {
+  public static async overallStatsPerUser(id: number) {
     const stats = await ORM.query(
       ORM.organization.findUnique({
         where: { id },
@@ -18,6 +19,19 @@ export class TeamController {
             select: {
               id: true,
               name: true,
+              monthlyStats: {
+                where: {
+                  AND: [
+                    { organizationId: id },
+                    { date: { gte: subMonths(new Date(), 12).toISOString() } },
+                  ],
+                },
+                select: {
+                  date: true,
+                  lines: true,
+                  commits: true,
+                },
+              },
               overallStats: {
                 where: {
                   organizationId: id,
@@ -67,10 +81,12 @@ export class TeamController {
     if (!stats) {
       throw new GraphQLError("This organization's users were not found");
     }
-    return this.parseStatsPerMonth(stats.users);
+    return this.calculateContributionDeltas(stats.users);
   }
 
   private static parseUserStats(stats: StatsPerUser[]) {
+    let totalLines = 0;
+    let totalCommits = 0;
     const results: StatsEntry[] = [];
     for (const user of stats) {
       let lines = 0;
@@ -79,21 +95,28 @@ export class TeamController {
         lines += repoStats.lines;
         commits += repoStats.commits;
       }
+      totalLines += lines;
+      totalCommits += commits;
       results.push({
         id: user.id,
         name: user.name,
         lines,
         commits,
+        linesPerMonth: this.parseMonthlyStats(user.monthlyStats),
       });
     }
     results.sort((a, b) => b.lines - a.lines);
-    return results.slice(0, 10);
+    return {
+      totalLines,
+      totalCommits,
+      users: results,
+    };
   }
 
-  private static parseStatsPerMonth(stats: StatsPerMonth[]) {
+  private static calculateContributionDeltas(stats: StatsPerMonth[]) {
     const standouts: Standout[] = [];
     for (const user of stats) {
-      let last = 1;
+      let last = 0;
       let current = 0;
       for (const entry of user.monthlyStats) {
         if (isBefore(entry.date, subMonths(new Date(), 1))) {
@@ -102,10 +125,10 @@ export class TeamController {
           current += entry.lines;
         }
       }
-      const increase = Math.min(
-        Math.round(((current - last) / last) * 100),
-        100,
-      );
+      let increase = Math.min(Math.round(((current - last) / last) * 100), 100);
+      if (isNaN(increase) || increase === Infinity) {
+        increase = current === 0 && last === 0 ? 0 : 100;
+      }
       standouts.push({
         id: user.id,
         name: user.name,
@@ -115,5 +138,17 @@ export class TeamController {
     }
     standouts.sort((a, b) => b.increase - a.increase);
     return standouts.slice(0, 4);
+  }
+
+  private static parseMonthlyStats(stats: MonthlyStatsPerRepo[]) {
+    const linesPerMonth: number[] = new Array(12).fill(0);
+    for (const entry of stats) {
+      const index = differenceInMonths(entry.date, new Date());
+      if (index > 11) {
+        continue;
+      }
+      linesPerMonth[index] += entry.lines;
+    }
+    return linesPerMonth;
   }
 }
