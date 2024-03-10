@@ -1,3 +1,10 @@
+import type { IByOrganization } from "Schema/Resolvers/Organization/types";
+
+export interface ITeamScope {
+  name: string;
+  users: StatsPerUser[];
+}
+
 export interface StatsPerUser {
   id: number;
   name: string;
@@ -37,7 +44,12 @@ export interface StatsEntry extends StatsPerRepo {
 }
 
 export interface TeamStats {
+  name: string;
   totalLines: number;
   totalCommits: number;
   users: StatsEntry[];
+}
+
+export interface IByTeam extends IByOrganization {
+  teamId: number;
 }

@@ -35,6 +35,10 @@ export const OverallStatsPerUserType = new GraphQLObjectType<
 export const TeamStatsType = new GraphQLObjectType<TeamStats, Context>({
   name: "TeamStats",
   fields: {
+    name: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+      resolve: team => team.name,
+    },
     totalLines: {
       type: SchemaBuilder.nonNull(GraphQLInt),
       resolve: team => team.totalLines,

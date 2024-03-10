@@ -155,6 +155,4 @@ export class RepositoryController {
         );
       });
   }
-
-  public static async checkPullStatus(organizationId: number) {}
 }

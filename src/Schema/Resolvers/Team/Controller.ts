@@ -2,19 +2,26 @@ import { differenceInMonths, isBefore, subMonths } from "date-fns";
 import { GraphQLError } from "graphql";
 import { ORM } from "ORM";
 import type {
+  IByTeam,
+  ITeamScope,
   MonthlyStatsPerRepo,
   Standout,
   StatsEntry,
   StatsPerMonth,
-  StatsPerUser,
 } from "./types";
 
 export class TeamController {
-  public static async overallStatsPerUser(id: number) {
+  public static async overallStatsPerUser({ organizationId, teamId }: IByTeam) {
     const stats = await ORM.query(
-      ORM.organization.findUnique({
-        where: { id },
+      ORM.team.findUnique({
+        where: {
+          id_organizationId: {
+            id: teamId,
+            organizationId,
+          },
+        },
         select: {
+          name: true,
           users: {
             select: {
               id: true,
@@ -22,7 +29,7 @@ export class TeamController {
               monthlyStats: {
                 where: {
                   AND: [
-                    { organizationId: id },
+                    { organizationId },
                     { date: { gte: subMonths(new Date(), 12).toISOString() } },
                   ],
                 },
@@ -34,7 +41,7 @@ export class TeamController {
               },
               overallStats: {
                 where: {
-                  organizationId: id,
+                  organizationId,
                 },
                 select: {
                   lines: true,
@@ -49,13 +56,18 @@ export class TeamController {
     if (!stats) {
       throw new GraphQLError("This organization's users were not found");
     }
-    return this.parseUserStats(stats.users);
+    return this.parseUserStats(stats);
   }
 
-  public static async getStandouts(id: number) {
+  public static async getStandouts({ organizationId, teamId }: IByTeam) {
     const stats = await ORM.query(
-      ORM.organization.findUnique({
-        where: { id },
+      ORM.team.findUnique({
+        where: {
+          id_organizationId: {
+            id: teamId,
+            organizationId,
+          },
+        },
         select: {
           users: {
             select: {
@@ -64,7 +76,7 @@ export class TeamController {
               monthlyStats: {
                 where: {
                   AND: [
-                    { organizationId: id },
+                    { organizationId },
                     { date: { gte: subMonths(new Date(), 2).toISOString() } },
                   ],
                 },
@@ -84,11 +96,12 @@ export class TeamController {
     return this.calculateContributionDeltas(stats.users);
   }
 
-  private static parseUserStats(stats: StatsPerUser[]) {
+  private static parseUserStats(stats: ITeamScope) {
     let totalLines = 0;
     let totalCommits = 0;
+    const { name, users } = stats;
     const results: StatsEntry[] = [];
-    for (const user of stats) {
+    for (const user of users) {
       let lines = 0;
       let commits = 0;
       for (const repoStats of user.overallStats) {
@@ -107,6 +120,7 @@ export class TeamController {
     }
     results.sort((a, b) => b.lines - a.lines);
     return {
+      name,
       totalLines,
       totalCommits,
       users: results,
