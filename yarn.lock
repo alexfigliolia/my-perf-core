@@ -796,6 +796,13 @@
     "@figliolia/child-process" "^1.0.1"
     chalk "^4.1.2"
 
+"@figliolia/typescript-dev-server@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@figliolia/typescript-dev-server/-/typescript-dev-server-1.0.4.tgz#924ab03135d149226055447126cbd971918e4ff1"
+  integrity sha512-hZd28RHPVtE5RPUsQQNPNVRzTew8Al8dRQbFnAjKfuRrutrIOohRUA4bZ9tZ2Yl9wIz2MmoC218vFS3bDxI9mw==
+  dependencies:
+    chalk "^4"
+
 "@graphql-codegen/add@^5.0.2":
   version "5.0.2"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/add/-/add-5.0.2.tgz#71b3ae0465a4537172dddb84531b6967ca5545f2"
