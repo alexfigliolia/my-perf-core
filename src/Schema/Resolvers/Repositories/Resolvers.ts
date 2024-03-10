@@ -1,12 +1,16 @@
 import { type GraphQLFieldConfig, GraphQLInt, GraphQLString } from "graphql";
 import { JobStatus } from "GQL/AsyncService/Types";
+import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
 import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
-import { AsyncController } from "../AsyncJobs/Controller";
 import { RepositoryController } from "./Controller";
 import { RepositorySortKeysType, RepositoryType } from "./GQLTypes";
-import type { IAvailableRepositories, ITrackRepository } from "./types";
+import type {
+  IAvailableRepositories,
+  IByOptionalTeam,
+  IByRepository,
+} from "./types";
 
 export const availableRepositories: GraphQLFieldConfig<
   any,
@@ -84,34 +88,45 @@ export const availableRepositoriesStream: GraphQLFieldConfig<
 export const trackedRepositories: GraphQLFieldConfig<
   any,
   Context,
-  IByOrganization
+  IByOptionalTeam
 > = {
   type: SchemaBuilder.nonNullArray(RepositoryType),
   args: {
+    teamId: {
+      type: GraphQLInt,
+    },
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
   },
   resolve: (_, args) => {
-    return RepositoryController.trackedRepositories(args);
+    if (typeof args.teamId === "number") {
+      return RepositoryController.trackedRepositoriesByTeam(args.teamId);
+    }
+    return RepositoryController.trackedRepositoriesByOrganization(
+      args.organizationId,
+    );
   },
 };
 
-export const trackRepository: GraphQLFieldConfig<
-  any,
-  Context,
-  ITrackRepository
-> = {
-  type: SchemaBuilder.nonNull(RepositoryType),
-  args: {
-    id: {
-      type: SchemaBuilder.nonNull(GraphQLInt),
+export const trackRepository: GraphQLFieldConfig<any, Context, IByRepository> =
+  {
+    type: SchemaBuilder.nonNull(RepositoryType),
+    args: {
+      teamId: {
+        type: SchemaBuilder.nonNull(GraphQLInt),
+      },
+      repositoryId: {
+        type: SchemaBuilder.nonNull(GraphQLInt),
+      },
+      organizationId: {
+        type: SchemaBuilder.nonNull(GraphQLInt),
+      },
     },
-  },
-  resolve: (_, args, context) => {
-    return RepositoryController.trackRepository(args.id, context.req.session);
-  },
-};
+    resolve: (_, args, context) => {
+      return RepositoryController.trackRepository(args, context.req.session);
+    },
+  };
 
 export const totalRepositories: GraphQLFieldConfig<
   any,

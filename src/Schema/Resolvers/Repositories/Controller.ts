@@ -5,9 +5,8 @@ import type { Repository as WebHookRepository } from "@octokit/webhooks-types";
 import type { Prisma } from "@prisma/client";
 import { ORM } from "ORM";
 import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
-import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import { Transforms } from "./Transforms";
-import type { IAvailableRepositories } from "./types";
+import type { IAvailableRepositories, IByRepository } from "./types";
 
 export class RepositoryController {
   public static list({
@@ -50,18 +49,27 @@ export class RepositoryController {
     );
   }
 
-  public static trackedRepositories({ organizationId }: IByOrganization) {
-    return ORM.query(
-      ORM.repository.findMany({
-        where: {
-          AND: [{ organizationId }, { tracked: true }],
-        },
-      }),
-    );
+  public static trackedRepositoriesByTeam(id: number) {
+    return ORM.trackedRepository.findMany({
+      where: {
+        teamId: id,
+      },
+      select: {
+        repository: true,
+      },
+    });
+  }
+
+  public static trackedRepositoriesByOrganization(id: number) {
+    return ORM.repository.findMany({
+      where: {
+        AND: [{ organizationId: id }, { tracked: true }],
+      },
+    });
   }
 
   public static async trackRepository(
-    repositoryId: number,
+    { teamId, repositoryId, organizationId }: IByRepository,
     session: Session & Partial<SessionData>,
   ) {
     const repo = await ORM.query(
@@ -77,7 +85,13 @@ export class RepositoryController {
     if (!repo) {
       throw new GraphQLError("Failed to update repository");
     }
-    const { id, organizationId, platform, clone_url } = repo;
+    await ORM.trackedRepository.create({
+      data: {
+        teamId,
+        repositoryId,
+      },
+    });
+    const { id, platform, clone_url } = repo;
     let token: string;
     if (platform === "github") {
       token = session.githubUserToken as string;

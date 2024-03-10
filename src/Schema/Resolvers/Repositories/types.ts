@@ -1,5 +1,9 @@
 import type { Platform } from "@prisma/client";
-import type { IOrganizationSearchScope } from "Schema/Resolvers/Organization/types";
+import type {
+  IByOrganization,
+  IOrganizationSearchScope,
+} from "Schema/Resolvers/Organization/types";
+import type { IByTeam } from "Schema/Resolvers/Team/types";
 
 export interface IRepository {
   id: number;
@@ -31,4 +35,12 @@ export interface ITrackRepository {
 
 export interface ITrackedRepository extends ITrackRepository {
   repository: IRepository;
+}
+
+export interface IByOptionalTeam extends IByOrganization {
+  teamId?: number;
+}
+
+export interface IByRepository extends IByTeam {
+  repositoryId: number;
 }
