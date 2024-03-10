@@ -3,6 +3,8 @@ import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { ORM } from "ORM";
 import { EmailController } from "Schema/Resolvers/Emails/Controller";
 import type { GenericEmail } from "Schema/Resolvers/Emails/types";
+import { RoleController } from "Schema/Resolvers/Role/Controller";
+import type { IAddNewUserToTeam } from "./types";
 
 export class UserController {
   public static async findByEmail<E extends GenericEmail[]>(emails: E) {
@@ -79,6 +81,80 @@ export class UserController {
           originalError: error,
         });
       });
+  }
+
+  public static async addNewUserToTeam(args: IAddNewUserToTeam) {
+    const user = await ORM.query(
+      ORM.user.findFirst({
+        where: {
+          emails: {
+            some: {
+              name: args.email,
+            },
+          },
+        },
+      }),
+    );
+    if (user) {
+      return RoleController.addRolesToUser(user.id, args);
+    }
+    return this.createUserWithRoles(args);
+  }
+
+  public static createUserWithRoles({
+    name,
+    role,
+    email,
+    teamId,
+    organizationId,
+  }: IAddNewUserToTeam) {
+    return ORM.query(
+      ORM.user.create({
+        data: {
+          name,
+          emails: {
+            connectOrCreate: {
+              create: {
+                name: email,
+              },
+              where: {
+                name: email,
+              },
+            },
+          },
+          teams: {
+            connect: {
+              id: teamId,
+            },
+          },
+          organizations: {
+            connect: {
+              id: organizationId,
+            },
+          },
+          roles: {
+            create: {
+              role,
+              organizationId,
+            },
+          },
+          teamRoles: {
+            create: {
+              role,
+              teamId,
+              organizationId,
+            },
+          },
+        },
+      }),
+      error => {
+        throw Errors.createError(
+          "UNEXPECTED_ERROR",
+          "Something went wrong. Please try again.",
+          error,
+        );
+      },
+    );
   }
 
   public static async userScopeQuery(userId: number) {

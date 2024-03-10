@@ -20,3 +20,11 @@ export interface IUserAndAffiliations {
     token: string;
   } | null;
 }
+
+export interface IAddNewUserToTeam {
+  name: string;
+  email: string;
+  teamId: number;
+  role: Role;
+  organizationId: number;
+}

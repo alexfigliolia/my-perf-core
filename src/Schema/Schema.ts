@@ -1,5 +1,6 @@
 import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import {
+  addNewUserToTeam,
   availableRepositories,
   availableRepositoriesStream,
   createGithubAccount,
@@ -50,6 +51,7 @@ const MutationRoot = new GraphQLObjectType({
     trackRepository,
     createGithubAccount,
     setRepositoryStats,
+    addNewUserToTeam,
     setOrganizationRepositories,
   }),
 });
