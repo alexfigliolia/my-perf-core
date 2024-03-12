@@ -1,8 +1,24 @@
 import type { IByOrganization } from "Schema/Resolvers/Organization/types";
+import type { StatsPerRepo } from "Schema/Resolvers/Repositories/types";
 
-export interface ITeamScope {
+export interface TrackedProject {
+  id: number;
   name: string;
+}
+
+export interface ITeamScope extends TrackedProject {
   users: StatsPerUser[];
+  projects: ITeamProject[];
+}
+
+export interface ITeamProject {
+  date: Date;
+  repository: TrackedProject;
+}
+
+export interface ITeamProjectTrend {
+  trend: number;
+  trackedProjects: TrackedProject[];
 }
 
 export interface StatsPerUser {
@@ -10,11 +26,6 @@ export interface StatsPerUser {
   name: string;
   overallStats: StatsPerRepo[];
   monthlyStats: MonthlyStatsPerRepo[];
-}
-
-export interface StatsPerRepo {
-  lines: number;
-  commits: number;
 }
 
 export interface MonthlyStatsPerRepo extends StatsPerRepo {
@@ -30,22 +41,19 @@ export interface StatsPerMonth {
   }[];
 }
 
-export interface Standout {
-  id: number;
-  name: string;
+export interface Standout extends TrackedProject {
   lines: number;
   increase: number;
 }
 
-export interface StatsEntry extends StatsPerRepo {
-  id: number;
-  name: string;
+export interface StatsEntry extends StatsPerRepo, TrackedProject {
   linesPerMonth: number[];
 }
 
-export interface TeamStats {
-  name: string;
+export interface TeamStats extends TrackedProject {
+  lineTrend: number;
   totalLines: number;
+  commitTrend: number;
   totalCommits: number;
   users: StatsEntry[];
 }

@@ -56,7 +56,7 @@ export class RoleController {
         },
       }),
       error => {
-        if (error.message.startsWith("Unique")) {
+        if (error.message.includes("Unique constraint")) {
           throw Errors.createError(
             "BAD_REQUEST",
             "This user is already on this team",

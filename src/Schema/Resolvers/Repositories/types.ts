@@ -44,3 +44,12 @@ export interface IByOptionalTeam extends IByOrganization {
 export interface IByRepository extends IByTeam {
   repositoryId: number;
 }
+
+export interface StatsPerRepo {
+  lines: number;
+  commits: number;
+}
+
+export interface ITotalRepos extends IByOrganization {
+  tracked?: boolean;
+}

@@ -130,6 +130,7 @@ model TrackedRepository {
   team         Team       @relation(fields: [teamId], references: [id])
   repositoryId Int
   repository   Repository @relation(fields: [repositoryId], references: [id])
+  date         DateTime   @default(now()) @db.Timestamptz()
 
   @@unique([teamId, repositoryId])
 }

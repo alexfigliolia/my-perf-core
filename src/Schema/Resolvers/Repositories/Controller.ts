@@ -6,7 +6,11 @@ import type { Prisma } from "@prisma/client";
 import { ORM } from "ORM";
 import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
 import { Transforms } from "./Transforms";
-import type { IAvailableRepositories, IByRepository } from "./types";
+import type {
+  IAvailableRepositories,
+  IByRepository,
+  ITotalRepos,
+} from "./types";
 
 export class RepositoryController {
   public static list({
@@ -49,8 +53,8 @@ export class RepositoryController {
     );
   }
 
-  public static trackedRepositoriesByTeam(id: number) {
-    return ORM.trackedRepository.findMany({
+  public static async trackedRepositoriesByTeam(id: number) {
+    const tracked = await ORM.trackedRepository.findMany({
       where: {
         teamId: id,
       },
@@ -58,6 +62,7 @@ export class RepositoryController {
         repository: true,
       },
     });
+    return tracked.map(project => project.repository);
   }
 
   public static trackedRepositoriesByOrganization(id: number) {
@@ -154,19 +159,58 @@ export class RepositoryController {
     );
   }
 
-  public static async count(organizationId: number) {
-    return ORM.repository
-      .count({
+  public static async count({ organizationId, tracked }: ITotalRepos) {
+    let where: Prisma.RepositoryWhereInput;
+    if (!tracked) {
+      where = { organizationId };
+    } else {
+      where = {
+        AND: [{ organizationId }, { tracked: true }],
+      };
+    }
+    return ORM.repository.count({ where }).catch(error => {
+      throw Errors.createError(
+        "UNEXPECTED_ERROR",
+        "Something went wrong when counting your projects",
+        error,
+      );
+    });
+  }
+
+  public static async countLinesAndCommits(organizationId: number) {
+    const data = await ORM.query(
+      ORM.repository.findMany({
         where: {
-          organizationId,
+          AND: [{ organizationId }, { tracked: true }],
         },
-      })
-      .catch(error => {
-        throw Errors.createError(
-          "UNEXPECTED_ERROR",
-          "Something went wrong when counting your projects",
-          error,
-        );
-      });
+        select: {
+          userStats: {
+            select: {
+              lines: true,
+              commits: true,
+            },
+          },
+        },
+      }),
+    );
+    if (!data) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "There was an error obtaining this organization's projects. Please try again",
+      );
+    }
+    return data.reduce(
+      (acc, next) => {
+        for (const { lines, commits } of next.userStats) {
+          acc.lines += lines;
+          acc.commits += commits;
+        }
+        return acc;
+      },
+      {
+        lines: 0,
+        commits: 0,
+      },
+    );
   }
 }

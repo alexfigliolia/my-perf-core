@@ -3,6 +3,7 @@ import {
   addNewUserToTeam,
   availableRepositories,
   availableRepositoriesStream,
+  countLinesAndCommits,
   createGithubAccount,
   createTeam,
   installationSetup,
@@ -37,6 +38,7 @@ const QueryRoot = new GraphQLObjectType({
     availableRepositories,
     overallStatsPerUser,
     totalRepositories,
+    countLinesAndCommits,
   }),
 });
 

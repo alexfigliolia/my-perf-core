@@ -1,15 +1,25 @@
-import { type GraphQLFieldConfig, GraphQLInt, GraphQLString } from "graphql";
+import {
+  GraphQLBoolean,
+  type GraphQLFieldConfig,
+  GraphQLInt,
+  GraphQLString,
+} from "graphql";
 import { JobStatus } from "GQL/AsyncService/Types";
 import { AsyncController } from "Schema/Resolvers/AsyncJobs/Controller";
 import type { IByOrganization } from "Schema/Resolvers/Organization/types";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import { RepositoryController } from "./Controller";
-import { RepositorySortKeysType, RepositoryType } from "./GQLTypes";
+import {
+  RepositorySortKeysType,
+  RepositoryType,
+  StatsPerRepositoryType,
+} from "./GQLTypes";
 import type {
   IAvailableRepositories,
   IByOptionalTeam,
   IByRepository,
+  ITotalRepos,
 } from "./types";
 
 export const availableRepositories: GraphQLFieldConfig<
@@ -128,18 +138,34 @@ export const trackRepository: GraphQLFieldConfig<any, Context, IByRepository> =
     },
   };
 
-export const totalRepositories: GraphQLFieldConfig<
+export const totalRepositories: GraphQLFieldConfig<any, Context, ITotalRepos> =
+  {
+    type: SchemaBuilder.nonNull(GraphQLInt),
+    args: {
+      organizationId: {
+        type: SchemaBuilder.nonNull(GraphQLInt),
+      },
+      tracked: {
+        type: GraphQLBoolean,
+      },
+    },
+    resolve: (_, args) => {
+      return RepositoryController.count(args);
+    },
+  };
+
+export const countLinesAndCommits: GraphQLFieldConfig<
   any,
   Context,
   IByOrganization
 > = {
-  type: SchemaBuilder.nonNull(GraphQLInt),
+  type: SchemaBuilder.nonNull(StatsPerRepositoryType),
   args: {
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
     },
   },
   resolve: (_, args) => {
-    return RepositoryController.count(args.organizationId);
+    return RepositoryController.countLinesAndCommits(args.organizationId);
   },
 };
