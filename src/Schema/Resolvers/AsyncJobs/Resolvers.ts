@@ -1,12 +1,12 @@
 import { GraphQLBoolean, type GraphQLFieldConfig, GraphQLInt } from "graphql";
 import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
-import { AsyncController } from "./Controller";
 import {
   InputRepositoryType,
   ScheduleType,
   UserContributionsInputType,
 } from "./GQLTypes";
+import { Receivers } from "./Receivers";
 import type { IIndexRepoStats, ISetRepositories } from "./types";
 
 export const setOrganizationRepositories: GraphQLFieldConfig<
@@ -24,7 +24,7 @@ export const setOrganizationRepositories: GraphQLFieldConfig<
     },
   },
   resolve: async (_, args) => {
-    const repos = await AsyncController.indexRepositories(args);
+    const repos = await Receivers.Repositories.indexRepositories(args);
     Subscriptions.publish("newRepositories", args.organizationId, repos);
     return true;
   },
@@ -57,7 +57,7 @@ export const setRepositoryStats: GraphQLFieldConfig<
     },
   },
   resolve: async (_, args) => {
-    await AsyncController.indexRepositoryStats(args);
+    await Receivers.Stats.indexRepositoryStats(args);
     return true;
   },
 };
