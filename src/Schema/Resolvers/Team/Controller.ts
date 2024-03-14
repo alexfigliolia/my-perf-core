@@ -3,7 +3,7 @@ import { GraphQLError } from "graphql";
 import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { ORM } from "ORM";
 import { Transforms } from "./Transforms";
-import type { IByTeam } from "./types";
+import type { IByTeam, IByTeammate } from "./types";
 
 export class TeamController {
   public static async overallStatsPerUser({ organizationId, teamId }: IByTeam) {
@@ -57,9 +57,12 @@ export class TeamController {
       }),
     );
     if (!stats) {
-      throw new GraphQLError("This organization's users were not found");
+      throw Errors.createError(
+        "NOT_FOUND",
+        "This organization's users were not found",
+      );
     }
-    return Transforms.parseUserStats(stats, repos);
+    return Transforms.parseTeamStats(stats, repos);
   }
 
   public static async getStandouts({ organizationId, teamId }: IByTeam) {
@@ -127,5 +130,54 @@ export class TeamController {
       id: t.repository.id,
       name: t.repository.name,
     }));
+  }
+
+  public static async getUserStats({ organizationId, userId }: IByTeammate) {
+    const stats = await ORM.query(
+      ORM.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+          name: true,
+          overallStats: {
+            where: {
+              organizationId,
+            },
+            select: {
+              lines: true,
+              commits: true,
+            },
+          },
+          monthlyStats: {
+            where: {
+              AND: [
+                { organizationId },
+                {
+                  date: {
+                    gte: subMonths(new Date(), 12).toISOString(),
+                  },
+                },
+              ],
+            },
+            select: {
+              date: true,
+              lines: true,
+              commits: true,
+            },
+          },
+        },
+      }),
+    );
+    if (!stats) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "This user was not found. Please try again",
+      );
+    }
+    const { id, name, lines, commits, linesPerMonth } =
+      Transforms.parseUserStats(stats);
+    return { id, name, lines, commits, linesPerMonth };
   }
 }

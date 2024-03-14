@@ -59,3 +59,7 @@ export interface TeamStats extends TrackedProject {
 export interface IByTeam extends IByOrganization {
   teamId: number;
 }
+
+export interface IByTeammate extends IByOrganization {
+  userId: number;
+}

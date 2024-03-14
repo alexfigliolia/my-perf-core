@@ -7,35 +7,26 @@ import type {
   Standout,
   StatsEntry,
   StatsPerMonth,
+  StatsPerUser,
   TrackedProject,
 } from "./types";
 
 export class Transforms {
-  public static parseUserStats(stats: ITeamScope, projects: ITeamProject[]) {
+  public static parseTeamStats(stats: ITeamScope, projects: ITeamProject[]) {
     let totalLines = 0;
     let totalCommits = 0;
     const iterables: MonthlyStatsTrendIteration<any>[] = [];
     const { id, name, users } = stats;
     const results: StatsEntry[] = [];
     for (const user of users) {
-      let lines = 0;
-      let commits = 0;
-      for (const repoStats of user.overallStats) {
-        lines += repoStats.lines;
-        commits += repoStats.commits;
-      }
+      const { lines, commits, iterable, ...rest } = this.parseUserStats(user);
       totalLines += lines;
       totalCommits += commits;
-      const { linesPerMonth, iterable } = this.parseMonthlyStats(
-        user.monthlyStats,
-      );
       iterables.push(iterable);
       results.push({
-        id: user.id,
-        name: user.name,
         lines,
         commits,
-        linesPerMonth,
+        ...rest,
       });
     }
     results.sort((a, b) => b.lines - a.lines);
@@ -50,6 +41,25 @@ export class Transforms {
       totalCommits,
       users: results,
       projects: this.parseProjects(projects),
+    };
+  }
+
+  public static parseUserStats(user: StatsPerUser) {
+    let lines = 0;
+    let commits = 0;
+    const { id, name, overallStats, monthlyStats } = user;
+    for (const repoStats of overallStats) {
+      lines += repoStats.lines;
+      commits += repoStats.commits;
+    }
+    const { linesPerMonth, iterable } = this.parseMonthlyStats(monthlyStats);
+    return {
+      id,
+      name,
+      lines,
+      commits,
+      linesPerMonth,
+      iterable,
     };
   }
 
