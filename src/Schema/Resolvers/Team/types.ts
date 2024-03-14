@@ -8,12 +8,10 @@ export interface TrackedProject {
 
 export interface ITeamScope extends TrackedProject {
   users: StatsPerUser[];
-  projects: ITeamProject[];
 }
 
-export interface ITeamProject {
+export interface ITeamProject extends TrackedProject {
   date: Date;
-  repository: TrackedProject;
 }
 
 export interface ITeamProjectTrend {

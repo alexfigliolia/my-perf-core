@@ -1,11 +1,14 @@
 import { subMonths } from "date-fns";
 import { GraphQLError } from "graphql";
+import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { ORM } from "ORM";
 import { Transforms } from "./Transforms";
 import type { IByTeam } from "./types";
 
 export class TeamController {
   public static async overallStatsPerUser({ organizationId, teamId }: IByTeam) {
+    const repos = await this.getTrackedRepositories(teamId);
+    const IDs = repos.map(repo => repo.id);
     const stats = await ORM.query(
       ORM.team.findUnique({
         where: {
@@ -17,39 +20,33 @@ export class TeamController {
         select: {
           id: true,
           name: true,
-          projects: {
-            select: {
-              date: true,
-              repository: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-            },
-          },
           users: {
             select: {
               id: true,
               name: true,
-              monthlyStats: {
+              overallStats: {
                 where: {
-                  AND: [
-                    { organizationId },
-                    { date: { gte: subMonths(new Date(), 12).toISOString() } },
-                  ],
+                  AND: [{ organizationId }, { repositoryId: { in: IDs } }],
                 },
                 select: {
-                  date: true,
                   lines: true,
                   commits: true,
                 },
               },
-              overallStats: {
+              monthlyStats: {
                 where: {
-                  organizationId,
+                  AND: [
+                    { organizationId },
+                    {
+                      date: {
+                        gte: subMonths(new Date(), 12).toISOString(),
+                      },
+                    },
+                    { repositoryId: { in: IDs } },
+                  ],
                 },
                 select: {
+                  date: true,
                   lines: true,
                   commits: true,
                 },
@@ -62,7 +59,7 @@ export class TeamController {
     if (!stats) {
       throw new GraphQLError("This organization's users were not found");
     }
-    return Transforms.parseUserStats(stats);
+    return Transforms.parseUserStats(stats, repos);
   }
 
   public static async getStandouts({ organizationId, teamId }: IByTeam) {
@@ -100,5 +97,35 @@ export class TeamController {
       throw new GraphQLError("This organization's users were not found");
     }
     return Transforms.calculateContributionDeltas(stats.users);
+  }
+
+  public static async getTrackedRepositories(teamId: number) {
+    const tracked = await ORM.query(
+      ORM.trackedRepository.findMany({
+        where: {
+          teamId,
+        },
+        select: {
+          date: true,
+          repository: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      }),
+    );
+    if (!tracked) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "The current team's projects were not found. Please try again",
+      );
+    }
+    return tracked.map(t => ({
+      date: t.date,
+      id: t.repository.id,
+      name: t.repository.name,
+    }));
   }
 }

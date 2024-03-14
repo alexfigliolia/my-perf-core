@@ -7,14 +7,15 @@ import type {
   Standout,
   StatsEntry,
   StatsPerMonth,
+  TrackedProject,
 } from "./types";
 
 export class Transforms {
-  public static parseUserStats(stats: ITeamScope) {
+  public static parseUserStats(stats: ITeamScope, projects: ITeamProject[]) {
     let totalLines = 0;
     let totalCommits = 0;
     const iterables: MonthlyStatsTrendIteration<any>[] = [];
-    const { id, name, users, projects } = stats;
+    const { id, name, users } = stats;
     const results: StatsEntry[] = [];
     for (const user of users) {
       let lines = 0;
@@ -53,11 +54,11 @@ export class Transforms {
   }
 
   public static parseProjects(projects: ITeamProject[]) {
-    const trackedProjects: ITeamProject["repository"][] = [];
+    const trackedProjects: TrackedProject[] = [];
     const iterable = new TrendIteration(
       projects,
-      (project, _index, instance) => {
-        const trackDate = new Date(project.date);
+      ({ id, name, date }, _index, instance) => {
+        const trackDate = new Date(date);
         if (!isBefore(trackDate, instance.lastMonth)) {
           if (isBefore(trackDate, instance.currentMonth)) {
             instance.incrementLast();
@@ -65,10 +66,7 @@ export class Transforms {
             instance.incrementCurrent();
           }
         }
-        trackedProjects.push({
-          id: project.repository.id,
-          name: project.repository.name,
-        });
+        trackedProjects.push({ id, name });
       },
     );
     iterable.iterate();

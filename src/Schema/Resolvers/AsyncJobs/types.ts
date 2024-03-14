@@ -1,5 +1,6 @@
 import type { InstallationType, Platform } from "@prisma/client";
 import type { Schedule } from "GQL/AsyncService/Types";
+import type { StatsPerRepo } from "Schema/Resolvers/Repositories/types";
 
 export interface NewOrg {
   id: number;
@@ -38,16 +39,12 @@ export interface IRegisterRepoStatsPull {
   organizationId: number;
 }
 
-export interface IUserStats {
+export interface IUserStats extends StatsPerRepo {
   email: string;
-  lines: number;
-  commits: number;
 }
 
-export interface IIndexRepoStats {
-  lines: number;
+export interface IIndexRepoStats extends StatsPerRepo {
   range?: Schedule;
-  commits: number;
   repositoryId: number;
   organizationId: number;
   userStats: IUserStats[];
