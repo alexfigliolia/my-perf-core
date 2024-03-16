@@ -2,6 +2,7 @@ import { subMonths } from "date-fns";
 import { GraphQLError } from "graphql";
 import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { ORM } from "ORM";
+import { UserController } from "Schema/Resolvers/User/Controller";
 import { Transforms } from "./Transforms";
 import type { IByTeam, IByTeammate } from "./types";
 
@@ -132,52 +133,75 @@ export class TeamController {
     }));
   }
 
-  public static async getUserStats({ organizationId, userId }: IByTeammate) {
+  public static async getTeammateStats(args: IByTeammate) {
+    const [user, teams] = await Promise.all([
+      UserController.getUser(args.userId),
+      this.getUserStats(args),
+    ]);
+    if (!teams || !teams.length) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "There were no team affiliations found. Please try again",
+      );
+    }
+    return {
+      ...user,
+      ...Transforms.parseStatsPerTeam(teams),
+    };
+  }
+
+  private static async getUserStats({ userId, organizationId }: IByTeammate) {
     const stats = await ORM.query(
-      ORM.user.findUnique({
+      ORM.team.findMany({
         where: {
-          id: userId,
+          AND: [{ organizationId }, { users: { some: { id: userId } } }],
         },
         select: {
           id: true,
           name: true,
-          overallStats: {
-            where: {
-              organizationId,
-            },
+          projects: {
             select: {
-              lines: true,
-              commits: true,
-            },
-          },
-          monthlyStats: {
-            where: {
-              AND: [
-                { organizationId },
-                {
-                  date: {
-                    gte: subMonths(new Date(), 12).toISOString(),
+              repository: {
+                select: {
+                  userStats: {
+                    where: {
+                      userId,
+                    },
+                    select: {
+                      lines: true,
+                      commits: true,
+                    },
+                  },
+                  monthlyUserStats: {
+                    where: {
+                      AND: [
+                        { userId },
+                        {
+                          date: {
+                            gte: subMonths(new Date(), 12).toISOString(),
+                          },
+                        },
+                      ],
+                    },
+                    select: {
+                      date: true,
+                      lines: true,
+                      commits: true,
+                    },
                   },
                 },
-              ],
-            },
-            select: {
-              date: true,
-              lines: true,
-              commits: true,
+              },
             },
           },
         },
       }),
     );
     if (!stats) {
-      throw Errors.createError(
+      Errors.createError(
         "NOT_FOUND",
-        "This user was not found. Please try again",
+        "Something went wrong when looking up this user. Please try again",
       );
     }
-    const { id, name, lines, commits, linesPerMonth } =
-      Transforms.parseUserStats(stats);
-    return { id, name, lines, commits, linesPerMonth };
+    return stats;
   }
 }

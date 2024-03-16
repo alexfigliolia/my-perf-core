@@ -5,6 +5,7 @@ import { OrganizationController } from "Schema/Resolvers/Organization/Controller
 import type {
   FilteredContributions,
   IIndexRepoStats,
+  IMesh,
   IUserStats,
 } from "../types";
 
@@ -23,17 +24,21 @@ export class RepositoryStatsReceiver {
   }
 
   private async indexOverallStats({
+    mesh,
     lines,
     commits,
     userStats,
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
-    await this.deleteUserStatsForRepository(repositoryId);
     const [emailToUserID, stats] = await this.filterUserStats(
       organizationId,
       userStats,
     );
+    await Promise.all([
+      this.indexMesh(mesh, emailToUserID),
+      this.deleteUserStatsForRepository(repositoryId),
+    ]);
     const repository = await ORM.query(
       ORM.repository.update({
         where: {
@@ -113,5 +118,45 @@ export class RepositoryStatsReceiver {
     return ORM.query(
       ORM.overallUserStats.deleteMany({ where: { repositoryId: id } }),
     );
+  }
+
+  private indexMesh(mesh: IMesh, userMap: Map<string, number>) {
+    const promises: Promise<any>[] = [];
+    for (const key in mesh) {
+      if (!userMap.has(key)) {
+        continue;
+      }
+      const userId = userMap.get(key)!;
+      for (const user in mesh[key]) {
+        if (!userMap.has(user)) {
+          continue;
+        }
+        const increment = mesh[key][user];
+        const toUserId = userMap.get(user)!;
+        promises.push(
+          ORM.query(
+            ORM.mesh.upsert({
+              where: {
+                userId_toUserId: {
+                  userId,
+                  toUserId,
+                },
+              },
+              update: {
+                count: {
+                  increment,
+                },
+              },
+              create: {
+                userId,
+                toUserId,
+                count: increment,
+              },
+            }),
+          ),
+        );
+      }
+    }
+    return Promise.allSettled(promises);
   }
 }

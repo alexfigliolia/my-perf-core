@@ -1,13 +1,18 @@
 import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import type { Standout, StatsEntry, TeamStats, TrackedProject } from "./types";
-
-export const OverallStatsPerUserType = new GraphQLObjectType<
+import type {
+  Standout,
   StatsEntry,
-  Context
+  TeamProfilesPerUser,
+  TeamStats,
+  TrackedProject,
+} from "./types";
+
+export const OverallStatsPerUserBaseType = new GraphQLObjectType<
+  Omit<StatsEntry, "linesPerMonth">
 >({
-  name: "OverallStatsPerUser",
+  name: "OverallStatsPerUserBase",
   fields: {
     id: {
       type: SchemaBuilder.nonNull(GraphQLInt),
@@ -25,6 +30,16 @@ export const OverallStatsPerUserType = new GraphQLObjectType<
       type: SchemaBuilder.nonNull(GraphQLInt),
       resolve: entry => entry.commits,
     },
+  },
+});
+
+export const OverallStatsPerUserType = new GraphQLObjectType<
+  StatsEntry,
+  Context
+>({
+  name: "OverallStatsPerUser",
+  fields: {
+    ...OverallStatsPerUserBaseType.toConfig().fields,
     linesPerMonth: {
       type: SchemaBuilder.nonNullArray(GraphQLInt),
       resolve: entry => entry.linesPerMonth,
@@ -111,6 +126,20 @@ export const StandoutType = new GraphQLObjectType<Standout, Context>({
     increase: {
       type: SchemaBuilder.nonNull(GraphQLInt),
       resolve: entry => entry.increase,
+    },
+  },
+});
+
+export const TeamProfilesPerUserType = new GraphQLObjectType<
+  TeamProfilesPerUser,
+  Context
+>({
+  name: "TeamProfilesPerUser",
+  fields: {
+    ...OverallStatsPerUserBaseType.toConfig().fields,
+    teams: {
+      type: SchemaBuilder.nonNullArray(OverallStatsPerUserType),
+      resolve: entry => entry.teams,
     },
   },
 });

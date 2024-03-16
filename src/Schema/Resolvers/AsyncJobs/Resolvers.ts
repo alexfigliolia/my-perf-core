@@ -3,6 +3,7 @@ import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import {
   InputRepositoryType,
+  MeshType,
   ScheduleType,
   UserContributionsInputType,
 } from "./GQLTypes";
@@ -54,6 +55,9 @@ export const setRepositoryStats: GraphQLFieldConfig<
     },
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+    mesh: {
+      type: SchemaBuilder.nonNull(MeshType),
     },
   },
   resolve: async (_, args) => {

@@ -48,9 +48,12 @@ export interface IIndexRepoStats extends StatsPerRepo {
   repositoryId: number;
   organizationId: number;
   userStats: IUserStats[];
+  mesh: IMesh;
 }
 
 export type FilteredContributions = [
   emailMap: Map<string, number>,
   stats: IUserStats[],
 ];
+
+export type IMesh = Record<string, Record<string, number>>;

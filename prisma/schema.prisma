@@ -75,6 +75,8 @@ model User {
   overallStats  OverallUserStats[]
   monthlyStats  MonthlyUserStats[]
   github        GithubUserAuthorization?
+  mesh          Mesh[]                   @relation("mesh")
+  meshWith      Mesh[]                   @relation("meshWith")
 }
 
 model UserRole {
@@ -122,6 +124,17 @@ model Repository {
   trackers         TrackedRepository[]
 
   @@unique([platform_id, platform])
+}
+
+model Mesh {
+  id       Int  @id @unique @default(autoincrement())
+  count    Int
+  userId   Int
+  user     User @relation("mesh", fields: [userId], references: [id])
+  toUserId Int
+  toUser   User @relation("meshWith", fields: [toUserId], references: [id])
+
+  @@unique([userId, toUserId])
 }
 
 model TrackedRepository {

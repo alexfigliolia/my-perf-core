@@ -7,6 +7,7 @@ import type {
   Standout,
   StatsEntry,
   StatsPerMonth,
+  StatsPerTeam,
   StatsPerUser,
   TrackedProject,
 } from "./types";
@@ -136,6 +137,38 @@ export class Transforms {
     return {
       iterable,
       linesPerMonth,
+    };
+  }
+
+  public static parseStatsPerTeam(teams: StatsPerTeam[]) {
+    let totalLines = 0;
+    let totalCommits = 0;
+    const statsPerTeam = teams.map(({ id, name, projects }) => {
+      let lines = 0;
+      let commits = 0;
+      const monthlyStats: MonthlyStatsPerRepo[] = [];
+      for (const { repository } of projects) {
+        for (const userStats of repository.userStats) {
+          lines += userStats.lines;
+          commits += userStats.commits;
+        }
+        monthlyStats.push(...repository.monthlyUserStats);
+      }
+      totalLines += lines;
+      totalCommits += commits;
+      const { linesPerMonth } = this.parseMonthlyStats(monthlyStats);
+      return {
+        id,
+        name,
+        lines,
+        commits,
+        linesPerMonth,
+      };
+    });
+    return {
+      lines: totalLines,
+      commits: totalCommits,
+      teams: statsPerTeam,
     };
   }
 }

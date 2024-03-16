@@ -3,8 +3,8 @@ import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { TeamController } from "./Controller";
 import {
-  OverallStatsPerUserType,
   StandoutType,
+  TeamProfilesPerUserType,
   TeamStatsType,
 } from "./GQLTypes";
 import type { IByTeam, IByTeammate } from "./types";
@@ -40,7 +40,7 @@ export const standouts: GraphQLFieldConfig<any, Context, IByTeam> = {
 };
 
 export const teammateStats: GraphQLFieldConfig<any, Context, IByTeammate> = {
-  type: SchemaBuilder.nonNull(OverallStatsPerUserType),
+  type: SchemaBuilder.nonNull(TeamProfilesPerUserType),
   args: {
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
@@ -50,6 +50,6 @@ export const teammateStats: GraphQLFieldConfig<any, Context, IByTeammate> = {
     },
   },
   resolve: (_, args) => {
-    return TeamController.getUserStats(args);
+    return TeamController.getTeammateStats(args);
   },
 };

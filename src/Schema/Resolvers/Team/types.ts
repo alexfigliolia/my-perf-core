@@ -63,3 +63,24 @@ export interface IByTeam extends IByOrganization {
 export interface IByTeammate extends IByOrganization {
   userId: number;
 }
+
+export interface TeamProfile extends StatsPerRepo {
+  id: number;
+  name: string;
+  linesPerMonth: number[];
+}
+
+export interface TeamProfilesPerUser extends StatsPerRepo, TrackedProject {
+  teams: TeamProfile[];
+}
+
+export interface StatsPerTeam {
+  id: number;
+  name: string;
+  projects: {
+    repository: {
+      monthlyUserStats: MonthlyStatsPerRepo[];
+      userStats: StatsPerRepo[];
+    };
+  }[];
+}

@@ -200,4 +200,15 @@ export class UserController {
       },
     );
   }
+
+  public static async getUser(id: number) {
+    const user = await ORM.query(ORM.user.findUnique({ where: { id } }));
+    if (!user) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "This user was not found. Please try again",
+      );
+    }
+    return user;
+  }
 }

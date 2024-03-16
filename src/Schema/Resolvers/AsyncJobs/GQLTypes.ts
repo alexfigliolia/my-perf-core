@@ -2,10 +2,12 @@ import {
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLInt,
+  GraphQLScalarType,
   GraphQLString,
 } from "graphql";
 import { PlatformType } from "Schema/Resolvers/Platform/GQLTypes";
 import { SchemaBuilder } from "Schema/Utilities";
+import type { IMesh } from "./types";
 
 export const InputRepositoryType = new GraphQLInputObjectType({
   name: "InputRepository",
@@ -79,5 +81,15 @@ export const ScheduleType = new GraphQLEnumType({
     yearly: {
       value: "yearly",
     },
+  },
+});
+
+export const MeshType = new GraphQLScalarType<IMesh, IMesh>({
+  name: "Mesh",
+  serialize: mesh => {
+    return mesh as IMesh;
+  },
+  parseValue: mesh => {
+    return mesh as IMesh;
   },
 });
