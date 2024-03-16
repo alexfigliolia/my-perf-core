@@ -36,7 +36,7 @@ export class RepositoryStatsReceiver {
       userStats,
     );
     await Promise.all([
-      this.indexMesh(mesh, emailToUserID),
+      this.indexMesh(organizationId, mesh, emailToUserID),
       this.deleteUserStatsForRepository(repositoryId),
     ]);
     const repository = await ORM.query(
@@ -120,7 +120,11 @@ export class RepositoryStatsReceiver {
     );
   }
 
-  private indexMesh(mesh: IMesh, userMap: Map<string, number>) {
+  private indexMesh(
+    organizationId: number,
+    mesh: IMesh,
+    userMap: Map<string, number>,
+  ) {
     const promises: Promise<any>[] = [];
     for (const key in mesh) {
       if (!userMap.has(key)) {
@@ -137,9 +141,10 @@ export class RepositoryStatsReceiver {
           ORM.query(
             ORM.mesh.upsert({
               where: {
-                userId_toUserId: {
+                userId_toUserId_organizationId: {
                   userId,
                   toUserId,
+                  organizationId,
                 },
               },
               update: {
@@ -151,6 +156,7 @@ export class RepositoryStatsReceiver {
                 userId,
                 toUserId,
                 count: increment,
+                organizationId,
               },
             }),
           ),

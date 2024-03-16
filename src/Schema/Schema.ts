@@ -16,6 +16,7 @@ import {
   setRepositoryStats,
   standouts,
   teammateStats,
+  teamMesh,
   teams,
   totalRepositories,
   totalTeams,
@@ -31,6 +32,7 @@ const QueryRoot = new GraphQLObjectType({
   fields: () => ({
     teams,
     myTeams,
+    teamMesh,
     standouts,
     totalTeams,
     teammateStats,

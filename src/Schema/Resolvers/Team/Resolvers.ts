@@ -4,6 +4,7 @@ import { SchemaBuilder } from "Schema/Utilities";
 import { TeamController } from "./Controller";
 import {
   StandoutType,
+  TeamMeshType,
   TeamProfilesPerUserType,
   TeamStatsType,
 } from "./GQLTypes";
@@ -51,5 +52,20 @@ export const teammateStats: GraphQLFieldConfig<any, Context, IByTeammate> = {
   },
   resolve: (_, args) => {
     return TeamController.getTeammateStats(args);
+  },
+};
+
+export const teamMesh: GraphQLFieldConfig<any, Context, IByTeam> = {
+  type: SchemaBuilder.nonNull(TeamMeshType),
+  args: {
+    teamId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+    organizationId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+  },
+  resolve: (_, args) => {
+    return TeamController.getMesh(args);
   },
 };

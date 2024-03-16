@@ -1,12 +1,18 @@
-import { GraphQLInt, GraphQLObjectType, GraphQLString } from "graphql";
+import {
+  GraphQLInt,
+  GraphQLObjectType,
+  GraphQLScalarType,
+  GraphQLString,
+} from "graphql";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import type {
+  IDAndName,
+  ITeamMesh,
   Standout,
   StatsEntry,
   TeamProfilesPerUser,
   TeamStats,
-  TrackedProject,
 } from "./types";
 
 export const OverallStatsPerUserBaseType = new GraphQLObjectType<
@@ -47,7 +53,7 @@ export const OverallStatsPerUserType = new GraphQLObjectType<
   },
 });
 
-export const TeamProjectType = new GraphQLObjectType<TrackedProject, Context>({
+export const TeamProjectType = new GraphQLObjectType<IDAndName, Context>({
   name: "TeamProject",
   fields: {
     id: {
@@ -140,6 +146,30 @@ export const TeamProfilesPerUserType = new GraphQLObjectType<
     teams: {
       type: SchemaBuilder.nonNullArray(OverallStatsPerUserType),
       resolve: entry => entry.teams,
+    },
+  },
+});
+
+export const MatrixType = new GraphQLScalarType<number[][], number[][]>({
+  name: "Matrix",
+  serialize: matrix => {
+    return matrix as number[][];
+  },
+  parseValue: matrix => {
+    return matrix as number[][];
+  },
+});
+
+export const TeamMeshType = new GraphQLObjectType<ITeamMesh, Context>({
+  name: "TeamMesh",
+  fields: {
+    key: {
+      type: SchemaBuilder.nonNullArray(GraphQLString),
+      resolve: mesh => mesh.key,
+    },
+    mesh: {
+      type: SchemaBuilder.nonNull(MatrixType),
+      resolve: mesh => mesh.mesh,
     },
   },
 });

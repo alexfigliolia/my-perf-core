@@ -33,6 +33,7 @@ model Organization {
   installations    Installation[]
   overallUserStats OverallUserStats[]
   monthlyUserStats MonthlyUserStats[]
+  mesh             Mesh[]
 }
 
 model Team {
@@ -127,14 +128,16 @@ model Repository {
 }
 
 model Mesh {
-  id       Int  @id @unique @default(autoincrement())
-  count    Int
-  userId   Int
-  user     User @relation("mesh", fields: [userId], references: [id])
-  toUserId Int
-  toUser   User @relation("meshWith", fields: [toUserId], references: [id])
+  id             Int          @id @unique @default(autoincrement())
+  count          Int
+  userId         Int
+  user           User         @relation("mesh", fields: [userId], references: [id])
+  toUserId       Int
+  toUser         User         @relation("meshWith", fields: [toUserId], references: [id])
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
-  @@unique([userId, toUserId])
+  @@unique([userId, toUserId, organizationId])
 }
 
 model TrackedRepository {

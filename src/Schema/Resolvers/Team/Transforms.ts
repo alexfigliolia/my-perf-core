@@ -1,15 +1,16 @@
 import { differenceInMonths, isBefore } from "date-fns";
 import { MonthlyStatsTrendIteration, TrendIteration } from "Tools";
 import type {
+  IDAndName,
   ITeamProject,
   ITeamScope,
+  MeshEntry,
   MonthlyStatsPerRepo,
   Standout,
   StatsEntry,
   StatsPerMonth,
   StatsPerTeam,
   StatsPerUser,
-  TrackedProject,
 } from "./types";
 
 export class Transforms {
@@ -65,7 +66,7 @@ export class Transforms {
   }
 
   public static parseProjects(projects: ITeamProject[]) {
-    const trackedProjects: TrackedProject[] = [];
+    const trackedProjects: IDAndName[] = [];
     const iterable = new TrendIteration(
       projects,
       ({ id, name, date }, _index, instance) => {
@@ -169,6 +170,41 @@ export class Transforms {
       lines: totalLines,
       commits: totalCommits,
       teams: statsPerTeam,
+    };
+  }
+
+  public static toMesh(nodes: MeshEntry[]) {
+    const indexMap = new Map<number, number>();
+    const userMap = new Map<number, string>();
+    const key: string[] = [];
+    let pointer = -1;
+    for (const node of nodes) {
+      const { user, toUser } = node;
+      userMap.set(user.id, user.name);
+      userMap.set(toUser.id, toUser.name);
+      if (!indexMap.has(user.id)) {
+        indexMap.set(user.id, ++pointer);
+        key[pointer] = user.name;
+      }
+      if (!indexMap.has(toUser.id)) {
+        indexMap.set(toUser.id, ++pointer);
+        key[pointer] = toUser.name;
+      }
+    }
+    const { size } = indexMap;
+    const mesh: number[][] = new Array(size).fill([]);
+    for (let i = 0; i < size; i++) {
+      mesh[i] = new Array(size).fill(0);
+    }
+    for (const node of nodes) {
+      const { user, toUser, count } = node;
+      const userIndex = indexMap.get(user.id)!;
+      const toUserIndex = indexMap.get(toUser.id)!;
+      mesh[userIndex][toUserIndex] += count;
+    }
+    return {
+      key,
+      mesh,
     };
   }
 }

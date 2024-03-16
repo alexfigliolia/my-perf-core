@@ -204,4 +204,59 @@ export class TeamController {
     }
     return stats;
   }
+
+  public static async getMesh({ teamId, organizationId }: IByTeam) {
+    const mesh = await ORM.query(
+      ORM.mesh.findMany({
+        where: {
+          AND: [
+            { organizationId },
+            {
+              user: {
+                teams: {
+                  some: {
+                    id: teamId,
+                  },
+                },
+              },
+            },
+            {
+              toUser: {
+                teams: {
+                  some: {
+                    id: teamId,
+                  },
+                },
+              },
+            },
+          ],
+        },
+        orderBy: {
+          count: "desc",
+        },
+        select: {
+          count: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          toUser: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      }),
+    );
+    if (!mesh) {
+      throw Errors.createError(
+        "UNEXPECTED_ERROR",
+        "Something went wrong when fetching your collaborators. We're working on it",
+      );
+    }
+    return Transforms.toMesh(mesh);
+  }
 }
