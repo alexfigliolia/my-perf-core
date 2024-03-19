@@ -4,6 +4,7 @@ import { Subscriptions } from "Subscriptions";
 import {
   InputRepositoryType,
   MeshType,
+  PullRequestEntryType,
   ScheduleType,
   UserContributionsInputType,
 } from "./GQLTypes";
@@ -58,6 +59,9 @@ export const setRepositoryStats: GraphQLFieldConfig<
     },
     mesh: {
       type: SchemaBuilder.nonNull(MeshType),
+    },
+    pullRequests: {
+      type: SchemaBuilder.nonNullArray(PullRequestEntryType),
     },
   },
   resolve: async (_, args) => {

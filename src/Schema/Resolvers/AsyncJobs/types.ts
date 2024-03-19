@@ -32,7 +32,7 @@ export interface ISetRepositories {
   repositories: InputRepository[];
 }
 
-export interface IRegisterRepoStatsPull {
+export interface IRegisterCloneJob {
   token: string;
   clone_url: string;
   repositoryId: number;
@@ -43,12 +43,19 @@ export interface IUserStats extends StatsPerRepo {
   email: string;
 }
 
+export interface IPullRequestEntry {
+  date: string;
+  author: string;
+  description: string;
+}
+
 export interface IIndexRepoStats extends StatsPerRepo {
+  mesh: IMesh;
   range?: Schedule;
   repositoryId: number;
   organizationId: number;
   userStats: IUserStats[];
-  mesh: IMesh;
+  pullRequests: IPullRequestEntry[];
 }
 
 export type FilteredContributions = [

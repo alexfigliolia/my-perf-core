@@ -93,3 +93,18 @@ export const MeshType = new GraphQLScalarType<IMesh, IMesh>({
     return mesh as IMesh;
   },
 });
+
+export const PullRequestEntryType = new GraphQLInputObjectType({
+  name: "PullRequestEntry",
+  fields: {
+    author: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+    },
+    date: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+    },
+    description: {
+      type: SchemaBuilder.nonNull(GraphQLString),
+    },
+  },
+});

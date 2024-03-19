@@ -1,12 +1,12 @@
 import { AsyncServiceRequest } from "@alexfigliolia/my-performance-clients";
 import type { InstallationType, Platform } from "@prisma/client";
-import { registerRepositoryPull } from "GQL";
 import {
   checkRepositoryPullStatus,
   deleteRepositoryStatsJobs,
+  registerRepositoryPull,
   registerRepositoryStatsPull,
   subscribeToRepositoryStats,
-} from "GQL/AsyncService";
+} from "GQL";
 import type {
   CheckRepositoryPullStatusQuery,
   CheckRepositoryPullStatusQueryVariables,
@@ -21,12 +21,10 @@ import type {
   SubscribeToRepositoryStatsMutationVariables,
 } from "GQL/AsyncService/Types";
 import { RequestMethod } from "GQL/AsyncService/Types";
-import type { IRegisterRepoStatsPull, NewOrg } from "./types";
+import type { IRegisterCloneJob, NewOrg } from "./types";
 
 export class AsyncController {
-  public static async registerRepositoryStatsPull(
-    args: IRegisterRepoStatsPull,
-  ) {
+  public static async registerRepositoryStatsPull(args: IRegisterCloneJob) {
     return AsyncServiceRequest<
       RegisterRepositoryStatsPullMutation,
       RegisterRepositoryStatsPullMutationVariables
@@ -36,7 +34,7 @@ export class AsyncController {
     });
   }
 
-  public static async subscribeToRepositoryStats(args: IRegisterRepoStatsPull) {
+  public static async subscribeToRepositoryStats(args: IRegisterCloneJob) {
     return AsyncServiceRequest<
       SubscribeToRepositoryStatsMutation,
       SubscribeToRepositoryStatsMutationVariables

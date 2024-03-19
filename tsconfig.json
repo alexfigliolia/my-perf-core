@@ -1,6 +1,5 @@
 {
-  "ts-node": {
-    "swc": true,
+  "tsx": {
     "typeCheck": false
   },
   "compilerOptions": {
@@ -30,7 +29,8 @@
     ".eslintrc.js",
     "**/*.json",
     "**/*.ts",
-    "**/*.js"
+    "**/*.js",
+    "src/Declarations/**/*"
   ],
   "exclude": [
     "coverage",

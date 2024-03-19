@@ -1,13 +1,15 @@
 import { Errors } from "@alexfigliolia/my-performance-gql-errors";
+import type { Prisma } from "@prisma/client";
 import { Schedule } from "GQL/AsyncService/Types";
 import { ORM } from "ORM";
-import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import type {
   FilteredContributions,
   IIndexRepoStats,
   IMesh,
   IUserStats,
-} from "../types";
+} from "Schema/Resolvers/AsyncJobs/types";
+import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
+import type { IIndexPRs } from "./types";
 
 export class RepositoryStatsReceiver {
   public indexRepositoryStats(args: IIndexRepoStats) {
@@ -28,6 +30,7 @@ export class RepositoryStatsReceiver {
     lines,
     commits,
     userStats,
+    pullRequests,
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
@@ -37,6 +40,11 @@ export class RepositoryStatsReceiver {
     );
     await Promise.all([
       this.indexMesh(organizationId, mesh, emailToUserID),
+      this.indexPRs({
+        pullRequests,
+        repositoryId,
+        emailToUserID,
+      }),
       this.deleteUserStatsForRepository(repositoryId),
     ]);
     const repository = await ORM.query(
@@ -164,5 +172,32 @@ export class RepositoryStatsReceiver {
       }
     }
     return Promise.allSettled(promises);
+  }
+
+  private indexPRs({ repositoryId, pullRequests, emailToUserID }: IIndexPRs) {
+    if (!pullRequests.length) {
+      return;
+    }
+    const entries: Prisma.PullRequestCreateManyInput[] = [];
+    for (const PR of pullRequests) {
+      const userId = emailToUserID.get(PR.author);
+      if (!userId) {
+        continue;
+      }
+      entries.push({
+        userId,
+        repositoryId,
+        date: PR.date,
+        description: PR.description,
+      });
+    }
+    if (!entries.length) {
+      return;
+    }
+    return ORM.query(
+      ORM.pullRequest.createMany({
+        data: entries,
+      }),
+    );
   }
 }

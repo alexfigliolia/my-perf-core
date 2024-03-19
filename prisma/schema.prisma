@@ -180,21 +180,13 @@ model MonthlyUserStats {
 }
 
 model PullRequest {
-  id           Int               @id @unique @default(autoincrement())
-  date         DateTime          @db.Timestamptz()
-  user         User              @relation(fields: [userId], references: [id])
+  id           Int        @id @unique @default(autoincrement())
+  date         DateTime   @db.Timestamptz()
+  user         User       @relation(fields: [userId], references: [id])
   userId       Int
-  status       PullRequestStatus
   repositoryId Int
-  repository   Repository        @relation(fields: [repositoryId], references: [id])
+  repository   Repository @relation(fields: [repositoryId], references: [id])
   description  String
-}
-
-enum PullRequestStatus {
-  open
-  merged
-  inreview
-  declined
 }
 
 enum Role {

@@ -30,7 +30,7 @@ export type Mutation = {
   registerRepositoryStatsPull: Scalars['Int']['output'];
   setJobStatus: Scalars['Boolean']['output'];
   setRepositoryStatsJobStatus: Scalars['Boolean']['output'];
-  subscribeToRepositoryStats: Scalars['Int']['output'];
+  subscribeToRepositoryStats: Scalars['Boolean']['output'];
 };
 
 
@@ -181,7 +181,7 @@ export type SubscribeToRepositoryStatsMutationVariables = Exact<{
 }>;
 
 
-export type SubscribeToRepositoryStatsMutation = { __typename?: 'Mutation', subscribeToRepositoryStats: number };
+export type SubscribeToRepositoryStatsMutation = { __typename?: 'Mutation', subscribeToRepositoryStats: boolean };
 
 
 export const CheckRepositoryPullStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"checkRepositoryPullStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"checkRepositoryPullStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"organizationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"organizationId"}}}]}]}}]} as unknown as DocumentNode<CheckRepositoryPullStatusQuery, CheckRepositoryPullStatusQueryVariables>;

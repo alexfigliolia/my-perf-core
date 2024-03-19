@@ -1,5 +1,5 @@
 import { ORM } from "ORM";
-import type { ISetRepositories } from "../types";
+import type { ISetRepositories } from "Schema/Resolvers/AsyncJobs/types";
 
 export class RepositoryReceiver {
   public async indexRepositories({
