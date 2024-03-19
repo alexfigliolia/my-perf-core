@@ -1,15 +1,12 @@
 import { Errors } from "@alexfigliolia/my-performance-gql-errors";
-import type { Prisma } from "@prisma/client";
 import { Schedule } from "GQL/AsyncService/Types";
 import { ORM } from "ORM";
 import type {
-  FilteredContributions,
   IIndexRepoStats,
-  IMesh,
   IUserStats,
 } from "Schema/Resolvers/AsyncJobs/types";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
-import type { IIndexPRs } from "./types";
+import type { IIndexMesh, IIndexPRs, IIndexStatsPerRepo } from "./types";
 
 export class RepositoryStatsReceiver {
   public indexRepositoryStats(args: IIndexRepoStats) {
@@ -34,48 +31,77 @@ export class RepositoryStatsReceiver {
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
-    const [emailToUserID, stats] = await this.filterUserStats(
-      organizationId,
-      userStats,
-    );
+    const [emails, emailToUserID] =
+      await OrganizationController.userEmailList(organizationId);
+    if (!emails || !emailToUserID) {
+      throw Errors.createError("NOT_FOUND", "Organization not found");
+    }
     await Promise.all([
-      this.indexMesh(organizationId, mesh, emailToUserID),
+      this.indexMesh({
+        mesh,
+        emailToUserID,
+        organizationId,
+      }),
       this.indexPRs({
         pullRequests,
         repositoryId,
         emailToUserID,
       }),
-      this.deleteUserStatsForRepository(repositoryId),
+      this.indexStatsPerRepo({
+        repositoryId,
+        emailToUserID,
+        organizationId,
+        stats: this.filterUserStats(userStats, emails),
+      }),
+      await ORM.query(
+        ORM.repository.update({
+          where: {
+            id: repositoryId,
+          },
+          data: {
+            lines,
+            commits,
+          },
+        }),
+      ),
     ]);
-    const repository = await ORM.query(
-      ORM.repository.update({
-        where: {
-          id: repositoryId,
-        },
-        data: {
-          lines,
-          commits,
-          userStats: {
-            createMany: {
-              data: stats.map(stat => ({
+  }
+
+  private indexStatsPerRepo({
+    organizationId,
+    repositoryId,
+    emailToUserID,
+    stats,
+  }: IIndexStatsPerRepo) {
+    const promises: Promise<any>[] = [];
+    for (const stat of stats) {
+      const userId = emailToUserID.get(stat.email);
+      if (userId) {
+        promises.push(
+          ORM.query(
+            ORM.overallUserStats.upsert({
+              where: {
+                userId_repositoryId: {
+                  userId,
+                  repositoryId,
+                },
+              },
+              update: {
+                lines: stat.lines,
+                commits: stat.commits,
+              },
+              create: {
+                userId,
+                repositoryId,
                 organizationId,
                 lines: stat.lines,
                 commits: stat.commits,
-                userId: emailToUserID.get(stat.email)!,
-              })),
-            },
-          },
-        },
-        include: {
-          userStats: true,
-        },
-      }),
-    );
-    if (!repository) {
-      throw Errors.createError(
-        "UNEXPECTED_ERROR",
-        "Error setting repository stats",
-      );
+              },
+            }),
+          ),
+        );
+      }
+      return Promise.all(promises);
     }
   }
 
@@ -84,10 +110,12 @@ export class RepositoryStatsReceiver {
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
-    const [emailToUserID, stats] = await this.filterUserStats(
-      organizationId,
-      userStats,
-    );
+    const [emails, emailToUserID] =
+      await OrganizationController.userEmailList(organizationId);
+    if (!emails || !emailToUserID) {
+      throw Errors.createError("NOT_FOUND", "Organization not found");
+    }
+    const stats = this.filterUserStats(userStats, emails);
     const entry = await ORM.query(
       ORM.monthlyUserStats.createMany({
         data: stats.map(stat => ({
@@ -107,44 +135,23 @@ export class RepositoryStatsReceiver {
     }
   }
 
-  private async filterUserStats(
-    organizationId: number,
-    userStats: IUserStats[],
-  ): Promise<FilteredContributions> {
-    const [allEmails, emailToUserID] =
-      await OrganizationController.userEmailList(organizationId);
-    if (!allEmails || !emailToUserID) {
-      throw Errors.createError("NOT_FOUND", "Organization not found");
-    }
-    return [
-      emailToUserID,
-      userStats.filter(stats => allEmails.has(stats.email)),
-    ];
+  private filterUserStats(stats: IUserStats[], emails: Set<string>) {
+    return stats.filter(stats => emails.has(stats.email));
   }
 
-  private deleteUserStatsForRepository(id: number) {
-    return ORM.query(
-      ORM.overallUserStats.deleteMany({ where: { repositoryId: id } }),
-    );
-  }
-
-  private indexMesh(
-    organizationId: number,
-    mesh: IMesh,
-    userMap: Map<string, number>,
-  ) {
+  private indexMesh({ mesh, emailToUserID, organizationId }: IIndexMesh) {
     const promises: Promise<any>[] = [];
     for (const key in mesh) {
-      if (!userMap.has(key)) {
+      if (!emailToUserID.has(key)) {
         continue;
       }
-      const userId = userMap.get(key)!;
+      const userId = emailToUserID.get(key)!;
       for (const user in mesh[key]) {
-        if (!userMap.has(user)) {
+        if (!emailToUserID.has(user)) {
           continue;
         }
         const increment = mesh[key][user];
-        const toUserId = userMap.get(user)!;
+        const toUserId = emailToUserID.get(user)!;
         promises.push(
           ORM.query(
             ORM.mesh.upsert({
@@ -178,26 +185,30 @@ export class RepositoryStatsReceiver {
     if (!pullRequests.length) {
       return;
     }
-    const entries: Prisma.PullRequestCreateManyInput[] = [];
+    const promises: Promise<any>[] = [];
     for (const PR of pullRequests) {
       const userId = emailToUserID.get(PR.author);
       if (!userId) {
         continue;
       }
-      entries.push({
+      const args = {
         userId,
         repositoryId,
         date: PR.date,
         description: PR.description,
-      });
+      };
+      promises.push(
+        ORM.query(
+          ORM.pullRequest.upsert({
+            where: {
+              userId_description_repositoryId_date: args,
+            },
+            create: args,
+            update: args,
+          }),
+        ),
+      );
     }
-    if (!entries.length) {
-      return;
-    }
-    return ORM.query(
-      ORM.pullRequest.createMany({
-        data: entries,
-      }),
-    );
+    return Promise.all(promises);
   }
 }

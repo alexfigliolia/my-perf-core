@@ -58,9 +58,4 @@ export interface IIndexRepoStats extends StatsPerRepo {
   pullRequests: IPullRequestEntry[];
 }
 
-export type FilteredContributions = [
-  emailMap: Map<string, number>,
-  stats: IUserStats[],
-];
-
 export type IMesh = Record<string, Record<string, number>>;

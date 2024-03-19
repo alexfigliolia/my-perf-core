@@ -1,8 +1,8 @@
 import { type GithubEventStream, WebHooks } from "Github/API";
-import { Installations } from "./Handlers";
+import { Installations, Repositories } from "./Handlers";
 
 export class Stream {
-  private static readonly DefaultListeners = [Installations];
+  private static readonly DefaultListeners = [Installations, Repositories];
   private static Listeners = this.DefaultListeners.map(L => {
     return new L().initialize();
   });

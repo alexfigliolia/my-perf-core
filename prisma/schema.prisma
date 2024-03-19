@@ -187,6 +187,8 @@ model PullRequest {
   repositoryId Int
   repository   Repository @relation(fields: [repositoryId], references: [id])
   description  String
+
+  @@unique([userId, description, repositoryId, date])
 }
 
 enum Role {
