@@ -789,10 +789,10 @@
     "@figliolia/child-process" "^1.0.1"
     chalk "^4.1.2"
 
-"@figliolia/typescript-dev-server@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@figliolia/typescript-dev-server/-/typescript-dev-server-1.0.4.tgz"
-  integrity sha512-hZd28RHPVtE5RPUsQQNPNVRzTew8Al8dRQbFnAjKfuRrutrIOohRUA4bZ9tZ2Yl9wIz2MmoC218vFS3bDxI9mw==
+"@figliolia/typescript-dev-server@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@figliolia/typescript-dev-server/-/typescript-dev-server-1.0.7.tgz#2490593f5a1110d063e8ccb46b7b33e379a8a426"
+  integrity sha512-d6rbQXn9EVuJYpvVYlSmdOsIw7Vw4HBcqmtayMpxfIuz2WDNbkRqh6V5fB23usaCwbI3Ni7SVRb5P+ydYyECHw==
   dependencies:
     chalk "^4"
 
