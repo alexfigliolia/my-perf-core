@@ -33,7 +33,7 @@
     "@alexfigliolia/my-performance-clients": "^1.0.0",
     "@alexfigliolia/my-performance-gql-errors": "^1.0.0",
     "@figliolia/event-emitter": "^1.1.3",
-    "@prisma/client": "^5.9.1",
+    "@prisma/client": "^5.11.0",
     "body-parser": "^1.20.2",
     "chalk": "^4",
     "connect-redis": "^7.1.1",
@@ -49,7 +49,7 @@
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^3.3.2",
     "octokit": "^3.1.2",
-    "prisma": "^5.9.1",
+    "prisma": "^5.11.0",
     "redis": "^4.6.12",
     "spdy": "^4.0.2"
   },
