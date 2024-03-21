@@ -4,12 +4,14 @@ import type {
   IDAndName,
   ITeamProject,
   ITeamScope,
+  IUserProfile,
+  LinesPerTeam,
   MeshEntry,
   MonthlyStatsPerRepo,
+  RawPRList,
   Standout,
   StatsEntry,
   StatsPerMonth,
-  StatsPerTeam,
   StatsPerUser,
 } from "./types";
 
@@ -49,7 +51,7 @@ export class Transforms {
   public static parseUserStats(user: StatsPerUser) {
     let lines = 0;
     let commits = 0;
-    const { id, name, overallStats, monthlyStats } = user;
+    const { id, name, overallStats, monthlyStats, pullRequests } = user;
     for (const repoStats of overallStats) {
       lines += repoStats.lines;
       commits += repoStats.commits;
@@ -61,6 +63,7 @@ export class Transforms {
       lines,
       commits,
       linesPerMonth,
+      pullRequests: pullRequests.length,
       iterable,
     };
   }
@@ -141,36 +144,43 @@ export class Transforms {
     };
   }
 
-  public static parseStatsPerTeam(teams: StatsPerTeam[]) {
+  public static parseIndividualUserStats(user: IUserProfile) {
     let totalLines = 0;
     let totalCommits = 0;
-    const statsPerTeam = teams.map(({ id, name, projects }) => {
-      let lines = 0;
-      let commits = 0;
-      const monthlyStats: MonthlyStatsPerRepo[] = [];
-      for (const { repository } of projects) {
-        for (const userStats of repository.userStats) {
-          lines += userStats.lines;
-          commits += userStats.commits;
-        }
-        monthlyStats.push(...repository.monthlyUserStats);
-      }
+    const { monthlyStats, overallStats, meshWith } = user;
+    for (const { lines, commits } of overallStats) {
       totalLines += lines;
       totalCommits += commits;
-      const { linesPerMonth } = this.parseMonthlyStats(monthlyStats);
-      return {
-        id,
-        name,
-        lines,
-        commits,
-        linesPerMonth,
-      };
-    });
+    }
+    const { linesPerMonth } = this.parseMonthlyStats(monthlyStats);
     return {
+      id: user.id,
+      linesPerMonth,
+      name: user.name,
       lines: totalLines,
       commits: totalCommits,
-      teams: statsPerTeam,
+      pullRequests: user.pullRequests.map(PR => ({
+        id: PR.id,
+        author: user.name,
+        date: PR.date.toISOString(),
+        description: PR.description,
+        project: PR.repository.name,
+      })),
+      collaborators: meshWith.map(collab => ({
+        ...this.parseUserStats(collab.user),
+        totalLines: this.aggregateLinesPerTeam(collab.user.teams),
+      })),
     };
+  }
+
+  private static aggregateLinesPerTeam(teams: LinesPerTeam[]) {
+    let lines = 0;
+    for (const team of teams) {
+      for (const project of team.projects) {
+        lines += project.repository.lines;
+      }
+    }
+    return lines;
   }
 
   public static toMesh(nodes: MeshEntry[]) {
@@ -206,5 +216,15 @@ export class Transforms {
       key,
       mesh,
     };
+  }
+
+  public static parsePRs(PRs: RawPRList[]) {
+    return PRs.map(PR => ({
+      id: PR.id,
+      author: PR.user.name,
+      description: PR.description,
+      date: PR.date.toISOString(),
+      project: PR.repository.name,
+    }));
   }
 }

@@ -184,12 +184,8 @@ export class RepositoryController {
           AND: [{ organizationId }, { tracked: true }],
         },
         select: {
-          userStats: {
-            select: {
-              lines: true,
-              commits: true,
-            },
-          },
+          lines: true,
+          commits: true,
         },
       }),
     );
@@ -199,18 +195,16 @@ export class RepositoryController {
         "There was an error obtaining this organization's projects. Please try again",
       );
     }
-    return data.reduce(
-      (acc, next) => {
-        for (const { lines, commits } of next.userStats) {
-          acc.lines += lines;
-          acc.commits += commits;
-        }
-        return acc;
-      },
-      {
-        lines: 0,
-        commits: 0,
-      },
-    );
+    let lines = 0;
+    let commits = 0;
+    for (const project of data) {
+      lines += project.lines;
+      commits += project.commits;
+    }
+    return {
+      lines,
+      commits,
+      totalProjects: data.length,
+    };
   }
 }

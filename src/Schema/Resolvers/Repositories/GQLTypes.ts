@@ -7,7 +7,12 @@ import {
 import { PlatformType } from "Schema/Resolvers/Platform/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
-import type { IRepository, ITrackedRepository, StatsPerRepo } from "./types";
+import type {
+  IProjectCount,
+  IRepository,
+  ITrackedRepository,
+  StatsPerRepo,
+} from "./types";
 
 export const RepositorySortKeysType = new GraphQLEnumType({
   name: "RepositorySortKeys",
@@ -107,6 +112,17 @@ export const StatsPerRepositoryType = new GraphQLObjectType<
     commits: {
       type: SchemaBuilder.nonNull(GraphQLInt),
       resolve: stats => stats.commits,
+    },
+  },
+});
+
+export const ProjectCountType = new GraphQLObjectType<IProjectCount, Context>({
+  name: "ProjectCount",
+  fields: {
+    ...StatsPerRepositoryType.toConfig().fields,
+    totalProjects: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: count => count.totalProjects,
     },
   },
 });

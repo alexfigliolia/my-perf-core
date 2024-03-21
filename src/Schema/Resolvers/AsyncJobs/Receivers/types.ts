@@ -17,7 +17,7 @@ export interface IIndexPRs {
 }
 
 export interface IIndexStatsPerRepo {
-  stats: IUserStats[];
+  userStats: IUserStats[];
   repositoryId: number;
   organizationId: number;
   emailToUserID: Map<string, number>;

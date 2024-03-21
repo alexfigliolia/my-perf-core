@@ -4,14 +4,15 @@ import {
   GraphQLScalarType,
   GraphQLString,
 } from "graphql";
+import { PullRequestType } from "Schema/Resolvers/PullRequests/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import type {
   IDAndName,
+  ITeammateProfile,
   ITeamMesh,
   Standout,
   StatsEntry,
-  TeamProfilesPerUser,
   TeamStats,
 } from "./types";
 
@@ -36,6 +37,10 @@ export const OverallStatsPerUserBaseType = new GraphQLObjectType<
       type: SchemaBuilder.nonNull(GraphQLInt),
       resolve: entry => entry.commits,
     },
+    pullRequests: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+      resolve: entry => entry.pullRequests,
+    },
   },
 });
 
@@ -49,6 +54,37 @@ export const OverallStatsPerUserType = new GraphQLObjectType<
     linesPerMonth: {
       type: SchemaBuilder.nonNullArray(GraphQLInt),
       resolve: entry => entry.linesPerMonth,
+    },
+  },
+});
+
+export const TeammateCollaboratorType = new GraphQLObjectType({
+  name: "TeammateCollaborator",
+  fields: {
+    ...OverallStatsPerUserType.toConfig().fields,
+    totalLines: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+  },
+});
+
+export const TeammateProfileType = new GraphQLObjectType<
+  ITeammateProfile,
+  Context
+>({
+  name: "TeammateProfile",
+  fields: {
+    ...OverallStatsPerUserBaseType.toConfig().fields,
+    linesPerMonth: {
+      type: SchemaBuilder.nonNullArray(GraphQLInt),
+      resolve: entry => entry.linesPerMonth,
+    },
+    pullRequests: {
+      type: SchemaBuilder.nonNullArray(PullRequestType),
+      resolve: entry => entry.pullRequests,
+    },
+    collaborators: {
+      type: SchemaBuilder.nonNullArray(TeammateCollaboratorType),
     },
   },
 });
@@ -132,20 +168,6 @@ export const StandoutType = new GraphQLObjectType<Standout, Context>({
     increase: {
       type: SchemaBuilder.nonNull(GraphQLInt),
       resolve: entry => entry.increase,
-    },
-  },
-});
-
-export const TeamProfilesPerUserType = new GraphQLObjectType<
-  TeamProfilesPerUser,
-  Context
->({
-  name: "TeamProfilesPerUser",
-  fields: {
-    ...OverallStatsPerUserBaseType.toConfig().fields,
-    teams: {
-      type: SchemaBuilder.nonNullArray(OverallStatsPerUserType),
-      resolve: entry => entry.teams,
     },
   },
 });

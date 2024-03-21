@@ -2,9 +2,9 @@ import { subMonths } from "date-fns";
 import { GraphQLError } from "graphql";
 import { Errors } from "@alexfigliolia/my-performance-gql-errors";
 import { ORM } from "ORM";
-import { UserController } from "Schema/Resolvers/User/Controller";
+import { RepositoryController } from "Schema/Resolvers/Repositories/Controller";
 import { Transforms } from "./Transforms";
-import type { IByTeam, IByTeammate } from "./types";
+import type { IByTeam, IByTeammate, IGetPRs } from "./types";
 
 export class TeamController {
   public static async overallStatsPerUser({ organizationId, teamId }: IByTeam) {
@@ -48,6 +48,24 @@ export class TeamController {
                 },
                 select: {
                   date: true,
+                  lines: true,
+                  commits: true,
+                },
+              },
+              pullRequests: {
+                where: {
+                  repositoryId: { in: IDs },
+                },
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+          projects: {
+            select: {
+              repository: {
+                select: {
                   lines: true,
                   commits: true,
                 },
@@ -134,52 +152,50 @@ export class TeamController {
   }
 
   public static async getTeammateStats(args: IByTeammate) {
-    const [user, teams] = await Promise.all([
-      UserController.getUser(args.userId),
-      this.getUserStats(args),
-    ]);
-    if (!teams || !teams.length) {
+    const user = await this.getUserStats(args);
+    if (!user || !user.organizations.length) {
       throw Errors.createError(
         "NOT_FOUND",
         "There were no team affiliations found. Please try again",
       );
     }
-    return {
-      ...user,
-      ...Transforms.parseStatsPerTeam(teams),
-    };
+    return Transforms.parseIndividualUserStats(user);
   }
 
   private static async getUserStats({ userId, organizationId }: IByTeammate) {
     const stats = await ORM.query(
-      ORM.team.findMany({
+      ORM.user.findUnique({
         where: {
-          AND: [{ organizationId }, { users: { some: { id: userId } } }],
+          id: userId,
         },
         select: {
           id: true,
           name: true,
-          projects: {
+          meshWith: {
+            where: {
+              organizationId,
+            },
+            take: 4,
             select: {
-              repository: {
+              user: {
                 select: {
-                  userStats: {
+                  id: true,
+                  name: true,
+                  overallStats: {
                     where: {
-                      userId,
+                      organizationId,
                     },
                     select: {
                       lines: true,
                       commits: true,
                     },
                   },
-                  monthlyUserStats: {
+                  monthlyStats: {
                     where: {
                       AND: [
-                        { userId },
+                        { organizationId },
                         {
-                          date: {
-                            gte: subMonths(new Date(), 12).toISOString(),
-                          },
+                          date: { gte: subMonths(new Date(), 2).toISOString() },
                         },
                       ],
                     },
@@ -189,9 +205,70 @@ export class TeamController {
                       commits: true,
                     },
                   },
+                  teams: {
+                    select: {
+                      projects: {
+                        select: {
+                          repository: {
+                            select: {
+                              lines: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                  pullRequests: {
+                    select: {
+                      id: true,
+                    },
+                  },
                 },
               },
             },
+          },
+          organizations: {
+            where: {
+              id: organizationId,
+            },
+          },
+          overallStats: {
+            where: {
+              organizationId,
+            },
+            select: {
+              lines: true,
+              commits: true,
+            },
+          },
+          monthlyStats: {
+            where: {
+              AND: [
+                { organizationId },
+                {
+                  date: {
+                    gte: subMonths(new Date(), 12).toISOString(),
+                  },
+                },
+              ],
+            },
+            select: {
+              date: true,
+              lines: true,
+              commits: true,
+            },
+          },
+          pullRequests: {
+            select: {
+              id: true,
+              date: true,
+              description: true,
+              repository: { select: { name: true } },
+            },
+            orderBy: {
+              date: "desc",
+            },
+            take: 10,
           },
         },
       }),
@@ -258,5 +335,76 @@ export class TeamController {
       );
     }
     return Transforms.toMesh(mesh);
+  }
+
+  public static async getPRs({ teamId, organizationId, page = 1 }: IGetPRs) {
+    const [users, projects] = await Promise.all([
+      this.getUsers({ teamId, organizationId }),
+      RepositoryController.trackedRepositoriesByTeam(teamId),
+    ]);
+    const userIds = users.map(u => u.id);
+    const projectIds = projects.map(p => p.id);
+    const results = await ORM.query(
+      ORM.pullRequest.findMany({
+        where: {
+          AND: [
+            { userId: { in: userIds } },
+            { repositoryId: { in: projectIds } },
+          ],
+        },
+        select: {
+          id: true,
+          date: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+          repository: {
+            select: {
+              name: true,
+            },
+          },
+          description: true,
+        },
+        orderBy: {
+          date: "desc",
+        },
+        take: page * 10,
+        skip: (page - 1) * 10,
+      }),
+    );
+    if (!results) {
+      throw Errors.createError(
+        "NOT_FOUND",
+        "This team's projects were not found",
+      );
+    }
+    return Transforms.parsePRs(results);
+  }
+
+  public static async getUsers({ teamId, organizationId }: IByTeam) {
+    const users = await ORM.query(
+      ORM.team.findUnique({
+        where: {
+          id_organizationId: {
+            id: teamId,
+            organizationId,
+          },
+        },
+        select: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      }),
+    );
+    if (!users) {
+      throw Errors.createError("NOT_FOUND", "This team was not found");
+    }
+    return users.users;
   }
 }

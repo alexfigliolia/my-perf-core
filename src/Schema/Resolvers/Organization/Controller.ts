@@ -84,7 +84,7 @@ export class OrganizationController {
   }
 
   public static async userEmailList(id: number): Promise<EmailMapTuple> {
-    const users = await ORM.query(
+    const results = await ORM.query(
       ORM.organization.findUnique({
         where: { id },
         include: {
@@ -101,17 +101,15 @@ export class OrganizationController {
         },
       }),
     );
-    if (!users) {
-      return [undefined, undefined];
+    if (!results) {
+      throw Errors.createError("NOT_FOUND", "This organization was not found");
     }
     const emailList = new Set<string>();
     const userMap = new Map<string, number>();
-    for (const user of users.users) {
-      const userEmails = new Set<string>();
+    for (const user of results.users) {
       const { id, emails } = user;
       for (const { name } of emails) {
         emailList.add(name);
-        userEmails.add(name);
         userMap.set(name, id);
       }
     }

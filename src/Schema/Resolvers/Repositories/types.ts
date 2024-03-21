@@ -50,6 +50,10 @@ export interface StatsPerRepo {
   commits: number;
 }
 
+export interface IProjectCount extends StatsPerRepo {
+  totalProjects: number;
+}
+
 export interface ITotalRepos extends IByOrganization {
   tracked?: boolean;
 }

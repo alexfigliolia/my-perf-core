@@ -1,14 +1,15 @@
 import { type GraphQLFieldConfig, GraphQLInt } from "graphql";
+import { PullRequestType } from "Schema/Resolvers/PullRequests/GQLTypes";
 import type { Context } from "Schema/Utilities";
 import { SchemaBuilder } from "Schema/Utilities";
 import { TeamController } from "./Controller";
 import {
   StandoutType,
+  TeammateProfileType,
   TeamMeshType,
-  TeamProfilesPerUserType,
   TeamStatsType,
 } from "./GQLTypes";
-import type { IByTeam, IByTeammate } from "./types";
+import type { IByTeam, IByTeammate, IGetPRs } from "./types";
 
 export const overallStatsPerUser: GraphQLFieldConfig<any, Context, IByTeam> = {
   type: SchemaBuilder.nonNull(TeamStatsType),
@@ -40,8 +41,8 @@ export const standouts: GraphQLFieldConfig<any, Context, IByTeam> = {
   },
 };
 
-export const teammateStats: GraphQLFieldConfig<any, Context, IByTeammate> = {
-  type: SchemaBuilder.nonNull(TeamProfilesPerUserType),
+export const teammateProfile: GraphQLFieldConfig<any, Context, IByTeammate> = {
+  type: SchemaBuilder.nonNull(TeammateProfileType),
   args: {
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),
@@ -67,5 +68,23 @@ export const teamMesh: GraphQLFieldConfig<any, Context, IByTeam> = {
   },
   resolve: (_, args) => {
     return TeamController.getMesh(args);
+  },
+};
+
+export const teamPullRequests: GraphQLFieldConfig<any, Context, IGetPRs> = {
+  type: SchemaBuilder.nonNullArray(PullRequestType),
+  args: {
+    teamId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+    organizationId: {
+      type: SchemaBuilder.nonNull(GraphQLInt),
+    },
+    page: {
+      type: GraphQLInt,
+    },
+  },
+  resolve: (_, args) => {
+    return TeamController.getPRs(args);
   },
 };

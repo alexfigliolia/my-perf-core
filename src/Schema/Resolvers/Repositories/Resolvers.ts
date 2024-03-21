@@ -11,9 +11,9 @@ import { type Context, SchemaBuilder } from "Schema/Utilities";
 import { Subscriptions } from "Subscriptions";
 import { RepositoryController } from "./Controller";
 import {
+  ProjectCountType,
   RepositorySortKeysType,
   RepositoryType,
-  StatsPerRepositoryType,
 } from "./GQLTypes";
 import type {
   IAvailableRepositories,
@@ -159,7 +159,7 @@ export const countLinesAndCommits: GraphQLFieldConfig<
   Context,
   IByOrganization
 > = {
-  type: SchemaBuilder.nonNull(StatsPerRepositoryType),
+  type: SchemaBuilder.nonNull(ProjectCountType),
   args: {
     organizationId: {
       type: SchemaBuilder.nonNull(GraphQLInt),

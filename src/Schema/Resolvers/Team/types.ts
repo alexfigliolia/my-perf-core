@@ -1,4 +1,5 @@
 import type { IByOrganization } from "Schema/Resolvers/Organization/types";
+import type { IPullRequest } from "Schema/Resolvers/PullRequests/types";
 import type { StatsPerRepo } from "Schema/Resolvers/Repositories/types";
 
 export interface IDAndName {
@@ -8,6 +9,7 @@ export interface IDAndName {
 
 export interface ITeamScope extends IDAndName {
   users: StatsPerUser[];
+  projects: { repository: StatsPerRepo }[];
 }
 
 export interface ITeamProject extends IDAndName {
@@ -23,6 +25,7 @@ export interface StatsPerUser {
   id: number;
   name: string;
   overallStats: StatsPerRepo[];
+  pullRequests: { id: number }[];
   monthlyStats: MonthlyStatsPerRepo[];
 }
 
@@ -45,7 +48,13 @@ export interface Standout extends IDAndName {
 }
 
 export interface StatsEntry extends StatsPerRepo, IDAndName {
+  pullRequests: number;
   linesPerMonth: number[];
+}
+
+export interface ITeammateProfile extends StatsPerRepo, IDAndName {
+  linesPerMonth: number[];
+  pullRequests: IPullRequest[];
 }
 
 export interface TeamStats extends IDAndName {
@@ -64,23 +73,24 @@ export interface IByTeammate extends IByOrganization {
   userId: number;
 }
 
-export interface TeamProfile extends StatsPerRepo {
+export interface IUserProfile {
   id: number;
   name: string;
-  linesPerMonth: number[];
+  organizations: IDAndName[];
+  overallStats: StatsPerRepo[];
+  pullRequests: RawProfilePR[];
+  meshWith: {
+    user: StatsPerUser & {
+      teams: LinesPerTeam[];
+    };
+  }[];
+  monthlyStats: MonthlyStatsPerRepo[];
 }
 
-export interface TeamProfilesPerUser extends StatsPerRepo, IDAndName {
-  teams: TeamProfile[];
-}
-
-export interface StatsPerTeam {
-  id: number;
-  name: string;
+export interface LinesPerTeam {
   projects: {
     repository: {
-      monthlyUserStats: MonthlyStatsPerRepo[];
-      userStats: StatsPerRepo[];
+      lines: number;
     };
   }[];
 }
@@ -94,4 +104,29 @@ export interface MeshEntry {
 export interface ITeamMesh {
   key: string[];
   mesh: number[][];
+}
+
+export interface RawPRList {
+  id: number;
+  date: Date;
+  description: string;
+  user: {
+    name: string;
+  };
+  repository: {
+    name: string;
+  };
+}
+
+export interface RawProfilePR {
+  id: number;
+  date: Date;
+  description: string;
+  repository: {
+    name: string;
+  };
+}
+
+export interface IGetPRs extends IByTeam {
+  page?: number;
 }

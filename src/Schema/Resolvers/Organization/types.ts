@@ -21,8 +21,8 @@ export interface IOrgAffiliation {
 }
 
 export type EmailMapTuple = [
-  emails: Set<string> | undefined,
-  emailToUserID: Map<string, number> | undefined,
+  emails: Set<string>,
+  emailToUserID: Map<string, number>,
 ];
 
 export interface IByOrganization {

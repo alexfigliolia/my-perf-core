@@ -1,10 +1,8 @@
 import { Errors } from "@alexfigliolia/my-performance-gql-errors";
+import type { Prisma } from "@prisma/client";
 import { Schedule } from "GQL/AsyncService/Types";
 import { ORM } from "ORM";
-import type {
-  IIndexRepoStats,
-  IUserStats,
-} from "Schema/Resolvers/AsyncJobs/types";
+import type { IIndexRepoStats } from "Schema/Resolvers/AsyncJobs/types";
 import { OrganizationController } from "Schema/Resolvers/Organization/Controller";
 import type { IIndexMesh, IIndexPRs, IIndexStatsPerRepo } from "./types";
 
@@ -31,11 +29,8 @@ export class RepositoryStatsReceiver {
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
-    const [emails, emailToUserID] =
+    const [, emailToUserID] =
       await OrganizationController.userEmailList(organizationId);
-    if (!emails || !emailToUserID) {
-      throw Errors.createError("NOT_FOUND", "Organization not found");
-    }
     await Promise.all([
       this.indexMesh({
         mesh,
@@ -48,10 +43,10 @@ export class RepositoryStatsReceiver {
         emailToUserID,
       }),
       this.indexStatsPerRepo({
+        userStats,
         repositoryId,
         emailToUserID,
         organizationId,
-        stats: this.filterUserStats(userStats, emails),
       }),
       await ORM.query(
         ORM.repository.update({
@@ -68,39 +63,40 @@ export class RepositoryStatsReceiver {
   }
 
   private indexStatsPerRepo({
-    organizationId,
+    userStats,
     repositoryId,
     emailToUserID,
-    stats,
+    organizationId,
   }: IIndexStatsPerRepo) {
     const promises: Promise<any>[] = [];
-    for (const stat of stats) {
-      const userId = emailToUserID.get(stat.email);
-      if (userId) {
-        promises.push(
-          ORM.query(
-            ORM.overallUserStats.upsert({
-              where: {
-                userId_repositoryId: {
-                  userId,
-                  repositoryId,
-                },
-              },
-              update: {
-                lines: stat.lines,
-                commits: stat.commits,
-              },
-              create: {
+    for (const stats of userStats) {
+      const userId = emailToUserID.get(stats.email);
+      if (!userId) {
+        continue;
+      }
+      promises.push(
+        ORM.query(
+          ORM.overallUserStats.upsert({
+            where: {
+              userId_repositoryId: {
                 userId,
                 repositoryId,
-                organizationId,
-                lines: stat.lines,
-                commits: stat.commits,
               },
-            }),
-          ),
-        );
-      }
+            },
+            update: {
+              lines: stats.lines,
+              commits: stats.commits,
+            },
+            create: {
+              userId,
+              repositoryId,
+              organizationId,
+              lines: stats.lines,
+              commits: stats.commits,
+            },
+          }),
+        ),
+      );
       return Promise.all(promises);
     }
   }
@@ -110,21 +106,23 @@ export class RepositoryStatsReceiver {
     repositoryId,
     organizationId,
   }: IIndexRepoStats) {
-    const [emails, emailToUserID] =
+    const [, emailToUserID] =
       await OrganizationController.userEmailList(organizationId);
-    if (!emails || !emailToUserID) {
-      throw Errors.createError("NOT_FOUND", "Organization not found");
-    }
-    const stats = this.filterUserStats(userStats, emails);
-    const entry = await ORM.query(
-      ORM.monthlyUserStats.createMany({
-        data: stats.map(stat => ({
+    const creates: Prisma.MonthlyUserStatsCreateManyInput[] = [];
+    for (const stats of userStats) {
+      if (emailToUserID.has(stats.email)) {
+        creates.push({
           repositoryId,
           organizationId,
-          lines: stat.lines,
-          commits: stat.commits,
-          userId: emailToUserID.get(stat.email)!,
-        })),
+          lines: stats.lines,
+          commits: stats.commits,
+          userId: emailToUserID.get(stats.email)!,
+        });
+      }
+    }
+    const entry = await ORM.query(
+      ORM.monthlyUserStats.createMany({
+        data: creates,
       }),
     );
     if (!entry) {
@@ -133,10 +131,6 @@ export class RepositoryStatsReceiver {
         "Failed to create user stats",
       );
     }
-  }
-
-  private filterUserStats(stats: IUserStats[], emails: Set<string>) {
-    return stats.filter(stats => emails.has(stats.email));
   }
 
   private indexMesh({ mesh, emailToUserID, organizationId }: IIndexMesh) {
